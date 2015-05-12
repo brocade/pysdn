@@ -1,0 +1,32 @@
+When you are ready to release a new version of pybvc then follow these steps.
+
+
+UPDATE VERSION:
+---------------
+In master branch
+Update VERSION in the file pybvc/__init__.py
+
+
+UPDATE DOCS:
+------------
+See howToUpdateDocs.txt
+
+
+CREATE VERSION ON GITHUB:
+-------------------------
+Go to:  https://github.com/brcdcomm/pybvc
+Click the ‘Release’ link near top
+Click ‘Draft New Release’
+Tag version:  x.y.z  (e.g. 1.0.4)
+Release Title:  Version x.y.z
+Describe Release:  bullet list of major changes.  Example markdown:
+## Changes:
+* Tested with BVC 1.2.0
+* Tested with Python 2.7.x
+* Added OpenFlow classes
+
+UPDATE PyPi
+-----------
+In master branch:
+python setup.py register -r pypi
+python setup.py sdist upload -r pypi
