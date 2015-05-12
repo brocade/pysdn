@@ -48,14 +48,14 @@ pip show pybvc
 
 ## Documentation:
    - [Introduction Video](http://brcdcomm.github.io/BVC/jekyll/update/devops/netdev/appdev/2015/03/01/restconf-app-2.html)
-   - [Programmer's Reference](http://jebpublic.github.io/pybvc/)
+   - [Programmer's Reference](http://brcdcomm.github.io/pybvc/)
 
 ## Sample Applications:
-   - [pybvcsamples](https://github.com/jebpublic/pybvcsamples)
+   - [pybvcsamples](https://github.com/brcdcomm/pybvcsamples)
    - To install samples:
 
      ```bash
-     git clone https://github.com/jebpublic/pybvcsamples.git
+     git clone https://github.com/brcdcomm/pybvcsamples.git
      ```
 
 ## Example 1:  Add and remove firewall on Vyatta vrouter5600 via BVC:
