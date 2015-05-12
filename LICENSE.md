@@ -1,4 +1,4 @@
-Copyright (c) 2015, Jim Burns
+Copyright (c) 2015, BROCADE COMMUNICATIONS SYSTEMS, INC 
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
