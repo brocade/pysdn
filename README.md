@@ -1,5 +1,8 @@
 # pybvc
-Python framework to program your network via the Brocade Vyatta Controller
+Python library to program your network via the Brocade Vyatta Controller
+
+## Other Brocade Vyatta Controller Libraries
+* rubybvc - Ruby library for BVC:  https://github.com/BRCDcomm/rubybvc
 
 ## Current Version:
 1.0.4
@@ -44,7 +47,6 @@ sudo pip install pybvc --upgrade
 ```bash
 pip show pybvc
 ```
-
 
 ## Documentation:
    - [Introduction Video](http://brcdcomm.github.io/BVC/jekyll/update/devops/netdev/appdev/2015/03/01/restconf-app-2.html)
