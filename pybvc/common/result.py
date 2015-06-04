@@ -27,28 +27,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 @status: Development
 @version: 1.1.0
 
-openflownode.py: Controller's OpenFlow node specific properties
+result.py: Result of HTTP communication session (status and data)
 
 
 """
-import json
+
+from framework.common.status import OperStatus
 
 #-------------------------------------------------------------------------------
-# Class 'OpenflowNode'
+# Class 'Result'
 #-------------------------------------------------------------------------------
-class OpenflowNode(object):
-    """ Class that represents a NETCONF capable server device. """
-    
-    def __init__(self, controller=None, nodeName=None):
+class Result(object):
+    """ Result of completed HTTP session (status and data) """
+
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def __init__(self, status=None, data=None):
         """ Initializes this object properties. """
-        self.ctrl = controller
-        self.name = nodeName
+        if isinstance(status, OperStatus) == False:
+            raise TypeError(status)
+        self.status = status
+        self.data = data
     
-    def to_string(self):
-        """ Returns string representation of this object. """
-        return str(vars(self))
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_status(self):
+        assert (self.status != None)
+        return self.status
 
-    def to_json(self):
-        """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_data(self):
+        return self.data
     
