@@ -33,7 +33,7 @@ vpn.py: Virtual Private Network (VPN) specific properties and access methods
 """
 import json
 
-from framework.common.utils import strip_none, remove_empty_from_dict, dict_keys_underscored_to_dashed
+from pybvc.common.utils import strip_none, remove_empty_from_dict, dict_keys_underscored_to_dashed
 
 #-------------------------------------------------------------------------------
 # 

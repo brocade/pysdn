@@ -37,9 +37,9 @@ import xmltodict
 import requests
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError, Timeout
-from framework.common.result import Result
-from framework.common.status import OperStatus, STATUS
-from framework.common.utils import find_dict_in_list
+from pybvc.common.result import Result
+from pybvc.common.status import OperStatus, STATUS
+from pybvc.common.utils import find_dict_in_list
 
 
 #-------------------------------------------------------------------------------

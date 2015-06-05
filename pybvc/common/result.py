@@ -32,7 +32,7 @@ result.py: Result of HTTP communication session (status and data)
 
 """
 
-from framework.common.status import OperStatus
+from pybvc.common.status import OperStatus
 
 #-------------------------------------------------------------------------------
 # Class 'Result'

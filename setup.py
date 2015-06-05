@@ -8,7 +8,7 @@ setup(
     long_description=open('README.rst').read(),
     author='Elbrys Networks',
     author_email='jeb@elbrys.com',
-    url='https://github.com/jebpublic/pybvc',
+    url='https://github.com/brcdcomm/pybvc',
     packages=['pybvc',
                'pybvc.common',
                'pybvc.controller',

@@ -1,0 +1,5 @@
+__title__ = 'pybvc'
+__version__ = '1.1.1'
+__author__ = ''
+__license__ = ''
+__copyright__ = ''

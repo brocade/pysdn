@@ -34,13 +34,13 @@ vrouter5600.py: vRouter-5600 specific properties and communication methods
 
 import json
 
-from framework.controller.netconfnode import NetconfNode
-from framework.common.result import Result
-from framework.common.status import OperStatus, STATUS
-from framework.netconfdev.vrouter.vpn import Vpn
-from framework.netconfdev.vrouter.interfaces import OpenVpnInterface
-from framework.netconfdev.vrouter.protocols import StaticRoute
-from framework.netconfdev.vrouter.firewall import DataplaneInterfaceFirewall
+from pybvc.controller.netconfnode import NetconfNode
+from pybvc.common.result import Result
+from pybvc.common.status import OperStatus, STATUS
+from pybvc.netconfdev.vrouter.vpn import Vpn
+from pybvc.netconfdev.vrouter.interfaces import OpenVpnInterface
+from pybvc.netconfdev.vrouter.protocols import StaticRoute
+from pybvc.netconfdev.vrouter.firewall import DataplaneInterfaceFirewall
 
 #-------------------------------------------------------------------------------
 # Class 'VRouter5600'

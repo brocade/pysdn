@@ -37,14 +37,14 @@ import json
 
 from collections import OrderedDict
 
-from framework.controller.openflownode import OpenflowNode
-from framework.common.result import Result
-from framework.common.status import OperStatus, STATUS
-from framework.common.utils import find_key_values_in_dict
-from framework.common.utils import replace_str_value_in_dict
-from framework.common.utils import find_key_value_in_dict
-from framework.common.utils import find_dict_in_list
-from framework.common.utils import strip_none
+from pybvc.controller.openflownode import OpenflowNode
+from pybvc.common.result import Result
+from pybvc.common.status import OperStatus, STATUS
+from pybvc.common.utils import find_key_values_in_dict
+from pybvc.common.utils import replace_str_value_in_dict
+from pybvc.common.utils import find_key_value_in_dict
+from pybvc.common.utils import find_dict_in_list
+from pybvc.common.utils import strip_none
 
 #-------------------------------------------------------------------------------
 # 
