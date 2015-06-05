@@ -13,5 +13,6 @@ else
       echo "Unable to checkout the gh-pages branch, perhaps you have uncommitted changes on master?  Aborting..."
    else
       unzip ../pydevDocsForGhPagesBranch.zip
+      cp -r docsForGhPagesBranch/html/* .
    fi
 fi
