@@ -5,7 +5,7 @@ Python library to program your network via the Brocade Vyatta Controller
 * rubybvc - Ruby gem for BVC:  https://github.com/BRCDcomm/rubybvc
 
 ## Current Version:
-1.0.4
+1.1.1
 
 ## Prerequisites
    - Python 2.7.x: 
