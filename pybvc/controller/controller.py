@@ -3,7 +3,7 @@ Copyright (c) 2015
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
- - Redistributions of source code must retain the above copyright notice,
+-  Redistributions of source code must retain the above copyright notice,
    this list of conditions and the following disclaimer.
 -  Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
@@ -35,11 +35,18 @@ controller.py: Controller's properties and communication methods
 import json
 import xmltodict
 import requests
+
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError, Timeout
 from pybvc.common.result import Result
 from pybvc.common.status import OperStatus, STATUS
-from pybvc.common.utils import find_dict_in_list
+from pybvc.common.utils import find_key_values_in_dict
+from pybvc.common.utils import dbg_print
+from pybvc.controller.topology import Topology
+from pybvc.controller.inventory import Inventory, \
+                                           OpenFlowCapableNode, \
+                                           NetconfCapableNode, \
+                                           NetconfConfigModule
 
 
 #-------------------------------------------------------------------------------
@@ -84,11 +91,14 @@ class Controller():
     def http_get_request(self, url, data, headers):
         """ Sends HTTP GET request to a remote server and returns the response.
         
-        :param string url: The complete url including protocol: http://www.example.com/path/to/resource
-        :param string data:  The data to include in the body of the request.  Typically set to None.
-        :param dict headers:  The headers to include in the request.
+        :param string url: The complete url including protocol:
+                           http://www.example.com/path/to/resource
+        :param string data: The data to include in the body of the request.
+                            Typically set to None.
+        :param dict headers: The headers to include in the request.
         :return: The response from the http request.
-        :rtype: None or `requests.response <http://docs.python-requests.org/en/latest/api/#requests.Response>`
+        :rtype: None or `requests.response`
+                <http://docs.python-requests.org/en/latest/api/#requests.Response>
         
         """
         
@@ -107,13 +117,16 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def http_post_request(self, url, data, headers):
-        """Sends HTTP POST request to a remote server and returns the response.        
+        """Sends HTTP POST request to a remote server and returns the response.
         
-        :param string url: The complete url including protocol: http://www.example.com/path/to/resource
-        :param string data:  The data to include in the body of the request.  Typically set to None.
-        :param dict headers:  The headers to include in the request.
+        :param string url: The complete url including protocol:
+                           http://www.example.com/path/to/resource
+        :param string data: The data to include in the body of the request.
+                            Typically set to None.
+        :param dict headers: The headers to include in the request.
         :return: The response from the http request.
-        :rtype: None or `requests.response <http://docs.python-requests.org/en/latest/api/#requests.Response>`
+        :rtype: None or `requests.response`
+                <http://docs.python-requests.org/en/latest/api/#requests.Response>
         
         """
         
@@ -132,13 +145,16 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def http_put_request(self, url, data, headers):
-        """Sends HTTP PUT request to a remote server and returns the response.        
+        """Sends HTTP PUT request to a remote server and returns the response.
         
-        :param string url: The complete url including protocol: http://www.example.com/path/to/resource
-        :param string data:  The data to include in the body of the request.  Typically set to None.
-        :param dict headers:  The headers to include in the request.
+        :param string url: The complete url including protocol:
+                           http://www.example.com/path/to/resource
+        :param string data: The data to include in the body of the request.
+                            Typically set to None.
+        :param dict headers: The headers to include in the request.
         :return: The response from the http request.
-        :rtype: None or `requests.response <http://docs.python-requests.org/en/latest/api/#requests.Response>`
+        :rtype: None or `requests.response`
+                <http://docs.python-requests.org/en/latest/api/#requests.Response>
         
         """
         
@@ -157,14 +173,17 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def http_delete_request(self, url, data, headers):
-        """Sends HTTP DELETE request to a remote server and returns the response.        
+        """Sends HTTP DELETE request to a remote server and returns the response.
         
-        :param string url: The complete url including protocol: http://www.example.com/path/to/resource
-        :param string data:  The data to include in the body of the request.  Typically set to None.
-        :param dict headers:  The headers to include in the request.
+        :param string url: The complete url including protocol:
+                           http://www.example.com/path/to/resource
+        :param string data: The data to include in the body of the request.
+                            Typically set to None.
+        :param dict headers: The headers to include in the request.
         :return: The response from the http request.
-        :rtype: None or `requests.response <http://docs.python-requests.org/en/latest/api/#requests.Response>`
-
+        :rtype: None or `requests.response`
+                <http://docs.python-requests.org/en/latest/api/#requests.Response>
+        
         """
         resp = None
         
@@ -182,7 +201,8 @@ class Controller():
     #---------------------------------------------------------------------------
     def get_nodes_operational_list(self):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = [] 
         
@@ -191,44 +211,52 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'nodes'
-            p2 = 'node'
-            if(p1 in resp.content and p2 in resp.content):
-                elemlist = json.loads(resp.content).get(p1).get(p2)
-                for elem in elemlist:
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'nodes'
+                p2 = 'node'
+                itemslist = json.loads(resp.content)[p1][p2]
+                for item in itemslist:
                     p3 = 'id'
-                    if(p3 in elem):
-                        nlist.append(str(elem[p3]))
+                    node_id = item[p3]
+                    nlist.append(str(node_id))
                 status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
-        return Result(status, nlist)     
+        return Result(status, nlist)
     
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
     def get_node_info(self, nodeId):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes/node/{}"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeId)
-        info = [] 
+        info = None
         
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp == None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'node'
-            if(p1 in resp.content):
-                info = json.loads(resp.content).get(p1)
-                status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND, resp)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'node'
+                info = json.loads(resp.content)[p1][0]
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+            finally:
+                status.set_status(STATUS.OK if info else STATUS.DATA_NOT_FOUND,
+                                  resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -240,19 +268,22 @@ class Controller():
     def check_node_config_status(self, nodeId):
         """Return the configuration status of the node:  
         
-        :param string nodeId: Identifier for the node for which to get the config status 
-        :return: Configuration status of the node. 
-        :rtype: None or :class:`pybvc.common.status.OperStatus` 
+        :param string nodeId: Identifier for the node for which to get
+                              the config status
+        :return: Configuration status of the node.
+        :rtype: None or :class:`pybvc.common.status.OperStatus`
         
-        - STATUS.CONN_ERROR: if the controller did not respond.
-        - STATUS.CTRL_INTERNAL_ERROR: if the controller responded but did not provide any status.
-        - STATUS.NODE_CONFIGURED: if the node is configured.  
-        - STATUS.DATA_NOT_FOUND: if node is not configured. 
+        - STATUS.CONN_ERROR: If the controller did not respond.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded
+                                      but did not provide any status.
+        - STATUS.NODE_CONFIGURED: If the node is configured.
+        - STATUS.DATA_NOT_FOUND: If node is not configured.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes/node/{}"
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeId)
         
         resp = self.http_get_request(url, data=None, headers=None)
@@ -260,7 +291,7 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
+        elif(resp.status_code == 200):
             status.set_status(STATUS.NODE_CONFIGURED)
         else:
             status.set_status(STATUS.DATA_NOT_FOUND, resp)
@@ -271,22 +302,26 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def check_node_conn_status(self, nodeId):
-        """Return the connection status of the node to the controller:  
+        """Return the connection status of the node to the controller:
         
-        :param string nodeId: Identifier for the node for which to get the config status
+        :param string nodeId: Identifier for the node for which to get
+                              the config status
         :return: Status of the node's connection to the controller.
         :rtype: None or :class:`pybvc.common.status.OperStatus`
         
-        - STATUS.CONN_ERROR: if the controller did not respond.
-        - STATUS.CTRL_INTERNAL_ERROR: if the controller responded but did not provide any status.
-        - STATUS.NODE_CONNECTED: if the node is connected
-        - STATUS.NODE_DISCONNECTED: if the node is not connected
-        - STATUS.DATA_NOT_FOUND: if node is not configured.
-        - STATUS.HTTP_ERROR: if the controller responded with an error status code.
+        - STATUS.CONN_ERROR: If the controller did not respond.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded
+                                      but did not provide any status.
+        - STATUS.NODE_CONNECTED: If the node is connected
+        - STATUS.NODE_DISCONNECTED: If the node is not connected
+        - STATUS.DATA_NOT_FOUND: If node is not configured.
+        - STATUS.HTTP_ERROR: If the controller responded with
+                             an error status code.
         
         """
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
         
         resp = self.http_get_request(url, data=None, headers=None)
@@ -294,27 +329,46 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            found = False
-            connected = False
-            p1 = 'nodes'
-            p2 = 'node'
-            if(p1 in resp.content and p2 in resp.content):
-                itemlist = json.loads(resp.content).get(p1).get(p2)
-                for item in itemlist:
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                found = False
+                connected = False
+                p1 = 'nodes'
+                p2 = 'node'
+                itemslist = json.loads(resp.content)[p1][p2]
+                for item in itemslist:
                     p3 = 'id'
-                    if(p3 in item and item[p3] == nodeId):
+                    p4 = 'netconf-node-inventory:connected'
+                    p5 = 'openflow'
+                    if(item[p3] == nodeId):
                         found = True
-                        p4 = 'netconf-node-inventory:connected'
-                        if (p4 in item and item[p4] == True):
+                        # OpenFlow devices that are connected to the
+                        # Controller appear in the inventory with 'openflow'
+                        # prefix as part of the node 'id'. If device with
+                        # given nodeId is found in the Controller's inventory
+                        # its status is 'connected'.
+                        if(nodeId.startswith(p5)):
                             connected = True
-                        break
-            if(connected):
-                status.set_status(STATUS.NODE_CONNECTED)
-            elif(found):
-                status.set_status(STATUS.NODE_DISONNECTED)
-            else:
-                status.set_status(STATUS.NODE_NOT_FOUND)
+                            break
+                        else:
+                            # Controller does not report connection status for
+                            # a NETCONF device until successfully connected to
+                            # to that device
+                            if(p4 in item and item[p4] == True):
+                                connected = True
+                            break
+                
+                if(connected):
+                    status.set_status(STATUS.NODE_CONNECTED)
+                elif(found):
+                    status.set_status(STATUS.NODE_DISONNECTED)
+                else:
+                    status.set_status(STATUS.NODE_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -326,18 +380,22 @@ class Controller():
     def get_all_nodes_in_config(self):
         """Return a list of nodes in the controller's configuration data store
         
-        :return: A tuple:  Status, list of nodes in the config data store of the controller
+        :return: Status, list of nodes in the config data store
+                 of the controller
         :rtype: :class:`pybvc.common.status.OperStatus`, list
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. List is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. List is empty.
+        - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. List is empty.
         - STATUS.OK:  Success. List is valid.
-        - STATUS.DATA_NOT_FOUND:  Success.  List is empty.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.DATA_NOT_FOUND: Success. List is empty.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes"
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = [] 
         
@@ -346,18 +404,21 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
             p1 = 'nodes'
             p2 = 'node'
-            if(p1 in resp.content and p2 in resp.content):
-                elemlist = json.loads(resp.content).get(p1).get(p2)
-                for elem in elemlist:
+            try:
+                itemslist = json.loads(resp.content)[p1][p2]
+                for item in itemslist:
                     p3 = 'id'
-                    if(p3 in elem):
-                        nlist.append(str(elem[p3]))
+                    node_id = item[p3]
+                    nlist.append(str(node_id))
                 status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -367,21 +428,27 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def get_all_nodes_conn_status(self):
-        """Return a list of nodes and the status of their connection to the controller.
+        """Return a list of nodes and the status of their connection
+           to the controller.
         
-        :return: A tuple:  Status, list of nodes the status of their connection to the controller
-        :rtype: :class:`pybvc.common.status.OperStatus`, list of dict [{node:<node id>, connected:<boolean>},...]
+        :return: Status, list of nodes the status of their
+                 connection to the controller
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                 list of dict [{node:<node id>, connected:<boolean>},...]
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. List is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. List is empty.
-        - STATUS.OK:  Success. List is valid.  
+        - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. List is empty.
+        - STATUS.OK:  Success. List is valid.
         - STATUS.DATA_NOT_FOUND:  Success.  List is empty.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = [] 
         
@@ -390,35 +457,40 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'nodes'
-            p2 = 'node'
-            if(p1 in resp.content and p2 in resp.content):
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'nodes'
+                p2 = 'node'
+                p3 = 'id'
+                p4 = 'netconf-node-inventory:connected'
+                p5 = 'connected'
+                p6 = 'openflow'
+                itemslist = json.loads(resp.content).get(p1).get(p2)
+                for item in itemslist:
+                    node_id = item[p3]
+                    nd = dict()
+                    nd.update({p2 : str(node_id)})
+                    # OpenFlow devices that are connected to the
+                    # Controller appear in the inventory with 'openflow'
+                    # prefix as part of the node 'id'. If device with
+                    # given nodeId is found in the Controller's inventory
+                    # its status is 'connected'
+                    if (node_id.startswith(p6)):
+                        nd.update({p5 : True})
+                    # Controller does not report connection status for
+                    # a NETCONF device until successfully connected to
+                    # to that device
+                    elif ((p4 in item) and (item[p4] == True)):
+                        nd.update({p5 : True})
+                    else:
+                        nd.update({p5 : False})
+                    nlist.append(nd)
                 status.set_status(STATUS.OK)
-                itemlist = json.loads(resp.content).get(p1).get(p2)
-                for item in itemlist:
-                    p3 = 'id'
-                    if (p3 in item):
-                        nd = dict()
-                        nd.update({p2 : item[p3]})
-                        p4 = 'netconf-node-inventory:connected'
-                        p5 = 'connected'
-                        # OpenFlow devices on the Controller are always prefixed with the
-                        # 'openflow' keyword.
-                        # An OpenFlow device is connecting to the Controller (not vice versa,
-                        # as in case with NETCONF). So if we see an OpenFlow device in the
-                        # Controller's operational inventory store then 'connected' status
-                        # for the device is True.
-                        p6 = 'openflow'
-                        if (p6 in item[p3]):
-                            nd.update({p5 : True})
-                        elif ((p4 in item) and (item[p4] == True)):
-                            nd.update({p5 : True})
-                        else:
-                            nd.update({p5 : False})
-                        nlist.append(nd)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -428,21 +500,26 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def get_netconf_nodes_in_config(self):
-        """Return a list of NETCONF nodes in the controller's configuration data store
+        """Return a list of NETCONF nodes in the controller's configuration
+           data store
         
-        :return: A tuple:  Status, list of nodes in the config data store of the controller
+        :return: Status, list of nodes in the config data store
+                 of the controller
         :rtype: :class:`pybvc.common.status.OperStatus`, list
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. List is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. List is empty.
-        - STATUS.OK:  Success. List is valid.
-        - STATUS.DATA_NOT_FOUND:  Success.  List is empty.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. List is empty.
+        - STATUS.OK: Success. List is valid.
+        - STATUS.DATA_NOT_FOUND:  Success. List is empty.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes"
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
         
@@ -451,22 +528,27 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'nodes'
-            p2 = 'node'
-            if(p1 in resp.content and p2 in resp.content):
-                elemlist = json.loads(resp.content).get(p1).get(p2)
-                for elem in elemlist:
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'nodes'
+                p2 = 'node'
+                itemslist = json.loads(resp.content)[p1][p2]
+                for item in itemslist:
                     p3 = 'id'
-                    # OpenFlow devices on the Controller are always prefixed
-                    # with the 'openflow' keyword So we use an extra check for
-                    # the 'openflow' prefixed entries in order to ignore them
                     p4 = 'openflow'
-                    if(p3 in elem and p4 not in elem[p3]):
-                        nlist.append(str(elem[p3]))
+                    # OpenFlow devices that are connected to the
+                    # Controller appear in the inventory with 'openflow'
+                    # prefix as part of the node 'id'. So we use an extra
+                    # check in order to ignore OpenFlow devices.
+                    node_id = item[p3]
+                    if(node_id.startswith(p4) == False):
+                        nlist.append(str(node_id))
                 status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -476,21 +558,27 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def get_netconf_nodes_conn_status(self):
-        """Return a list of NETCONF nodes and the status of their connection to the controller.
+        """Return a list of NETCONF nodes and the status of their connection
+           to the controller.
         
-        :return: A tuple:  Status, list of nodes the status of their connection to the controller
-        :rtype: :class:`pybvc.common.status.OperStatus`, list of dict [{node:<node id>, connected:<boolean>},...]
+        :return: Status, list of nodes the status of their connection
+                 to the controller
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                 list of dict [{node:<node id>, connected:<boolean>},...]
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. List is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. List is empty.
+        - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. List is empty.
         - STATUS.OK:  Success. List is valid.
         - STATUS.DATA_NOT_FOUND:  Success.  List is empty.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = [] 
         
@@ -499,30 +587,38 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'nodes'
-            p2 = 'node'
-            if(p1 in resp.content and p2 in resp.content):
-                status.set_status(STATUS.OK)
-                itemlist = json.loads(resp.content).get(p1).get(p2)
-                for item in itemlist:
-                    p3 = 'id'
-                    # OpenFlow devices on the Controller are always prefixed with
-                    # the 'openflow' keyword. So we use an extra check for the
-                    # 'openflow' in order to ignore them
-                    p4 = 'openflow'
-                    if (p3 in item and p4 not in item[p3]):
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'nodes'
+                p2 = 'node'
+                p3 = 'id'
+                p4 = 'netconf-node-inventory:connected'
+                p5 = 'connected'
+                p6 = 'openflow'
+                itemslist = json.loads(resp.content)[p1][p2]
+                for item in itemslist:
+                    node_id = item[p3]
+                    # OpenFlow devices that are connected to the
+                    # Controller appear in the inventory with 'openflow'
+                    # prefix as part of the node 'id'. So we use an extra check
+                    # for the 'openflow' prefixes in order to ignore them
+                    if (node_id.startswith(p6) == False):
                         nd = dict()
-                        nd.update({p2 : item[p3]})
-                        p5 = 'netconf-node-inventory:connected'
-                        p6 = 'connected'
-                        if ((p5 in item) and (item[p5] == True)):
-                            nd.update({p6 : True})
+                        nd.update({p2 : str(node_id)})
+                        # Controller does not report connection status for
+                        # a NETCONF device until successfully connected to
+                        # to that device
+                        if ((p4 in item) and (item[p4] == True)):
+                            nd.update({p5 : True})
                         else:
-                            nd.update({p6 : False})
+                            nd.update({p5 : False})
                         nlist.append(nd)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -534,19 +630,25 @@ class Controller():
     def get_schemas(self, nodeName):
         """Return a list of YANG model schemas for the node.
         
-        :param string nodeName: name of the node from the :py:meth:get_all_nodes_in_config 
-        :return: A tuple:  Status, list of YANG schemas for the node.
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON listing information about the YANG schemas for the node
+        :param string nodeName: Name of the node
+        :return: Status, list of YANG schemas for the node.
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                JSON listing information about the YANG schemas for the node
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. List is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. List is empty.
+        - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. List is empty.
         - STATUS.OK:  Success. List is valid.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes/node/{}/yang-ext:mount/ietf-netconf-monitoring:netconf-state/schemas"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes/node/{}/" + \
+                      "yang-ext:mount/" + \
+                      "ietf-netconf-monitoring:netconf-state/schemas"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         slist = None
         
@@ -555,13 +657,17 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
             p1 = 'schemas'
             p2 = 'schema'
-            if(p1 in resp.content and p2 in resp.content):
-                status = OperStatus(STATUS.OK)
-                data = json.loads(resp.content).get(p1).get(p2)
-                slist = data
+            try:
+                slist = json.loads(resp.content)[p1][p2]
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -573,25 +679,31 @@ class Controller():
     def get_schema(self, nodeName, schemaId, schemaVersion):
         """Return a YANG schema for the indicated schema on the indicated node.
         
-        :param string nodeName: name of the node from the :py:meth:get_all_nodes_in_config 
-        :param string schemaId: id of schema
-        :param string schemaVersion: version of the schema
-        :return: A tuple:  Status, YANG schema.
+        :param string nodeName: Name of the node 
+        :param string schemaId: Id of the schema
+        :param string schemaVersion: Version of the schema
+        :return: Status, YANG schema.
         :rtype: :class:`pybvc.common.status.OperStatus`, YANG schema 
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. schema is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. schema is empty.
-        - STATUS.OK:  Success. result is valid.
-        - STATUS.DATA_NOT_FOUND:  Data missing or in unexpected format.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.CONN_ERROR: If the controller did not respond. schema is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. schema is empty.
+        - STATUS.OK: Success. Result is valid.
+        - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operations/opendaylight-inventory:nodes/node/{}/yang-ext:mount/ietf-netconf-monitoring:get-schema"
-        url = templateUrl.format(self.ipAddr, self.portNum, nodeName) 
-        headers = {'content-type': 'application/yang.data+json', 'accept': 'text/json, text/html, application/xml, */*'}
-        payload = {'input': {'identifier' : schemaId, 'version' : schemaVersion, 'format' : 'yang'}}
+        templateUrl = "http://{}:{}/restconf/operations/" + \
+                      "opendaylight-inventory:nodes/node/{}/" + \
+                      "yang-ext:mount/ietf-netconf-monitoring:get-schema"
+        url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
+        headers = {'content-type': 'application/yang.data+json',
+                   'accept': 'text/json, text/html, application/xml, */*'}
+        payload = {'input': {'identifier' : schemaId, 
+                             'version' : schemaVersion, 'format' : 'yang'}}
         schema = None
         
         resp = self.http_post_request(url, json.dumps(payload), headers)
@@ -599,21 +711,23 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
+        elif(resp.status_code == 200):
             if(resp.headers.get('content-type') == "application/xml"):
-                doc = xmltodict.parse(resp.content)
+                # If format of the response differs from our expectation then
+                # code in 'except' clause suppose to handle such condition
                 try:
+                    doc = xmltodict.parse(resp.content)
                     p1 = 'get-schema'
                     p2 = 'output'
                     p3 = 'data'
                     schema = doc[p1][p2][p3]
                     status.set_status(STATUS.OK)
-                except (KeyError, TypeError, ValueError) as e:
-                    print repr(e)
+                except(Exception):
+                    dbg_print("DEBUG: data not found in the received reply")
                     status.set_status(STATUS.DATA_NOT_FOUND)
             else:
                 status.set_status(STATUS.DATA_NOT_FOUND)
-                print "TBD: not implemented content type parser"
+                print "DEBUG: TBD (not implemented content type parser)"
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -625,20 +739,26 @@ class Controller():
     def get_netconf_operations(self, nodeName):
         """Return a list of operations supported by the indicated node.
         
-        :param string nodeName: name of the node from the :py:meth:get_all_nodes_in_config 
+        :param string nodeName: Name of the node
         :return: A tuple:  Status, operations supported by indicated node.
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON listing the operations 
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                JSON listing the operations 
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. operations info is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. operations info is empty.
-        - STATUS.OK:  Success. operations info is valid.
+        - STATUS.CONN_ERROR: If the controller did not respond.
+                             Operations info is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did
+                                      not provide any status.
+                                      Operations info is empty.
+        - STATUS.OK: Success. Operations info is valid.
         - STATUS.DATA_NOT_FOUND:  Data missing or in unexpected format.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operations/opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
+        templateUrl = "http://{}:{}/restconf/operations/" + \
+                      "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         olist = None
         
@@ -647,12 +767,15 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'operations'
-            if(p1 in resp.content):
-                olist = json.loads(resp.content).get(p1)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'operations'
+                olist = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
-            else:
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -662,22 +785,27 @@ class Controller():
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def get_all_modules_operational_state(self):
-        """Return a list of modules and their operational state.
+    def get_config_modules(self):
+        """Return a list of configuration modules.
         
-        :return: A tuple:  Status, modules and their operational state.
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON listing modules and their operational state 
+        :return: Status, configuration modules.
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                JSON listing modules and their operational state 
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. state info is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. state info is empty.
-        - STATUS.OK:  Success. state info is valid.
-        - STATUS.DATA_NOT_FOUND:  Data missing or in unexpected format.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.CONN_ERROR: If the controller did not respond.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did
+                                      not provide any status.
+        - STATUS.OK:  Success.
+        - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes/node/controller-config/yang-ext:mount/config:modules"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes/node/controller-config/" + \
+                      "yang-ext:mount/config:modules"
         url = templateUrl.format(self.ipAddr, self.portNum)
         mlist = None
         
@@ -686,14 +814,16 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
             try:
                 p1 = 'modules'
                 p2 = 'module'
-                mlist = json.loads(resp.content.replace('\\\n','')).get(p1).get(p2)
+                mlist = json.loads(resp.content.replace('\\\n',''))[p1][p2]
                 status.set_status(STATUS.OK)
-            except (KeyError, TypeError, ValueError)as  e:
-                print repr(e)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -708,19 +838,25 @@ class Controller():
         
         :param string moduleType: module type
         :param string moduleName: module name
-        :return: A tuple:  Status, operational state for specified module.
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON providing operational state
+        :return: Status, operational state for specified module.
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                JSON providing operational state
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. state info is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. state info is empty.
-        - STATUS.OK:  Success. state info is valid.
-        - STATUS.DATA_NOT_FOUND:  Data missing or in unexpected format.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.CONN_ERROR: If the controller did not respond.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did
+                                      not provide any status.
+                                      State info is empty.
+        - STATUS.OK: Success. State info is valid.
+        - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes/node/controller-config/yang-ext:mount/config:modules/module/{}/{}"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes/node/controller-config/" + \
+                      "yang-ext:mount/config:modules/module/{}/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, moduleType, moduleName)
         module = None
         
@@ -729,13 +865,16 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'module'
-            if(p1 in resp.content):
-                module = json.loads(resp.content).get(p1)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'module'
+                module = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -747,20 +886,27 @@ class Controller():
     def get_sessions_info(self, nodeName):
         """Return sessions for indicated node.
         
-        :param string nodeName: name of the node from the :py:meth:get_all_nodes_in_config
-        :return: A tuple:  Status, list of sessions for indicated node 
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON providing sessions
+        :param string nodeName: Name of the node
+        :return: Status, list of sessions for indicated node 
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                JSON providing sessions
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. session info is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. session info is empty.
-        - STATUS.OK:  Success. session info is valid.
-        - STATUS.DATA_NOT_FOUND:  Data missing or in unexpected format.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.CONN_ERROR: If the controller did not respond.
+                             Session info is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. Session info is empty.
+        - STATUS.OK: Success. Session info is valid.
+        - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes/node/{}/yang-ext:mount/ietf-netconf-monitoring:netconf-state/sessions"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes/node/{}/" + \
+                      "yang-ext:mount/" + \
+                      "ietf-netconf-monitoring:netconf-state/sessions"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         slist = None
         
@@ -769,13 +915,16 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'sessions'
-            if(p1 in resp.content):
-                slist = json.loads(resp.content).get(p1)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'sessions'
+                slist = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -787,19 +936,23 @@ class Controller():
     def get_streams_info(self):
         """Return streams available for subscription.
         
-        :return: A tuple:  Status, list of streams 
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON providing list of streams
+        :return: Status, list of streams 
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                 JSON providing list of streams
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. stream info is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. stream info is empty.
-        - STATUS.OK:  Success. stream info is valid.
-        - STATUS.DATA_NOT_FOUND:  Data missing or in unexpected format.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.CONN_ERROR: If the controller did not respond.
+                             Stream info is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. stream info is empty.
+        - STATUS.OK: Success. Stream info is valid.
+        - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/streams"        
+        templateUrl = "http://{}:{}/restconf/streams"
         url = templateUrl.format(self.ipAddr, self.portNum)
         slist = None
         
@@ -808,13 +961,16 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'streams'
-            if(p1 in resp.content):
-                slist = json.loads(resp.content).get(p1)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'streams'
+                slist = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -826,19 +982,26 @@ class Controller():
     def get_service_providers_info(self):
         """Return a list of service providers available.
         
-        :return: A tuple:  Status, list of service providers 
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON providing list of service providers
+        :return: Status, list of service providers 
+        :rtype: :class:`pybvc.common.status.OperStatus`, 
+                 JSON providing list of service providers
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. provider info is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. provider info is empty.
-        - STATUS.OK:  Success. provide info is valid.
-        - STATUS.DATA_NOT_FOUND:  Data missing or in unexpected format.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.CONN_ERROR: If the controller did not respond.
+                             Provider info is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. provider info is empty.
+        - STATUS.OK: Success. Provider info is valid.
+        - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes/node/controller-config/yang-ext:mount/config:services"
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes/node/" + \
+                      "controller-config/" + \
+                      "yang-ext:mount/config:services"
         url = templateUrl.format(self.ipAddr, self.portNum)
         slist = None
         
@@ -847,14 +1010,17 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'services'
-            p2 = 'service'
-            if(p1 in resp.content and p2 in resp.content):
-                slist = json.loads(resp.content).get(p1).get(p2)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'services'
+                p2 = 'service'
+                slist = json.loads(resp.content)[p1][p2]
                 status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -866,21 +1032,28 @@ class Controller():
     def get_service_provider_info(self, name):
         """Return info about a single service provider.
         
-        :param string name: name of the provider from the :py:meth:get_service_providers_info 
-        :return: A tuple:  Status, info about the service provider 
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON providing info about the service provider
-
-        - STATUS.CONN_ERROR:  if the controller did not respond. provider info is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. provider info is empty.
-        - STATUS.OK:  Success. provide info is valid.
-        - STATUS.DATA_NOT_FOUND:  Data missing or in unexpected format.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        :param string name: Name of the provider
+        :return: Status, info about the service provider 
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                 JSON providing info about the service provider
+        
+        - STATUS.CONN_ERROR: If the controller did not respond.
+                             Provider info is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. provider info is empty.
+        - STATUS.OK: Success. Provider info is valid.
+        - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes/node/controller-config/yang-ext:mount/config:services/service/{}"
-        url = templateUrl.format(self.ipAddr, self.portNum, name)         
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes/node/" + \
+                      "controller-config/" + \
+                      "yang-ext:mount/config:services/service/{}"
+        url = templateUrl.format(self.ipAddr, self.portNum, name)
         service = None
         
         resp = self.http_get_request(url, data=None, headers=None)
@@ -888,13 +1061,16 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'service'
-            if(p1 in resp.content):
-                service = json.loads(resp.content).get(p1)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'service'
+                service = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -904,21 +1080,28 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def add_netconf_node(self, node):
-        """ Connect a netconf device to the controller (for example connect vrouter to controller via NetConf)
+        """ Connect a netconf device to the controller
+            (for example connect vrouter to controller via NETCONF)
         
         :param node: :class:`pybvc.controller.netconfnode.NetconfNode`
-        :return: A tuple:  Status, JSON response from controller.
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON providing response from adding netconf noed.
+        :return: Status, JSON response from controller.
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                 JSON providing response from adding netconf noed.
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. provider info is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. provider info is empty.
-        - STATUS.OK:  Success. provide info is valid.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.CONN_ERROR: If the controller did not respond.
+                             Provider info is empty.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. Provider info is empty.
+        - STATUS.OK: Success. Provider info is valid.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code.
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes/node/controller-config/yang-ext:mount/config:modules"
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes/node/" + \
+                      "controller-config/yang-ext:mount/config:modules"
         xmlPayloadTemplate = '''
         <module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
           <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">prefix:sal-netconf-connector</type>
@@ -950,16 +1133,19 @@ class Controller():
           </processing-executor>
         </module>
         '''
-        payload = xmlPayloadTemplate.format(node.name, node.ipAddr, node.portNum, node.adminName, node.adminPassword, node.tcpOnly)
+        payload = xmlPayloadTemplate.format(node.name, node.ipAddr, 
+                                            node.portNum, node.adminName, 
+                                            node.adminPassword, node.tcpOnly)
         url = templateUrl.format(self.ipAddr, self.portNum)
-        headers = {'content-type': 'application/xml', 'accept': 'application/xml'}
+        headers = {'content-type': 'application/xml', 
+                   'accept': 'application/xml'}
         
         resp = self.http_post_request(url, payload, headers)
         if(resp == None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200 or resp.status_code == 204):
+        elif(resp.status_code == 200 or resp.status_code == 204):
             status.set_status(STATUS.OK)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -973,18 +1159,25 @@ class Controller():
         """ Disconnect a netconf device from the controller
         
         :param netconfdev: :class:`pybvc.controller.netconfnode.NetconfNode`
-        :return: A tuple:  Status, None.
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON providing response from adding netconf noed.
+        :return: Status, None.
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                 JSON providing response from adding netconf noed.
         
-        - STATUS.CONN_ERROR:  if the controller did not respond. 
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. 
+        - STATUS.CONN_ERROR: If the controller did not respond. 
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status. 
         - STATUS.OK:  Success. 
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code. 
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code. 
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes/node/controller-config/yang-ext:mount/config:modules/module/odl-sal-netconf-connector-cfg:sal-netconf-connector/{}"
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes/node/" + \
+                      "controller-config/" + \
+                      "yang-ext:mount/config:modules/module/" + \
+                      "odl-sal-netconf-connector-cfg:sal-netconf-connector/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, netconfdev.name)
         
         resp = self.http_delete_request(url, data=None, headers=None)
@@ -992,7 +1185,7 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
+        elif(resp.status_code == 200):
             status.set_status(STATUS.OK)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1010,18 +1203,23 @@ class Controller():
         """ Modify connected netconf device's info in the controller
         
         :param netconfdev: :class:`pybvc.controller.netconfnode.NetconfNode`
-        :return: A tuple:  Status, None.
-        :rtype: :class:`pybvc.common.status.OperStatus`, JSON providing response from adding netconf noed.
+        :return: Status, None.
+        :rtype: :class:`pybvc.common.status.OperStatus`,
+                 JSON providing response from adding netconf noed.
         
-        - STATUS.CONN_ERROR:  if the controller did not respond.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status.
-        - STATUS.OK:  Success.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code. 
+        - STATUS.CONN_ERROR: If the controller did not respond.
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+                                      provide any status.
+        - STATUS.OK: Success.
+        - STATUS.HTTP_ERROR: If the controller responded with an error
+                             status code. 
         
         """
         
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes/node/controller-config/yang-ext:mount/config:modules"
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes/node/" + \
+                      "controller-config/yang-ext:mount/config:modules"
         url = templateUrl.format(self.ipAddr, self.portNum)
         xmlPayloadTemplate = '''
         <module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -1039,7 +1237,7 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
+        elif(resp.status_code == 200):
             status.set_status(STATUS.OK)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1050,7 +1248,8 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def get_ext_mount_config_url(self, node):
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
     
@@ -1058,7 +1257,8 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def get_ext_mount_operational_url(self, node):
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
     
@@ -1066,24 +1266,27 @@ class Controller():
     # 
     #---------------------------------------------------------------------------
     def get_node_operational_url(self, node):
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes/node/{}"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
-
+    
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
     def get_node_config_url(self, node):
-        templateUrl = "http://{}:{}/restconf/config/opendaylight-inventory:nodes/node/{}"
+        templateUrl = "http://{}:{}/restconf/config/" + \
+                      "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
-
+    
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
     def get_openflow_nodes_operational_list(self):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/opendaylight-inventory:nodes"
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
         resp = self.http_get_request(url, data=None, headers=None)
@@ -1091,23 +1294,363 @@ class Controller():
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p1 = 'nodes'
-            p2 = 'node'
-            if(p1 in resp.content and p2 in resp.content):
-                elist = json.loads(resp.content).get(p1).get(p2)
-                if isinstance (elist, list):
-                    p3 = 'id'
-                    p4 = 'openflow'
-                    for item in elist:
-                        if (isinstance (item, dict) and p3 in item and item[p3].startswith(p4)):
-                            nlist.append(item[p3])
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'nodes'
+                p2 = 'node'
+                p3 = 'id'
+                p4 = 'openflow'
+                itemslist = json.loads(resp.content)[p1][p2]
+                for item in itemslist:
+                    if(item[p3].startswith(p4)):
+                        nlist.append(item[p3])
                 status.set_status(STATUS.OK)
-            
-            else:
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
-        return Result(status, nlist) 
+        return Result(status, sorted(nlist))
     
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_openflow_operational_flows_total_cnt(self):
+        status = OperStatus()
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes"
+        url = templateUrl.format(self.ipAddr, self.portNum)
+        cnt = 0
+        resp = self.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # the code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'nodes'
+                p2 = 'opendaylight-flow-statistics:aggregate-flow-statistics'
+                p3 = 'flow-count'
+                d = json.loads(resp.content)[p1]
+                vlist = find_key_values_in_dict(d, p2)
+                if vlist:
+                    for item in vlist:
+                        cnt += item[p3]
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, cnt)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_topology_ids(self):
+        status = OperStatus()
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "network-topology:network-topology"
+        tnames = []
+        
+        url = templateUrl.format(self.ipAddr, self.portNum)
+        resp = self.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'network-topology'
+                p2 = 'topology'
+                p3 = 'topology-id'
+                tlist = json.loads(resp.content)[p1][p2]
+                for item in tlist:
+                    tnames.append(item[p3])
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, sorted(tnames))
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def build_topology_object(self, topo_name):
+        status = OperStatus()
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "network-topology:network-topology/topology/{}"
+        topo_obj = None
+        
+        url = templateUrl.format(self.ipAddr, self.portNum, topo_name)
+        resp = self.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'topology'
+                p2 = 'topology-id'
+                d = json.loads(resp.content)
+                tlist = d[p1]
+                for item in tlist:
+                    if item[p2] == topo_name:
+                        topo_obj = Topology(topo_dict=item)
+                        break
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, topo_obj)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def build_inventory_object(self, operational=True):
+        status = OperStatus()
+        templateUrl = "http://{}:{}/restconf/{}/opendaylight-inventory:nodes"
+        inv_obj = None
+        
+        inv_type = "operational" if operational else "config"
+        url = templateUrl.format(self.ipAddr, self.portNum, inv_type)
+        resp = self.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            p1 = 'nodes'
+            p2 = 'node'
+            try:
+                d = json.loads(resp.content)
+                v = d[p1][p2]
+                inv_obj = Inventory(inv_json=json.dumps(v))
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, inv_obj)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def build_openflow_node_inventory_object(self, node_id, operational=True):
+        status = OperStatus()
+        templateUrl = "http://{}:{}/restconf/{}/" + \
+                      "opendaylight-inventory:nodes/node/{}"
+        inv_obj = None
+        
+        inv_type = "operational" if operational else "config"
+        url = templateUrl.format(self.ipAddr, self.portNum, inv_type, node_id)
+        resp = self.http_get_request(url, data=None, headers=None)
+        
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'node'
+                d = json.loads(resp.content)
+                v = d[p1][0]
+                inv_obj = OpenFlowCapableNode(inv_json=json.dumps(v))
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND)
+        elif(resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, inv_obj)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def build_netconf_node_inventory_object(self, node_id, operational=True):
+        status = OperStatus()
+        templateUrl = "http://{}:{}/restconf/{}/" + \
+                      "opendaylight-inventory:nodes/node/{}"
+        inv_obj = None
+        
+        inv_type = "operational" if operational else "config"
+        url = templateUrl.format(self.ipAddr, self.portNum, inv_type, node_id)
+        resp = self.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'node'
+                d = json.loads(resp.content)[p1]
+                inv_obj = NetconfCapableNode(inv_dict=d[0])
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, inv_obj)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def build_netconf_config_objects(self):
+        status = OperStatus()
+        objs = []
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes/node/controller-config/" + \
+                      "yang-ext:mount/config:modules"
+        url = templateUrl.format(self.ipAddr, self.portNum)
+        resp = self.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'modules'
+                p2 = 'module'
+                p3 = 'type'
+                p4 = 'odl-sal-netconf-connector-cfg:sal-netconf-connector'
+                mlist = json.loads(resp.content.replace('\\\n',''))[p1][p2]
+                for item in mlist:
+                    if(item[p3] == p4):
+                        objs.append(NetconfConfigModule(item))
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, objs)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def build_netconf_config_object(self, netconf_id):
+        status = OperStatus()
+        templateUrl = "http://{}:{}/restconf/operational/" + \
+                      "opendaylight-inventory:nodes/node/controller-config/" + \
+                      "yang-ext:mount/config:modules/module/" + \
+                      "odl-sal-netconf-connector-cfg:sal-netconf-connector/{}"
+        url = templateUrl.format(self.ipAddr, self.portNum, netconf_id)
+        cfg_obj = None
+        
+        resp = self.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'module'
+                module = json.loads(resp.content)[p1]
+                cfg_obj = NetconfConfigModule(module[0])
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, cfg_obj)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def create_data_change_event_subscription(self, datastore, scope, path):
+        status = OperStatus()
+        stream_name = None
+        templateUrl = "http://{}:{}/restconf/operations/" + \
+                      "sal-remote:create-data-change-event-subscription"
+        url = templateUrl.format(self.ipAddr, self.portNum)
+        headers = {'content-type': 'application/yang.data+json',
+                   'accept': 'text/json, text/html, application/xml, */*'}
+        payload = {'input': {'path' : path,
+                             'datastore' : datastore,
+                             'scope' : scope}}
+        resp = self.http_post_request(url, json.dumps(payload), headers)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'output'
+                p2 = 'stream-name'
+                doc = xmltodict.parse(resp.content)
+                stream_name = doc[p1][p2]
+                status.set_status(STATUS.OK)
+            except(Exception):
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, stream_name)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def subscribe_to_stream(self, stream_name):
+        status = OperStatus()
+        stream_location = None
+        templateUrl = "http://{}:{}/restconf/streams/stream/{}"
+        url = templateUrl.format(self.ipAddr, self.portNum, stream_name)
+        
+        resp = self.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif(resp.status_code == 200):
+            # If format of the response differs from our expectation then
+            # code in 'except' clause suppose to handle such condition
+            try:
+                p1 = 'location'
+                stream_location = resp.headers[p1]
+                status.set_status(STATUS.OK)
+            except:
+                dbg_print("DEBUG: data not found in the received reply")
+                status.set_status(STATUS.DATA_NOT_FOUND, resp)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, stream_location)

@@ -41,14 +41,7 @@ from pybvc.common.utils import remove_empty_from_dict
 # Class 'Firewall'
 #-------------------------------------------------------------------------------
 class Firewall():
-    """ A class that defines a Firewall. 
-
-
-    :return: The newly created Firewall object.
-    :rtype: :class:`pybvc.netconfdev.vrouter.firewall.Firewall`
-    
-    """
-    
+    """ A class that defines a Firewall. """
     _mn1 = "vyatta-security:security"
     _mn2 = "vyatta-security-firewall:firewall"
     def __init__(self):
@@ -92,7 +85,7 @@ class Firewall():
     def add_rules(self, rules):
         """Add rules to Firewall.
         
-        :param rules: Rules to be added to Firewall.  :class:`pybvc.netconfdev.vrouter.firewall.Rules`
+        :param rules: Rules to be added to Firewall.  :class:`pybvc.netconfdev.vrouter.vrouter5600.Rules`
         """
         self.name.append(rules)
     
@@ -103,7 +96,7 @@ class Firewall():
         """Return the Rules of a Firewall
         
         :return: Rules of the Firewall 
-        :rtype: :class:`pybvc.netconfdev.vrouter.firewall.Rules`
+        :rtype: :class:`pybvc.netconfdev.vrouter.vrouter5600.Rules`
         
         """
         rules = []
@@ -118,9 +111,6 @@ class Rules():
     """The class that defines the Firewall Rules.
     
     :param string name: The name for the Firewall Rule
-
-    :return: The newly created Rules object.
-    :rtype: :class:`pybvc.netconfdev.vrouter.firewall.Rules`
     
     """
     #---------------------------------------------------------------------------

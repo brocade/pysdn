@@ -6,6 +6,15 @@ UPDATE VERSION:
 In master branch
 Update VERSION in the file pybvc/__init__.py
 
+COPY FROM DEVELOPMENT REPOSITORY:
+---------------------------------
+1.  Update the development repository (git pull in elbrys/pydevodl)
+2.  Update the release repository (git pull in brcd/pybvc)
+3.  Remove contents of the pybvc folder in release repository
+4.  Copy the framework folder contents from development to release:
+        cp -r elbrys/pydevodl/framework/* brcd/pybvc
+              NOTE the paths will need to be changed to match your setup
+5.  In the brcd/pybvc folder do a global search and replace:  find 'framework.' and replace with '.pybvc'
 
 UPDATE DOCS:
 ------------
@@ -28,5 +37,14 @@ Describe Release:  bullet list of major changes.  Example markdown:
 UPDATE PyPi
 -----------
 In master branch:
+In the file pybvc/__init.py__ make sure it has the contents:
+__title__ = 'pybvc'
+__version__ = '1.2.0'
+__author__ = 'Sergei Garbuzov'
+__license__ = 'BSD'
+__copyright__ = 'Brocade Communications'
+
+Change __version__ to match the new version you are releasing.
+
 python setup.py register -r pypi
 python setup.py sdist upload -r pypi

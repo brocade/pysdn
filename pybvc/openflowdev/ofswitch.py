@@ -3,7 +3,7 @@ Copyright (c) 2015
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
- - Redistributions of source code must retain the above copyright notice,
+-  Redistributions of source code must retain the above copyright notice,
    this list of conditions and the following disclaimer.
 -  Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
@@ -34,6 +34,7 @@ ofswitch.py: OpenFlow switch properties and methods
 
 import string
 import json
+import urllib2
 
 from collections import OrderedDict
 
@@ -45,6 +46,7 @@ from pybvc.common.utils import replace_str_value_in_dict
 from pybvc.common.utils import find_key_value_in_dict
 from pybvc.common.utils import find_dict_in_list
 from pybvc.common.utils import strip_none
+from pybvc.common.utils import dict_keys_dashed_to_underscored
 
 #-------------------------------------------------------------------------------
 # 
@@ -192,7 +194,7 @@ class OFSwitch(OpenflowNode):
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
-        return Result(status, plist)
+        return Result(status, sorted(plist))
         
     #---------------------------------------------------------------------------
     # TBD
@@ -254,9 +256,7 @@ class OFSwitch(OpenflowNode):
             urlext = templateUrlExt.format(flow_entry.get_flow_table_id(),
                                            flow_entry.get_flow_id())
             url += urlext
-#            print url
             payload = flow_entry.get_payload()
-#            print payload 
             resp = ctrl.http_put_request(url, payload, headers)
             if(resp == None):
                 status.set_status(STATUS.CONN_ERROR)
@@ -275,12 +275,36 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def delete_flow(self, flow_table_id, flow_id):
+    def delete_flow(self, table_id, flow_id):
         status = OperStatus()
         templateUrlExt = "/table/{}/flow/{}"
         ctrl = self.ctrl
-        url = ctrl.get_node_config_url(self.name)        
-        urlext = templateUrlExt.format(flow_table_id, flow_id)        
+        url = ctrl.get_node_config_url(self.name)
+        urlext = templateUrlExt.format(table_id, urllib2.quote(str(flow_id)))
+        url += urlext
+        
+        print " +++ %s" % url
+        resp = ctrl.http_delete_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            status.set_status(STATUS.OK)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, None)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def delete_flows(self, flow_table_id):
+        status = OperStatus()
+        templateUrlExt = "/table/{}"
+        ctrl = self.ctrl
+        url = ctrl.get_node_config_url(self.name)
+        urlext = templateUrlExt.format(flow_table_id)
         url += urlext
         
         resp = ctrl.http_delete_request(url, data=None, headers=None)
@@ -298,22 +322,9 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def delete_flows(self, flow_table_id):
-        result = self.get_configured_FlowEntries(flow_table_id)
-        status = result.get_status()
-        if(status.eq(STATUS.OK) == True):
-            data = result.get_data()
-            for fe in data:
-                self.delete_flow(flow_table_id, fe.get_flow_id())
-        
-        return Result(status, None)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_port_detail_info(self, portnum):
         status = OperStatus()
-        info = {}
+        info = None
         templateUrlExt = "/node-connector/{}:{}"
         urlext = templateUrlExt.format(self.name, portnum)
         ctrl = self.ctrl
@@ -326,17 +337,14 @@ class OFSwitch(OpenflowNode):
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif (resp.status_code == 200):
-            dictionary = json.loads(resp.content)
-            try:
-                p = 'node-connector'
-                vlist = dictionary[p]
-                if (len(vlist) != 0 and (type(vlist[0]) is dict)):
-                    info = vlist[0]
-                    status.set_status(STATUS.OK)
-                else:
-                    status.set_status(STATUS.DATA_NOT_FOUND)
-            except () as e:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            p = 'node-connector'
+            d = json.loads(resp.content)
+            v = d.get(p, None)
+            if (isinstance(v, list) and len(v) != 0) :
+                info = v[0]
+            status.set_status(STATUS.OK
+                              if info != None
+                              else STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -345,18 +353,18 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def get_flows(self, tableid, operational=True):
+    def get_flow(self, tableid, flowid, operational=True):
         status = OperStatus()
-        flows = {}
-        templateUrlExt = "/flow-node-inventory:table/{}"
-        urlext = templateUrlExt.format(tableid)
+        flow = None
+        templateUrlExt = "/flow-node-inventory:table/{}/flow/{}"
+        urlext = templateUrlExt.format(tableid, urllib2.quote(str(flowid)))
         ctrl = self.ctrl
         
         url = ""
         if (operational):
             url = ctrl.get_node_operational_url(self.name)
         else:
-            url = ctrl.get_node_config_url(self.name)        
+            url = ctrl.get_node_config_url(self.name)
         url += urlext
         
         resp = ctrl.http_get_request(url, data=None, headers=None)
@@ -365,18 +373,67 @@ class OFSwitch(OpenflowNode):
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif (resp.status_code == 200):
-            dictionary = json.loads(resp.content)
-            try:
-                p1 = 'flow-node-inventory:table'
-                p2 = 'flow'
-                vlist = dictionary[p1]
-                if (len(vlist) != 0 and (type(vlist[0]) is dict) and (p2 in vlist[0])):
-                    flows = vlist[0][p2]
-                    status.set_status(STATUS.OK)
-                else:
-                    status.set_status(STATUS.DATA_NOT_FOUND)
-            except () as e:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            p = 'flow-node-inventory:flow'
+            d = json.loads(resp.content)
+            v = d.get(p, None)
+            if (isinstance(v, list) and len(v) != 0) :
+                flow = v[0]
+            status.set_status(STATUS.OK
+                              if flow != None
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, flow)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_operational_flow(self, tableid, flowid):
+        return self.get_flow(tableid, flowid, operational=True)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_configured_flow(self, tableid, flowid):
+        return self.get_flow(tableid, flowid, operational=False)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_flows(self, tableid, operational=True):
+        status = OperStatus()
+        flows = None
+        templateUrlExt = "/flow-node-inventory:table/{}"
+        urlext = templateUrlExt.format(tableid)
+        ctrl = self.ctrl
+        
+        url = ""
+        if (operational):
+            url = ctrl.get_node_operational_url(self.name)
+        else:
+            url = ctrl.get_node_config_url(self.name)
+        url += urlext
+        
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p1 = 'flow-node-inventory:table'
+            p2 = 'flow'
+            d = json.loads(resp.content)
+            v = d.get(p1, None)
+            if (isinstance(v, list) and len(v) != 0) :
+                flows = v[0].get(p2, None)
+            status.set_status(STATUS.OK
+                              if flows != None
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -397,35 +454,27 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def get_configured_flow(self, table_id, flow_id):
-        status = OperStatus()
-        flow = {}
-        templateUrlExt = "/table/{}/flow/{}"
-        ctrl = self.ctrl
-        url = ctrl.get_node_config_url(self.name)
-        urlext = templateUrlExt.format(table_id, flow_id)
-        url += urlext
-        resp = ctrl.http_get_request(url, data=None, headers=None)
-        if(resp == None):
-            status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
-            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            dictionary = json.loads(resp.content)
-            try:
-                p1 = 'flow-node-inventory:flow'
-                vlist = dictionary[p1]
-                if (len(vlist) != 0 and (type(vlist[0]) is dict)):
-                    flow = vlist[0]
-                    status.set_status(STATUS.OK)
-                else:
-                    status.set_status(STATUS.DATA_NOT_FOUND)
-            except () as e:
-                status.set_status(STATUS.DATA_NOT_FOUND)
-        else:
-            status.set_status(STATUS.HTTP_ERROR, resp)
+    def get_FlowEntry(self, table_id, flow_id, operational=True):
+        flowEntry = None
+        result = self.get_flow(table_id, flow_id, operational)
+        status = result.get_status()
+        if(status.eq(STATUS.OK) == True):
+            d = result.get_data()
+            flowEntry = FlowEntry(flow_dict = d)
         
-        return Result(status, flow)
+        return Result(status, flowEntry)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_operational_FlowEntry(self, tableid, flowid):
+        return self.get_FlowEntry(tableid, flowid, True)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_configured_FlowEntry(self, tableid, flowid):
+        return self.get_FlowEntry(tableid, flowid, False)
     
     #---------------------------------------------------------------------------
     # 
@@ -453,19 +502,6 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     def get_configured_FlowEntries(self, flow_table_id):
         return self.get_FlowEntries(flow_table_id, False)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
-    def get_configured_FlowEntry(self, flow_table_id, flow_id):
-        flowEntry = None
-        result = self.get_configured_flow(flow_table_id, flow_id)
-        status = result.get_status()
-        if(status.eq(STATUS.OK) == True):
-            d = result.get_data()
-            flowEntry = FlowEntry(flow_dict = d)
-        
-        return Result(status, flowEntry)
 
 #---------------------------------------------------------------------------
 # 
@@ -610,9 +646,9 @@ class FlowEntry(object):
     def __init_from_json__(self, s):
         if (s != None and isinstance(s, basestring)):
             self.instructions = {'instruction': []}
-            js = string.replace(s, '-', '_')
-            js = string.replace(js, 'opendaylight_flow_statistics:flow_statistics', 'flow_statistics')
-            d = json.loads(js)
+            js = string.replace(s, 'opendaylight_flow_statistics:flow_statistics', 'flow_statistics')
+            obj = json.loads(js)
+            d = dict_keys_dashed_to_underscored(obj)
             for k, v in d.items():
                 if ('match' == k):
                     match = Match(v)
@@ -647,6 +683,21 @@ class FlowEntry(object):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
+    def to_yang_json(self):
+        s = self.to_json()
+        # Convert all 'underscored' keywords to 'dash-separated' form used
+        # by ODL YANG models naming conventions
+        s = string.replace(s, '_', '-')
+        # Following are exceptions from the common ODL rules for having all
+        # multi-part keywords in YANG models being hash separated
+        s = string.replace(s, 'table-id', 'table_id')
+        s = string.replace(s, 'cookie-mask', 'cookie_mask')
+        
+        return s
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
     def get_payload(self):
         """ Return FlowEntry as a payload for the HTTP request body """
         s = self.to_json()
@@ -666,11 +717,6 @@ class FlowEntry(object):
     # 
     #---------------------------------------------------------------------------
     def to_ofp_oxm_syntax(self):
-#        d = self.__dict__
-#        print d
-#        print dir(self)
-#        print hasattr(self, 'cookie')
-        
         odc = OrderedDict()
         
         # Flow Cookie
@@ -924,9 +970,7 @@ class FlowEntry(object):
             sa += ",".join(actions_list)
         sa += "}"
         
-        res = sc + " " + sm + " " + sa
-#        print res
-        return res
+        return sc + " " + sm + " " + sa
     
     #---------------------------------------------------------------------------
     # 

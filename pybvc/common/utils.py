@@ -32,10 +32,12 @@ utils.py: Helper utilities
 
 """
 
+import os
 import sys
 import time
 import string
 import yaml
+import inspect
 
 #-------------------------------------------------------------------------------
 # 
@@ -176,6 +178,24 @@ def dict_keys_underscored_to_dashed(d):
 #-------------------------------------------------------------------------------
 # 
 #-------------------------------------------------------------------------------
+def dict_keys_dashed_to_underscored(d):
+    new_dict = {}
+    
+    if(isinstance(d, dict) or isinstance(d, list)):
+        for k, v in d.iteritems():
+            if isinstance(v, dict):
+                v = dict_keys_dashed_to_underscored(v)
+            elif isinstance(v, list):
+                v = [dict_keys_dashed_to_underscored(i) for i in v if i and dict_keys_dashed_to_underscored(i)]
+            new_dict[k.replace('-', '_')] = v
+    else:
+        return d
+    
+    return new_dict
+
+#-------------------------------------------------------------------------------
+# 
+#-------------------------------------------------------------------------------
 def progress_wait_secs(msg=None, waitTime=None, sym="."):
     if (waitTime != None):
 #        sys.stdout.write ("(waiting for %s seconds) " % waitTime)
@@ -188,3 +208,21 @@ def progress_wait_secs(msg=None, waitTime=None, sym="."):
             sys.stdout.flush() #<- makes python print it anyway
             time.sleep(1)
         sys.stdout.write ("\n")
+
+#-------------------------------------------------------------------------------
+# 
+#-------------------------------------------------------------------------------
+def dbg_print(msg=None):
+    frame = inspect.currentframe()
+    try:
+        f = os.path.basename(frame.f_back.f_code.co_filename)
+        l = frame.f_back.f_lineno
+        if msg:
+            s = '[%s:%d] %s' % (f, l, msg)
+        else:
+            s = '[%s:%d]' % (f, l)
+    except(Exception):
+        pass
+    finally:
+        if s: print s
+        del frame

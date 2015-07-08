@@ -37,6 +37,118 @@ import json
 from pybvc.common.utils import strip_none, remove_empty_from_dict, dict_keys_underscored_to_dashed
 
 #-------------------------------------------------------------------------------
+# Class 'DataPlaneInterface'
+#-------------------------------------------------------------------------------
+class DataPlaneInterface():
+    ''' Class representing a dataplane interface '''
+    
+    def __init__(self, name):
+        ''' Dataplane interface name '''
+        self.tagnode = name
+
+        ''' Description for the interface '''
+        self.description = None
+        
+        ''' DHCPv6 options (container) '''
+        self.dhcpv6_options = None
+        
+        ''' IPv4 parameters (container) '''
+        self.ip = None
+        
+        ''' IPv6 parameters (container) '''
+        self.ipv6 = None
+        
+        ''' Maximum Transmission Unit (MTU) '''
+        self.mtu = None
+        
+        ''' Disable interface '''
+        self.disable = None
+        
+        ''' Virtual Interface (VIF) ID (list) '''
+        self.vif = []
+        
+        ''' Enable/Disable sflow for interface '''
+        self.sflow = None
+        
+        ''' IP address (list) '''
+        self.address = []
+        
+        ''' Media Access Control (MAC) address '''
+        self.mac = None
+        
+        ''' Ignore link state changes '''
+        self.disable_link_detect = None
+        
+        ''' This interface bridge group (container) '''
+        self.bridge_group = None
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def to_string(self):
+        """ Return this object as a string """
+        return str(vars(self))
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def to_json(self):
+        """ Return this object as JSON """
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_description(self, description):
+        self.description = description
+    
+    # TBD
+    def set_dhcpv6_options(self, TBD):
+        pass
+    
+    # TBD
+    def set_ipv4_options(self, TBD):
+        pass
+    
+    # TBD
+    def set_ipv6_options(self, TBD):
+        pass
+    
+    def set_mtu(self, mtu):
+        self.mtu = mtu
+    
+    def set_disable(self, value):
+        if (value == True):
+            self.disable = ""
+        else:
+            self.disable = None
+    
+    def set_vif(self, vif_id):
+        self.vif.append(vif_id)
+    
+    def set_sflow(self, value):
+        if (value == True):
+            self.sflow = ""
+        else:
+            self.sflow = None
+    
+    def set_address(self, address):
+        self.address.append(address)
+    
+    def set_mac(self, mac):
+        self.mac = mac
+    
+    def set_disable_link_detect(self, value):
+        if (value == True):
+            self.disable_link_detect = ""
+        else:
+            self.disable_link_detect = None
+    
+    # TBD
+    def set_bridge_group(self, TBD):
+        pass
+
+#-------------------------------------------------------------------------------
 # Class 'OpenVpnInterface'
 #-------------------------------------------------------------------------------
 class OpenVpnInterface():
@@ -144,6 +256,12 @@ class OpenVpnInterface():
         obj3 = dict_keys_underscored_to_dashed(obj2)
         payload = {self._mn1: {self._mn2:[obj3]}}
         return json.dumps(payload, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_description(self, description):
+        self.description = description
     
     #---------------------------------------------------------------------------
     # 
@@ -276,3 +394,56 @@ class TlsOptions():
     #---------------------------------------------------------------------------
     def set_key_file(self, path):
         self.key_file = path
+
+#-------------------------------------------------------------------------------
+# Class 'VirtualTunnelInterface'
+#-------------------------------------------------------------------------------
+class VirtualTunnelInterface():
+    ''' Class representing a Virtual tunnel interface (VTI) '''
+    def __init__(self, name):
+        ''' Virtual tunnel interface name '''
+        self.tagnode = name
+        
+        ''' Description for the interface '''
+        self.description = None
+        
+        ''' Maximum Transmission Unit (MTU), range 68..9000 '''
+        self.mtu = None
+        
+        ''' Disable this interface '''
+        self.disable = None
+        
+        ''' IPv4 or IPv6 Prefixes'''
+        self.address = []
+        
+        ''' IPv4 parameters '''
+        self.ip = None
+        
+        ''' IPv6 parameters '''
+        self.ipv6 = None
+    
+    def to_string(self):
+        """ Return this object as a string """
+        return str(vars(self))
+    
+    def to_json(self):
+        """ Return this object as JSON """
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    
+    def set_description(self, description):
+        self.description = description
+    
+    def set_mtu(self, mtu):
+        self.mtu = mtu
+    
+    def set_disable(self, value):
+        if (value == True):
+            self.disable = ""
+        else:
+            self.disable = None
+    
+    def set_address(self, address):
+        self.address.append(address)
+    
+    
+    

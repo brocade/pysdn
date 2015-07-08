@@ -3,7 +3,7 @@ Copyright (c) 2015
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
- - Redistributions of source code must retain the above copyright notice,
+-  Redistributions of source code must retain the above copyright notice,
    this list of conditions and the following disclaimer.
 -  Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
@@ -98,6 +98,9 @@ class OperStatus(object):
     def to_string(self):
         return self.__status_code_string()
     
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
     def brief(self):
         return self.__status_code_string()
     
