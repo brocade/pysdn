@@ -1,11 +1,5 @@
 When you are ready to release a new version of pybvc then follow these steps.
 
-
-UPDATE VERSION:
----------------
-In master branch
-Update VERSION in the file pybvc/__init__.py
-
 COPY FROM DEVELOPMENT REPOSITORY:
 ---------------------------------
 1.  Update the development repository (git pull in elbrys/pydevodl)
@@ -14,7 +8,13 @@ COPY FROM DEVELOPMENT REPOSITORY:
 4.  Copy the framework folder contents from development to release:
         cp -r elbrys/pydevodl/framework/* brcd/pybvc
               NOTE the paths will need to be changed to match your setup
-5.  In the brcd/pybvc folder do a global search and replace:  find 'framework.' and replace with '.pybvc'
+5.  In the brcd/pybvc folder do a global search and replace:  find 'framework.' and replace with 'pybvc.'
+
+
+UPDATE VERSION:
+---------------
+In master branch of brcdcom/pybvc
+1.  Update VERSION in the file pybvc/__init__.py
 
 UPDATE DOCS:
 ------------
