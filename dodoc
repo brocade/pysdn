@@ -1,5 +1,15 @@
-sphinx-apidoc -f -o docs pybvc
+echo ================================
+echo cd docs
 cd docs
+echo ================================
+echo sphinx-apidoc -f -o docs pybvc
+sphinx-apidoc -f -o source/ ../pybvc/
+echo ================================
+echo make html
 make html
-open _build/html/index.html
+echo ================================
+echo open build/html/index.html
+open build/html/index.html
+echo ================================
+echo cd ..
 cd ..

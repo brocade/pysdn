@@ -5,7 +5,7 @@ then
    echo "You can only run this script from the master branch"
 else
    rm ../pydevDocsForGhPagesBranch.zip
-   zip -r ../pydevDocsForGhPagesBranch.zip docsForGhPagesBranch/*
+   zip -r ../pydevDocsForGhPagesBranch.zip docs/build/html/*
    git checkout gh-pages
    branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
    if [ "$branch" != "gh-pages" ]
@@ -13,6 +13,6 @@ else
       echo "Unable to checkout the gh-pages branch, perhaps you have uncommitted changes on master?  Aborting..."
    else
       unzip ../pydevDocsForGhPagesBranch.zip
-      cp -r docsForGhPagesBranch/html/* .
+      cp -r docsForGhPagesBranch/* .
    fi
 fi
