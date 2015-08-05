@@ -28,7 +28,7 @@ Background:
 - Good article: http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html
 - Directories related to docs:
     - docs - this contains some key files NOT to be deleted
-         - source/config.py - this defines how the documents are created.  Don't delete it.
+         - source/config.py - this defines how the documents are created, and html theme used, version as well.  Don't delete it.
     - howToUpdateDocs.txt - this file
     - dodoc - script to create documents
    

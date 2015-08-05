@@ -4,7 +4,7 @@ COPY FROM DEVELOPMENT REPOSITORY:
 ---------------------------------
 1.  Update the development repository (git pull in elbrys/pydevodl)
 2.  Update the release repository (git pull in brcd/pybvc)
-3.  Remove contents of the pybvc folder in release repository
+3.  Remove contents of the pybvc folder in release repository (everything but __init__.py)
 4.  Copy the framework folder contents from development to release:
         cp -r elbrys/pydevodl/framework/* brcd/pybvc
               NOTE the paths will need to be changed to match your setup
