@@ -1,3 +1,4 @@
+
 # Copyright (c) 2015
 
 # Redistribution and use in source and binary forms, with or without
@@ -24,7 +25,7 @@
 
 # @authors: Sergei Garbuzov
 # @status: Development
-# @version: 1.3.0
+# @version: 1.1.0
 
 
 # netconfnode.py: Controller's NETCONF node specific properties
@@ -32,8 +33,8 @@
 
 import re
 import json
-import string
 
+from pybvc.common.utils import dict_keys_dashed_to_underscored
 
 #-------------------------------------------------------------------------------
 # Class 'Inventory'
@@ -45,16 +46,9 @@ class Inventory():
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, inv_json=None, inv_dict=None):
+    def __init__(self, inv_json=None):
         self.openflow_nodes = []
         self.netconf_nodes = []
-        assert_msg = "[Inventory] either '%s' or '%s' should be used, " \
-                     "not both" % ('inv_json', 'inv_dict')
-        assert(((inv_json != None) and (inv_dict != None)) == False), assert_msg
-        if (inv_dict != None):
-            self.__init_from_dict__(inv_dict)
-            return
-        
         if (inv_json != None):
             self.__init_from_json__(inv_json)
             return
@@ -78,42 +72,23 @@ class Inventory():
     #---------------------------------------------------------------------------
     def __init_from_json__(self, s):
         if (isinstance(s, basestring)):
-            
-            js = string.replace(s, '-', '_')
-            l = json.loads(js)
+            l = json.loads(s)
             assert(isinstance(l, list))
             p1 = 'id'
-            p2 = 'flow_node_inventory:table'
-            p3 = 'netconf_node_inventory:initial_capability'
+            p2 = 'openflow'
             for item in l:
                 if isinstance(item, dict):
-                    if p1 in item:
-                        if p2 in item:
-                            node = OpenFlowCapableNode(item)
+                    d = dict_keys_dashed_to_underscored(item)
+                    if p1 in d and isinstance(d[p1], basestring):
+                        if (d[p1].startswith(p2)):
+                            node = OpenFlowCapableNode(inv_dict=d)
                             self.add_openflow_node(node)
-                        elif p3 in item:
-                            node = NetconfCapableNode(item)
-                            self.add_netconf_node(node)
                         else:
-                            assert_msg = "[Inventory] uknown " \
-                                         "node type %s" % item
-                            assert(False), assert_msg
+                            node = NetconfCapableNode(inv_dict=d)
+                            self.add_netconf_node(node)
         else:
             raise TypeError("[Inventory] wrong argument type '%s'"
                             " (JSON 'string' is expected)" % type(s))
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
-    def __init_from_dict__(self, d):
-        if (isinstance(d, dict)):
-            p1 = 'node'
-            assert(p1 in d and isinstance(d[p1], list))
-            js = json.dumps(d[p1])
-            self.__init_from_json__(js)
-        else:
-            raise TypeError("[Inventory] wrong argument type '%s'"
-                            " ('dict' is expected)" % type(d))
     
     #---------------------------------------------------------------------------
     # 
@@ -136,6 +111,18 @@ class Inventory():
                 break
         
         return node
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_openflow_node_flows_cnt(self, node_id):
+        cnt = 0
+        node = self.get_openflow_node(node_id)
+        if node:
+            assert(isinstance(node, OpenFlowCapableNode))
+            cnt = node.get_flows_cnt()
+        
+        return cnt
     
     #---------------------------------------------------------------------------
     # 
@@ -164,14 +151,30 @@ class Inventory():
 #-------------------------------------------------------------------------------
 class OpenFlowCapableNode():
     ''' Class that represents current state of an OpenFlow capable node
+        in the Controller's inventory store
         Helper class of the 'Inventory' class '''
     
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, d):
+    def __init__(self, inv_json=None, inv_dict=None):
         self.ports=[]
-        assert(isinstance(d, dict))
+        
+        if (inv_json):
+            self.__init_from_json__(inv_json)
+            return
+        
+        if(inv_dict):
+            self.__init_from_dict__(inv_dict)
+            return
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def __init_from_json__(self, s):
+        assert(isinstance(s, basestring))
+        obj = json.loads(s)
+        d = dict_keys_dashed_to_underscored(obj)
         p1 = 'node_connector'
         for k, v in d.items():
             if p1 == k and isinstance(v, list):
@@ -180,6 +183,14 @@ class OpenFlowCapableNode():
                     self.ports.append(of_port)
             else:
                 setattr(self, k, v)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def __init_from_dict__(self, d):
+        assert(isinstance(d, dict))
+        js = json.dumps(d)
+        self.__init_from_json__(js)
     
     #---------------------------------------------------------------------------
     # 
@@ -263,7 +274,7 @@ class OpenFlowCapableNode():
         if (p1 in d):
             p2 = 'capabilities'
             if p2 in d[p1] and isinstance(d[p1][p2], list):
-                p3 = 'flow_node_inventory:flow_feature_capability_'
+                p3 = 'flow-node-inventory:flow-feature-capability-'
                 for item in d[p1][p2]:
                     s = item.replace(p3, "").replace('_', ' ').upper()
                     capabilities.append(s)
@@ -282,12 +293,6 @@ class OpenFlowCapableNode():
             assert(False)
             
         return addr
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
-    def get_datapath_id(self):
-        return self.get_id()
     
     #---------------------------------------------------------------------------
     # 
@@ -412,12 +417,12 @@ class OpenFlowCapableNode():
     # 
     #---------------------------------------------------------------------------
     def get_port_obj(self, port_id):
-        pobj = None
+        port_obj = None
         for item in self.ports:
             if(item.get_port_id() == port_id):
-                pobj = item
+                port_obj = item
         
-        return pobj
+        return port_obj
 
 #-------------------------------------------------------------------------------
 # Class 'OpenFlowPort'
@@ -585,6 +590,19 @@ class OpenFlowPort():
                 bytes_cnt = d[p1][p2][p3]
         
         return bytes_cnt
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_current_features(self):
+        features = []
+        p = 'flow_node_inventory:current_feature'
+        d = self.__dict__
+        if (p in d and isinstance(d[p], basestring)):
+            s = d[p].upper().replace('_', '-')
+            features = s.split()
+        
+        return features
 
 #-------------------------------------------------------------------------------
 # Class 'NetconfCapableNode'
@@ -596,10 +614,32 @@ class NetconfCapableNode():
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, d):
-        assert(isinstance(d, dict))
+    def __init__(self, inv_json=None, inv_dict=None):
+        if (inv_dict != None):
+            self.__init_from_dict__(inv_dict)
+            return
+        
+        if (inv_json != None):
+            self.__init_from_json__(inv_json)
+            return
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def __init_from_json__(self, s):
+        assert(isinstance(s, basestring))
+        obj = json.loads(s)
+        d = dict_keys_dashed_to_underscored(obj)
         for k, v in d.items():
             setattr(self, k, v)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def __init_from_dict__(self, d):
+        assert(isinstance(d, dict))
+        js = json.dumps(d)
+        self.__init_from_json__(js)
     
     #---------------------------------------------------------------------------
     # 
@@ -700,7 +740,8 @@ class NetconfConfigModule():
         assert(isinstance(d, dict))
         p = 'odl-sal-netconf-connector-cfg:'
         js = json.dumps(d)
-        d1 = json.loads(js.replace(p, '').replace('-', '_'))
+        obj = json.loads(js.replace(p, ''))
+        d1 = dict_keys_dashed_to_underscored(obj)
         for k, v in d1.items():
             setattr(self, k, v)
     

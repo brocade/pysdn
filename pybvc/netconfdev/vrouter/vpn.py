@@ -1,3 +1,4 @@
+
 # Copyright (c) 2015
 
 # Redistribution and use in source and binary forms, with or without
@@ -24,10 +25,10 @@
 
 # @authors: Sergei Garbuzov
 # @status: Development
-# @version: 1.3.0
+# @version: 1.1.0
+
 
 # vpn.py: Virtual Private Network (VPN) specific properties and access methods
-
 
 import json
 

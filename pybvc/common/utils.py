@@ -1,3 +1,4 @@
+
 # Copyright (c) 2015
 
 # Redistribution and use in source and binary forms, with or without
@@ -24,15 +25,17 @@
 
 # @authors: Sergei Garbuzov
 # @status: Development
-# @version: 1.3.0
+# @version: 1.1.0
 
 # utils.py: Helper utilities
 
 
+
+import os
 import sys
 import time
-import string
 import yaml
+import inspect
 
 #-------------------------------------------------------------------------------
 # 
@@ -144,10 +147,10 @@ def replace_str_value_in_dict(d, old, new):
     elif type(d) is list:
         return [replace_str_value_in_dict(v, old, new) for v in d if v and replace_str_value_in_dict(v, old, new)]
     elif type(d) is unicode:
-        d = string.replace(d, unicode(old), unicode(new))
+        d = d.replace(unicode(old), unicode(new))
         return d        
     elif type(d) is str:
-        d = string.replace(d, old, new)
+        d = d.replace(old, new)
         return d
     else:
         return d
@@ -173,6 +176,24 @@ def dict_keys_underscored_to_dashed(d):
 #-------------------------------------------------------------------------------
 # 
 #-------------------------------------------------------------------------------
+def dict_keys_dashed_to_underscored(d):
+    new_dict = {}
+    
+    if(isinstance(d, dict) or isinstance(d, list)):
+        for k, v in d.iteritems():
+            if isinstance(v, dict):
+                v = dict_keys_dashed_to_underscored(v)
+            elif isinstance(v, list):
+                v = [dict_keys_dashed_to_underscored(i) for i in v if i and dict_keys_dashed_to_underscored(i)]
+            new_dict[k.replace('-', '_')] = v
+    else:
+        return d
+    
+    return new_dict
+
+#-------------------------------------------------------------------------------
+# 
+#-------------------------------------------------------------------------------
 def progress_wait_secs(msg=None, waitTime=None, sym="."):
     if (waitTime != None):
 #        sys.stdout.write ("(waiting for %s seconds) " % waitTime)
@@ -185,3 +206,21 @@ def progress_wait_secs(msg=None, waitTime=None, sym="."):
             sys.stdout.flush() #<- makes python print it anyway
             time.sleep(1)
         sys.stdout.write ("\n")
+
+#-------------------------------------------------------------------------------
+# 
+#-------------------------------------------------------------------------------
+def dbg_print(msg=None):
+    frame = inspect.currentframe()
+    try:
+        f = os.path.basename(frame.f_back.f_code.co_filename)
+        l = frame.f_back.f_lineno
+        if msg:
+            s = '[%s:%d] %s' % (f, l, msg)
+        else:
+            s = '[%s:%d]' % (f, l)
+    except(Exception):
+        pass
+    finally:
+        if s: print s
+        del frame

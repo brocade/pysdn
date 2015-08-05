@@ -1,3 +1,4 @@
+
 # Copyright (c) 2015
 
 # Redistribution and use in source and binary forms, with or without
@@ -24,13 +25,15 @@
 
 # @authors: Sergei Garbuzov
 # @status: Development
-# @version: 1.3.0
+# @version: 1.1.0
+
 
 # ofswitch.py: OpenFlow switch properties and methods
 
 
-import string
+
 import json
+import urllib2
 
 from collections import OrderedDict
 
@@ -42,6 +45,8 @@ from pybvc.common.utils import replace_str_value_in_dict
 from pybvc.common.utils import find_key_value_in_dict
 from pybvc.common.utils import find_dict_in_list
 from pybvc.common.utils import strip_none
+from pybvc.common.utils import dict_keys_dashed_to_underscored
+from pybvc.common.utils import dbg_print
 
 #-------------------------------------------------------------------------------
 # 
@@ -245,15 +250,14 @@ class OFSwitch(OpenflowNode):
         status = OperStatus()
         templateUrlExt = "/table/{}/flow/{}"
         headers = {'content-type': 'application/yang.data+json'}
+        resp = None
         if isinstance(flow_entry, FlowEntry):
             ctrl = self.ctrl
             url = ctrl.get_node_config_url(self.name)
             urlext = templateUrlExt.format(flow_entry.get_flow_table_id(),
                                            flow_entry.get_flow_id())
             url += urlext
-#            print url
             payload = flow_entry.get_payload()
-#            print payload 
             resp = ctrl.http_put_request(url, payload, headers)
             if(resp == None):
                 status.set_status(STATUS.CONN_ERROR)
@@ -261,10 +265,10 @@ class OFSwitch(OpenflowNode):
                 status.set_status(STATUS.CTRL_INTERNAL_ERROR)
             elif (resp.status_code == 200):
                 status.set_status(STATUS.OK)
-            else:               
-                status.set_status(STATUS.HTTP_ERROR, resp)                
+            else:
+                status.set_status(STATUS.HTTP_ERROR, resp)
         else:
-            print "Error !!!"
+            dbg_print("DEBUG: unsupported data format ")
             status.set_status(STATUS.MALFORM_DATA)
         
         return Result(status, resp)
@@ -272,12 +276,42 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def delete_flow(self, flow_table_id, flow_id):
+    def add_modify_flow_json(self, table_id, flow_id, flow_json):
+        status = OperStatus()
+        model_ref = "flow-node-inventory:flow"
+        templateUrlExt = "/table/{}/flow/{}"
+        headers = {'content-type': 'application/yang.data+json'}
+        resp = None
+        if isinstance(flow_json, basestring):
+            ctrl = self.ctrl
+            url = ctrl.get_node_config_url(self.name)
+            urlext = templateUrlExt.format(table_id, flow_id)
+            url += urlext
+            payload = {model_ref: json.loads(flow_json)}
+            resp = ctrl.http_put_request(url, json.dumps(payload), headers)
+            if(resp == None):
+                status.set_status(STATUS.CONN_ERROR)
+            elif(resp.content == None):
+                status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+            elif (resp.status_code == 200):
+                status.set_status(STATUS.OK)
+            else:
+                status.set_status(STATUS.HTTP_ERROR, resp)
+        else:
+            dbg_print("DEBUG: unsupported data format ")
+            status.set_status(STATUS.MALFORM_DATA)
+        
+        return Result(status, resp)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def delete_flow(self, table_id, flow_id):
         status = OperStatus()
         templateUrlExt = "/table/{}/flow/{}"
         ctrl = self.ctrl
-        url = ctrl.get_node_config_url(self.name)        
-        urlext = templateUrlExt.format(flow_table_id, flow_id)        
+        url = ctrl.get_node_config_url(self.name)
+        urlext = templateUrlExt.format(table_id, urllib2.quote(str(flow_id)))
         url += urlext
         
         resp = ctrl.http_delete_request(url, data=None, headers=None)
@@ -296,12 +330,22 @@ class OFSwitch(OpenflowNode):
     # 
     #---------------------------------------------------------------------------
     def delete_flows(self, flow_table_id):
-        result = self.get_configured_FlowEntries(flow_table_id)
-        status = result.get_status()
-        if(status.eq(STATUS.OK) == True):
-            data = result.get_data()
-            for fe in data:
-                self.delete_flow(flow_table_id, fe.get_flow_id())
+        status = OperStatus()
+        templateUrlExt = "/table/{}"
+        ctrl = self.ctrl
+        url = ctrl.get_node_config_url(self.name)
+        urlext = templateUrlExt.format(flow_table_id)
+        url += urlext
+        
+        resp = ctrl.http_delete_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            status.set_status(STATUS.OK)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
         
         return Result(status, None)
     
@@ -310,7 +354,7 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     def get_port_detail_info(self, portnum):
         status = OperStatus()
-        info = {}
+        info = None
         templateUrlExt = "/node-connector/{}:{}"
         urlext = templateUrlExt.format(self.name, portnum)
         ctrl = self.ctrl
@@ -323,17 +367,14 @@ class OFSwitch(OpenflowNode):
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif (resp.status_code == 200):
-            dictionary = json.loads(resp.content)
-            try:
-                p = 'node-connector'
-                vlist = dictionary[p]
-                if (len(vlist) != 0 and (type(vlist[0]) is dict)):
-                    info = vlist[0]
-                    status.set_status(STATUS.OK)
-                else:
-                    status.set_status(STATUS.DATA_NOT_FOUND)
-            except () as e:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            p = 'node-connector'
+            d = json.loads(resp.content)
+            v = d.get(p, None)
+            if (isinstance(v, list) and len(v) != 0) :
+                info = v[0]
+            status.set_status(STATUS.OK
+                              if info != None
+                              else STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -342,18 +383,18 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def get_flows(self, tableid, operational=True):
+    def get_flow(self, tableid, flowid, operational=True):
         status = OperStatus()
-        flows = {}
-        templateUrlExt = "/flow-node-inventory:table/{}"
-        urlext = templateUrlExt.format(tableid)
+        flow = None
+        templateUrlExt = "/flow-node-inventory:table/{}/flow/{}"
+        urlext = templateUrlExt.format(tableid, urllib2.quote(str(flowid)))
         ctrl = self.ctrl
         
         url = ""
         if (operational):
             url = ctrl.get_node_operational_url(self.name)
         else:
-            url = ctrl.get_node_config_url(self.name)        
+            url = ctrl.get_node_config_url(self.name)
         url += urlext
         
         resp = ctrl.http_get_request(url, data=None, headers=None)
@@ -362,18 +403,67 @@ class OFSwitch(OpenflowNode):
         elif(resp.content == None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif (resp.status_code == 200):
-            dictionary = json.loads(resp.content)
-            try:
-                p1 = 'flow-node-inventory:table'
-                p2 = 'flow'
-                vlist = dictionary[p1]
-                if (len(vlist) != 0 and (type(vlist[0]) is dict) and (p2 in vlist[0])):
-                    flows = vlist[0][p2]
-                    status.set_status(STATUS.OK)
-                else:
-                    status.set_status(STATUS.DATA_NOT_FOUND)
-            except () as e:
-                status.set_status(STATUS.DATA_NOT_FOUND)
+            p = 'flow-node-inventory:flow'
+            d = json.loads(resp.content)
+            v = d.get(p, None)
+            if (isinstance(v, list) and len(v) != 0) :
+                flow = v[0]
+            status.set_status(STATUS.OK
+                              if flow != None
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, flow)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_operational_flow(self, tableid, flowid):
+        return self.get_flow(tableid, flowid, operational=True)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_configured_flow(self, tableid, flowid):
+        return self.get_flow(tableid, flowid, operational=False)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_flows(self, tableid, operational=True):
+        status = OperStatus()
+        flows = None
+        templateUrlExt = "/flow-node-inventory:table/{}"
+        urlext = templateUrlExt.format(tableid)
+        ctrl = self.ctrl
+        
+        url = ""
+        if (operational):
+            url = ctrl.get_node_operational_url(self.name)
+        else:
+            url = ctrl.get_node_config_url(self.name)
+        url += urlext
+        
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p1 = 'flow-node-inventory:table'
+            p2 = 'flow'
+            d = json.loads(resp.content)
+            v = d.get(p1, None)
+            if (isinstance(v, list) and len(v) != 0) :
+                flows = v[0].get(p2, None)
+            status.set_status(STATUS.OK
+                              if flows != None
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         
@@ -394,35 +484,27 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def get_configured_flow(self, table_id, flow_id):
-        status = OperStatus()
-        flow = {}
-        templateUrlExt = "/table/{}/flow/{}"
-        ctrl = self.ctrl
-        url = ctrl.get_node_config_url(self.name)
-        urlext = templateUrlExt.format(table_id, flow_id)
-        url += urlext
-        resp = ctrl.http_get_request(url, data=None, headers=None)
-        if(resp == None):
-            status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
-            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            dictionary = json.loads(resp.content)
-            try:
-                p1 = 'flow-node-inventory:flow'
-                vlist = dictionary[p1]
-                if (len(vlist) != 0 and (type(vlist[0]) is dict)):
-                    flow = vlist[0]
-                    status.set_status(STATUS.OK)
-                else:
-                    status.set_status(STATUS.DATA_NOT_FOUND)
-            except () as e:
-                status.set_status(STATUS.DATA_NOT_FOUND)
-        else:
-            status.set_status(STATUS.HTTP_ERROR, resp)
+    def get_FlowEntry(self, table_id, flow_id, operational=True):
+        flowEntry = None
+        result = self.get_flow(table_id, flow_id, operational)
+        status = result.get_status()
+        if(status.eq(STATUS.OK) == True):
+            d = result.get_data()
+            flowEntry = FlowEntry(flow_dict = d)
         
-        return Result(status, flow)
+        return Result(status, flowEntry)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_operational_FlowEntry(self, tableid, flowid):
+        return self.get_FlowEntry(tableid, flowid, True)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_configured_FlowEntry(self, tableid, flowid):
+        return self.get_FlowEntry(tableid, flowid, False)
     
     #---------------------------------------------------------------------------
     # 
@@ -450,19 +532,6 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     def get_configured_FlowEntries(self, flow_table_id):
         return self.get_FlowEntries(flow_table_id, False)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
-    def get_configured_FlowEntry(self, flow_table_id, flow_id):
-        flowEntry = None
-        result = self.get_configured_flow(flow_table_id, flow_id)
-        status = result.get_status()
-        if(status.eq(STATUS.OK) == True):
-            d = result.get_data()
-            flowEntry = FlowEntry(flow_dict = d)
-        
-        return Result(status, flowEntry)
 
 #---------------------------------------------------------------------------
 # 
@@ -607,9 +676,9 @@ class FlowEntry(object):
     def __init_from_json__(self, s):
         if (s != None and isinstance(s, basestring)):
             self.instructions = {'instruction': []}
-            js = string.replace(s, '-', '_')
-            js = string.replace(js, 'opendaylight_flow_statistics:flow_statistics', 'flow_statistics')
-            d = json.loads(js)
+            js = s.replace('opendaylight_flow_statistics:flow_statistics', 'flow_statistics')
+            obj = json.loads(js)
+            d = dict_keys_dashed_to_underscored(obj)
             for k, v in d.items():
                 if ('match' == k):
                     match = Match(v)
@@ -644,16 +713,36 @@ class FlowEntry(object):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
+    def to_yang_json(self, strip=False):
+        s = self.to_json()
+        # Convert all 'underscored' keywords to 'dash-separated' form used
+        # by ODL YANG models naming conventions
+        s = s.replace('_', '-')
+        # Following are exceptions from the common ODL rules for having all
+        # multi-part keywords in YANG models being hash separated
+        s = s.replace('table-id', 'table_id')
+        s = s.replace('cookie-mask', 'cookie_mask')
+        if strip:
+            # ignore unassigned ("empty") attributes
+            d1 = json.loads(s)
+            d2 = strip_none(d1)
+            s = json.dumps(d2, sort_keys=True, indent=4)
+        
+        return s
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
     def get_payload(self):
         """ Return FlowEntry as a payload for the HTTP request body """
         s = self.to_json()
         # Convert all 'underscored' keywords to 'dash-separated' form used
         # by ODL YANG models naming conventions
-        s = string.replace(s, '_', '-')
+        s = s.replace('_', '-')
         # Following are exceptions from the common ODL rules for having all
         # multi-part keywords in YANG models being hash separated
-        s = string.replace(s, 'table-id', 'table_id')
-        s = string.replace(s, 'cookie-mask', 'cookie_mask')
+        s = s.replace('table-id', 'table_id')
+        s = s.replace('cookie-mask', 'cookie_mask')
         d1 = json.loads(s)
         d2 = strip_none(d1)
         payload = {self._mn : d2}
@@ -663,17 +752,12 @@ class FlowEntry(object):
     # 
     #---------------------------------------------------------------------------
     def to_ofp_oxm_syntax(self):
-#        d = self.__dict__
-#        print d
-#        print dir(self)
-#        print hasattr(self, 'cookie')
-        
         odc = OrderedDict()
         
         # Flow Cookie
         v = self.get_flow_cookie()
         if (v != None):
-            odc['cookie'] = hex(v)
+            odc['cookie'] = hex(int(v))
         
         # Flow Duration
         v = self.get_duration()
@@ -712,6 +796,7 @@ class FlowEntry(object):
         sc = sc.translate(None, '"{} ').replace(':','=')
         
         # Flow Match
+        sm = ""
         m = self.get_match_fields()
         if (m != None):
             odm = OrderedDict()
@@ -722,7 +807,7 @@ class FlowEntry(object):
             
             v = m.get_eth_type()
             if (v != None):
-                odm['eth_type'] = hex(v)
+                odm['eth_type'] = hex(int(v))
             
             v = m.get_eth_src()
             if (v != None):
@@ -885,7 +970,7 @@ class FlowEntry(object):
                     elif (isinstance(action, PushVlanHeaderAction)):
                         s = "push_vlan="
                         eth_type = action.get_eth_type()
-                        s += str(hex(eth_type))
+                        s += str(hex(int(eth_type)))
                         push_vlan_list.append(s)
                     elif (isinstance(action, PopVlanHeaderAction)):
                         s = "pop_vlan"
@@ -893,7 +978,7 @@ class FlowEntry(object):
                     elif (isinstance(action, PushMplsHeaderAction)):
                         s = "push_mpls="
                         eth_type = action.get_eth_type()
-                        s += str(hex(eth_type))
+                        s += str(hex(int(eth_type)))
                         push_mpls_list.append(s)
                     elif (isinstance(action, PopMplsHeaderAction)):
                         s = "pop_mpls"
@@ -921,9 +1006,7 @@ class FlowEntry(object):
             sa += ",".join(actions_list)
         sa += "}"
         
-        res = sc + " " + sm + " " + sa
-#        print res
-        return res
+        return sc + " " + sm + " " + sa
     
     #---------------------------------------------------------------------------
     # 
@@ -1209,11 +1292,19 @@ class Instructions():
         if (d != None and isinstance(d, dict)):
             self.instructions = []
             for k,v in d.items():
-                if (('instruction' == k) and isinstance(v, list)):
-                    for item in v:
-                        if (isinstance(item, dict)):
-                            inst = Instruction(d=item)
+                if ('instruction' == k):
+                    if isinstance(v, list):
+                        for item in v:
+                            if (isinstance(item, dict)):
+                                inst = Instruction(d=item)
+                                self.add_instruction(inst)
+                    elif isinstance(v, dict):
+                            inst = Instruction(d=v)
                             self.add_instruction(inst)
+                    else:
+                        msg = "DEBUG: key=%s, value=%s" \
+                              " - unexpected data format" % (k, v)
+                        dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -1261,44 +1352,24 @@ class Instruction():
     #---------------------------------------------------------------------------
     def __init_from_dict__(self, d):
         if(d != None and isinstance(d, dict)):
+            p1 = 'apply_actions'
+            p2 = 'action'
+            p3 = 'order'
             for k,v in d.items():
-                if ('apply_actions' == k):
-                    self.apply_actions = {'action': []}
-                    p1 = 'action'
-                    if p1 in v and isinstance(v[p1], list):
-                        for a in v[p1]:
-                            if isinstance(a, dict):
-                                p2 = 'output_action'
-                                p3 = 'push_vlan_action'
-                                p4 = 'pop_vlan_action'
-                                p5 = 'push_mpls_action'
-                                p6 = 'pop_mpls_action'
-                                p7 = 'set_field'
-                                p8 = 'drop_action'
-                                if (p2 in a):
-                                    action = OutputAction(d=a[p2]) 
-                                    self.add_apply_action(action)
-                                elif (p3 in a):
-                                    action = PushVlanHeaderAction(d=a[p3])
-                                    self.add_apply_action(action)
-                                elif (p4 in a):
-                                    action = PopVlanHeaderAction()
-                                    self.add_apply_action(action)
-                                elif (p5 in a):
-                                    action = PushMplsHeaderAction(d=a[p5])
-                                    self.add_apply_action(action)
-                                elif (p6 in a):
-                                    action = PopMplsHeaderAction()
-                                    self.add_apply_action(action)
-                                elif (p7 in a):
-                                    action = SetFieldAction(d=a[p7])
-                                    self.add_apply_action(action)
-                                elif (p8 in a):
-                                    action = DropAction()
-                                    self.add_apply_action(action)
-                                else:
-                                    print "[Instruction] TBD"
-                elif 'order':
+                if (p1 == k):
+                    self.apply_actions = {p2: []}
+                    if p2 in v:
+                        if isinstance(v[p2], list):
+                            for a in v[p2]:
+                                if isinstance(a, dict):
+                                    action = self.create_action_from_dict(a)
+                                    if (action):
+                                        self.add_apply_action(action)
+                        elif isinstance(v[p2], dict):
+                            action = self.create_action_from_dict(v[p2])
+                            if (action):
+                                self.add_apply_action(action)
+                elif p3:
                     self.order = v
                 else:
                     setattr(self, k, v)
@@ -1333,6 +1404,45 @@ class Instruction():
             res = True
         
         return res
+    
+#-------------------------------------------------------------------------------
+# 
+#-------------------------------------------------------------------------------
+    def create_action_from_dict(self, d):
+        if isinstance(d, dict):
+            action = None
+            
+            p1 = 'order'
+            p2 = 'output_action'
+            p3 = 'push_vlan_action'
+            p4 = 'pop_vlan_action'
+            p5 = 'push_mpls_action'
+            p6 = 'pop_mpls_action'
+            p7 = 'set_field'
+            p8 = 'drop_action'
+            action_order = d.get(p1, None)
+            if (p2 in d):
+                action = OutputAction(order=action_order, d=d[p2])
+            elif (p3 in d):
+                action = PushVlanHeaderAction(order=action_order, d=d[p3])
+            elif (p4 in d):
+                action = PopVlanHeaderAction(order=action_order)
+            elif (p5 in d):
+                action = PushMplsHeaderAction(order=action_order, d=d[p5])
+            elif (p6 in d):
+                action = PopMplsHeaderAction(order=action_order)
+            elif (p7 in d):
+                action = SetFieldAction(order=action_order, d=d[p7])
+            elif (p8 in d):
+                action = DropAction(order=action_order)
+            else:
+                msg = "can not find action in d='%s'" % d
+                dbg_print(msg)
+            
+            return action
+        else:
+            raise TypeError("[Instruction] wrong argument type '%s'"
+                            " ('dict' is expected)" % type(d))
 
 #-------------------------------------------------------------------------------
 # 
@@ -1355,25 +1465,28 @@ class Action(object):
 #-------------------------------------------------------------------------------
 class OutputAction(Action):
     ''' The Output action forwards a packet to a specified OpenFlow port
-        OpenFlow switches must support forwarding to physical ports, 
+        OpenFlow switches must support forwarding to physical ports,
         switch-defined logical ports and the required reserved ports  '''
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, action_order=0, port=None, max_len=None, d=None):
+    def __init__(self, order=None, port=None, max_len=None, d=None):
+        super(OutputAction, self).__init__(order)
+        
         if(d != None):
             self.__init_from_dict__(d)
             return
         
-        super(OutputAction, self).__init__(action_order)
-        self.output_action = {'output_node_connector' : port, 'max_length' : max_len }
+        self.output_action = {'output_node_connector' : port,
+                              'max_length' : max_len }
     
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init_from_dict__(self,d):
+    def __init_from_dict__(self, d):
         if(d != None and isinstance(d, dict)):
-            self.output_action = {'output_node_connector' : None, 'max_length' : None }
+            self.output_action = {'output_node_connector' : None,
+                                  'max_length' : None }
             for k,v in d.items():
                 if ('output_node_connector' == k):
                     self.set_outport(v)
@@ -1432,7 +1545,7 @@ class OutputAction(Action):
 #-------------------------------------------------------------------------------
 class SetQueueAction(Action):
     ''' The set-queue action sets the queue id for a packet. When the packet is
-        forwarded to a port using the output action, the queue id determines 
+        forwarded to a port using the output action, the queue id determines
         which queue attached to this port is used for scheduling and forwarding
         the packet. Forwarding behavior is dictated by the configuration of the
         queue and is used to provide basic Quality-of-Service (QoS) support '''
@@ -1472,8 +1585,8 @@ class DropAction(Action):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, action_order=None):
-        super(DropAction, self).__init__(action_order)
+    def __init__(self, order=None):
+        super(DropAction, self).__init__(order)
         self.drop_action = {}
     
     #---------------------------------------------------------------------------
@@ -1700,20 +1813,24 @@ class PushVlanHeaderAction(Action):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, action_order=None, eth_type=None, tag=None, pcp=None, cfi=None, vid=None, d=None):
+    def __init__(self, order=None, eth_type=None, tag=None, pcp=None,
+                 cfi=None, vid=None, d=None):
+        super(PushVlanHeaderAction, self).__init__(order)
+        
         if (d != None):
             self.__init_from_dict__(d)
             return
         
-        super(PushVlanHeaderAction, self).__init__(action_order)
-        self.push_vlan_action = {'ethernet_type': eth_type, 'tag': tag, 'pcp': pcp, 'cfi': cfi, 'vlan_id': vid }
+        self.push_vlan_action = {'ethernet_type': eth_type, 'tag': tag,
+                                 'pcp': pcp, 'cfi': cfi, 'vlan_id': vid }
     
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
     def __init_from_dict__(self, d):
         if (d != None and isinstance(d, dict)):
-            self.push_vlan_action = {'ethernet_type': None, 'tag': None, 'pcp': None, 'cfi': None, 'vlan_id': None }
+            self.push_vlan_action = {'ethernet_type': None, 'tag': None,
+                                     'pcp': None, 'cfi': None, 'vlan_id': None }
             for k,v in d.items():
                 if ('ethernet_type' == k):
                     self.set_eth_type(v)
@@ -1778,8 +1895,8 @@ class PopVlanHeaderAction(Action):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, action_order=None):
-        super(PopVlanHeaderAction, self).__init__(action_order)
+    def __init__(self, order=None):
+        super(PopVlanHeaderAction, self).__init__(order)
         self.pop_vlan_action = {}
 
 #-------------------------------------------------------------------------------
@@ -1792,12 +1909,13 @@ class PushMplsHeaderAction(Action):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, action_order=None, ethernet_type=None, d=None):
+    def __init__(self, order=None, ethernet_type=None, d=None):
+        super(PushMplsHeaderAction, self).__init__(order)
+        
         if (d != None):
             self.__init_from_dict__(d)
             return
         
-        super(PushMplsHeaderAction, self).__init__(action_order)
         self.push_mpls_action = {'ethernet_type': ethernet_type}
     
     #---------------------------------------------------------------------------
@@ -1842,8 +1960,8 @@ class PopMplsHeaderAction(Action):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, action_order=0, ethernet_type=None):
-        super(PopMplsHeaderAction, self).__init__(action_order)
+    def __init__(self, order=0, ethernet_type=None):
+        super(PopMplsHeaderAction, self).__init__(order)
         self.pop_mpls_action = {'ethernet_type': ethernet_type}
     
     #---------------------------------------------------------------------------
@@ -2003,12 +2121,13 @@ class SetFieldAction(Action):
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
-    def __init__(self, action_order=None, d=None):
+    def __init__(self, order=None, d=None):
+        super(SetFieldAction, self).__init__(order)
+        
         if (d != None):
             self.__init_from_dict__(d)
             return
         
-        super(SetFieldAction, self).__init__(action_order)
         self.set_field = {'vlan_match': None, 'protocol_match_fields' : None}
     
     #---------------------------------------------------------------------------
@@ -2167,7 +2286,12 @@ class Match(object):
         ''' IPv4 destination address (can use subnet mask) '''
         self.ipv4_destination = None
         
-        ''' IPv4 destination address (can use subnet mask) '''
+        ''' IP match fields:
+            - Differentiated Service Code Point (DSCP). Part of the IPv4 ToS field or
+              the IPv6 Traffic Class field.
+            - ECN bits of the IP header. Part of the IPv4 ToS field or
+              the IPv6 Traffic Class field 
+            - IPv4 or IPv6 protocol number '''
         self.ip_match = None
         
         ''' IPv6 source address (can use subnet mask) '''

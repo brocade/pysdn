@@ -1,3 +1,4 @@
+
 # Copyright (c) 2015
 
 # Redistribution and use in source and binary forms, with or without
@@ -24,12 +25,12 @@
 
 # @authors: Sergei Garbuzov
 # @status: Development
-# @version: 1.3.0
-
-#firewall.py: Firewall specific properties and access methods
+# @version: 1.1.0
 
 
-import string
+# firewall.py: Firewall specific properties and access methods
+
+
 import json
 
 from pybvc.common.utils import strip_none, remove_empty_from_dict, dict_keys_underscored_to_dashed

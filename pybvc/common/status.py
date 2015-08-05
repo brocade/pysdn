@@ -1,3 +1,4 @@
+
 # Copyright (c) 2015
 
 # Redistribution and use in source and binary forms, with or without
@@ -24,7 +25,7 @@
 
 # @authors: Sergei Garbuzov
 # @status: Development
-# @version: 1.3.0
+# @version: 1.1.0
 
 
 # status.py: Operational Status of a performed HTTP communication session
@@ -96,6 +97,9 @@ class OperStatus(object):
     def to_string(self):
         return self.__status_code_string()
     
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
     def brief(self):
         return self.__status_code_string()
     

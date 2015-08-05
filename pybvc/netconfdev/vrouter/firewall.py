@@ -1,3 +1,4 @@
+
 # Copyright (c) 2015
 
 # Redistribution and use in source and binary forms, with or without
@@ -24,13 +25,12 @@
 
 # @authors: Sergei Garbuzov
 # @status: Development
-# @version: 1.3.0
+# @version: 1.1.0
 
 
 # firewall.py: Firewall specific properties and access methods
 
 
-import string
 import json
 
 from pybvc.common.utils import remove_empty_from_dict
@@ -65,7 +65,7 @@ class Firewall():
     #---------------------------------------------------------------------------
     def get_payload(self):
         s = self.to_json()
-        s = string.replace(s, 'typename', 'type-name')
+        s = s.replace('typename', 'type-name')
         d1 = json.loads(s)
         d2 = remove_empty_from_dict(d1)
         payload = {self._mn1:{self._mn2:d2}}
@@ -278,8 +278,8 @@ class DataplaneInterfaceFirewall():
     #---------------------------------------------------------------------------
     def get_payload(self):
         s = self.firewall.to_json()
-        s = string.replace(s, 'inlist', "in")
-        s = string.replace(s, 'outlist', "out")
+        s = s.replace('inlist', "in")
+        s = s.replace('outlist', "out")
         payload = {self._mn3: json.loads(s)}
         return json.dumps(payload, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
