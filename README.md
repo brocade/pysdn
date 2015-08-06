@@ -2,7 +2,7 @@
 Python library to program your network via the Brocade SDN Controller
 
 ## Other Brocade SDN Controller Libraries
-* rubybvc - Ruby gem for BVC:  https://github.com/BRCDcomm/rubybvc
+* rubybvc - Ruby gem for Brocade SDN Controller:  https://github.com/BRCDcomm/rubybvc
 
 ## Current Version:
 1.3.0
@@ -60,7 +60,7 @@ pip show pybvc
      git clone https://github.com/brcdcomm/pybvcsamples.git
      ```
 
-## Example 1:  Add and remove firewall on Vyatta vrouter5600 via BVC:
+## Example 1:  Add and remove firewall on Vyatta vrouter5600 via Brocade SDN Controller:
 
 ```python
 import pybvc
@@ -69,7 +69,7 @@ from pybvc.netconfdev.vrouter.vrouter5600 import VRouter5600, Firewall, Rules, R
 from pybvc.common.status import STATUS
 from pybvc.controller.controller import Controller
 
-print (">>> Create BVC controller instance")
+print (">>> Create Brocade SDN  controller instance")
 ctrl = Controller("172.22.18.186", "8181" , "admin" , "admin") 
 
 print (">>> Create Vyatta Router 5600 instance")
