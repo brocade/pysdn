@@ -1,7 +1,7 @@
 # pybvc
-Python library to program your network via the Brocade Vyatta Controller
+Python library to program your network via the Brocade SDN Controller
 
-## Other Brocade Vyatta Controller Libraries
+## Other Brocade SDN Controller Libraries
 * rubybvc - Ruby gem for BVC:  https://github.com/BRCDcomm/rubybvc
 
 ## Current Version:
@@ -76,7 +76,7 @@ print (">>> Create Vyatta Router 5600 instance")
 vrouter = VRouter5600(ctrl, "vRouter", "172.22.17.107", 830, "vyatta", "vyatta")
 
 
-print (">>> Connect Vyatta Router 5600 to Brocade Vyatta Controller via NETCONF")
+print (">>> Connect Vyatta Router 5600 to Brocade SDN Controller via NETCONF")
 result = ctrl.add_netconf_node(vrouter)
 
 print (">>> Define new firewall instance ACCEPT-SRC-IPADDR") 
