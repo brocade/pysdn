@@ -1,36 +1,37 @@
 
-# Copyright (c) 2015
+"""
+Copyright (c) 2015
 
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#  - Redistributions of source code must retain the above copyright notice,
-#    this list of conditions and the following disclaimer.
-# -  Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-# -  Neither the name of the copyright holder nor the names of its contributors
-#    may be used to endorse or promote products derived from this software
-#    without specific prior written permission.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+-  Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+-  Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+-  Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES;LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES;LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# @authors: Sergei Garbuzov
-# @status: Development
-# @version: 1.1.0
+@authors: Sergei Garbuzov
+@status: Development
+@version: 1.1.0
+
+ofswitch.py: OpenFlow switch properties and methods
 
 
-# ofswitch.py: OpenFlow switch properties and methods
-
-
+"""
 
 import json
 import urllib2
@@ -532,57 +533,6 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     def get_configured_FlowEntries(self, flow_table_id):
         return self.get_FlowEntries(flow_table_id, False)
-
-#---------------------------------------------------------------------------
-# 
-#---------------------------------------------------------------------------
-class ActionOutput():
-    ''' OpenFlow 'Output' action type '''
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
-    def __init__(self, port=None, length=None, order=None):
-        self.type = 'output'
-        self.order = order
-        self.action = {'port': port, 'max_len': length}
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
-    def update(self, port=None, length=None, order=None):
-        self.action = {'port': port, 'max_len': length}
-        if(port != None):
-            self.action['port'] = port
-        if(length != None):
-            self.action['max_len'] = length
-        if(order != None):
-            self.order = order
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
-    def update_from_list(self, data):
-        if(data != None and type(data) is dict and ('output_action' in data)):
-            self.type = 'output'
-            self.order = find_key_value_in_dict(data, 'order')
-            self.action = {'port': None, 'max_len': None}
-            self.action['port'] = find_key_value_in_dict(data, 'output_node_connector')
-            self.action['max_len'] = find_key_value_in_dict(data, 'max_length')
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
-    def to_string(self):
-        s = ""
-        p = self.action['port']
-        l = self.action['max_len']
-        if(p != None and l != None):
-            if(p == 'CONTROLLER'):
-                s = '{}:{}'.format(p, l)
-            else:
-                s = '{}:{}'.format(self.type, p)
-        
-        return s
 
 #-------------------------------------------------------------------------------
 # 
@@ -2128,14 +2078,18 @@ class SetFieldAction(Action):
             self.__init_from_dict__(d)
             return
         
-        self.set_field = {'vlan_match': None, 'protocol_match_fields' : None}
+        self.set_field = {'vlan_match': None,
+                          'protocol_match_fields' : None,
+                          'ip_match': None}
     
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
     def __init_from_dict__(self,d):
         if (d != None and isinstance(d, dict)):
-            self.set_field = {'vlan_match': None, 'protocol_match_fields' : None}
+            self.set_field = {'vlan_match': None,
+                              'protocol_match_fields' : None,
+                              'ip_match': None}
             for k,v in d.items():
                 if ('vlan_match' == k):
                     self.set_field[k] = VlanMatch(v)
@@ -2181,11 +2135,58 @@ class SetFieldAction(Action):
     #---------------------------------------------------------------------------
     def get_mpls_label(self):
         res = None
-        p = 'set_field'
-        if (hasattr(self, p)):
-            pm = getattr(self, p)['protocol_match_fields']
+        p1 = 'set_field'
+        p2 = 'protocol_match_fields'
+        if (hasattr(self, p1)):
+            pm = getattr(self, p1)[p2]
             if (pm != None):
                 res = pm.get_mpls_label()
+        
+        return res
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_ip_dscp(self, dscp):
+        p = 'ip_match'
+        if(self.set_field[p] == None):
+            self.set_field[p] = IpMatch()
+        self.set_field[p].set_ip_dscp(dscp)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_ip_dscp(self):
+        res = None
+        p1 = 'set_field'
+        p2 = 'ip_match'
+        if (hasattr(self, p1)):
+            vm = getattr(self, p1)[p2]
+            if (vm != None):
+                res = vm.get_ip_dscp()
+        
+        return res
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_ip_ecn(self, ecn):
+        p = 'ip_match'
+        if(self.set_field[p] == None):
+            self.set_field[p] = IpMatch()
+        self.set_field[p].set_ip_ecn(ecn)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_ip_ecn(self):
+        res = None
+        p1 = 'set_field'
+        p2 = 'ip_match'
+        if (hasattr(self, p1)):
+            vm = getattr(self, p1)[p2]
+            if (vm != None):
+                res = vm.get_ip_ecn()
         
         return res
 
@@ -2252,6 +2253,41 @@ class LoopbackAction(Action):
     def __init__(self, order=0):
         super(LoopbackAction, self).__init__(order)
         self.loopback_action = {}
+
+class SetNwTosAction(Action):
+    ''' Modify IPv4 ToS bits.
+        Replace the existing IP ToS field. This action is only applied
+        to IPv4 packets.
+        NOTE: This is OpenFlow version 1.0 specific action type '''
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def __init__(self, order=None, d=None, tos=None):
+        super(SetNwTosAction, self).__init__(order)
+        
+        ''' Value with which to replace existing IPv4 ToS field
+            NOTE: The modern redefinition of the ToS field is a 6 bit
+                  Differentiated Services Code Point (DSCP) field (the
+                  6 upper bits of the original TOS field) and a 2 bit
+                  Explicit Congestion Notification (ECN) field. '''
+        self.set_nw_tos_action = {'tos' : tos }
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_tos(self, tos):
+        self.set_nw_tos_action['tos'] = tos
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_tos(self):
+        res = None
+        p = 'set_nw_tos_action'
+        if (hasattr(self, p)):
+            res = getattr(self, p)['tos']
+        
+        return res
 
 #-------------------------------------------------------------------------------
 # 
