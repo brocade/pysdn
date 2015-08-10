@@ -3,9 +3,10 @@ Python library to program your network via the Brocade SDN Controller
 
 ## Other Brocade SDN Controller Libraries
 * rubybvc - Ruby gem for Brocade SDN Controller:  https://github.com/BRCDcomm/rubybvc
+* perlbsc - Perl library for Brocade SDN Controller:  https://github.com/BRCDcomm/perlbsc
 
 ## Current Version:
-1.3.0
+1.3.1
 
 ## Prerequisites
    - Python 2.7.x: 
