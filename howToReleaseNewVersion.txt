@@ -15,6 +15,7 @@ UPDATE VERSION:
 ---------------
 In master branch of brcdcom/pybvc
 1.  Update VERSION in the file pybvc/__init__.py
+2.  Update 'version' and 'release' in file docs/source/conf.py
 
 UPDATE DOCS:
 ------------
