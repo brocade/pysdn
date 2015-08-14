@@ -16,6 +16,8 @@ Typically the answer to this question is, 'it depends':
 
 ## How do I contribute (now that I have talked to you guys...or my change is small and I am sure you will accept it):
 
+1. We use the Fork & Pull methdology for pull requests as described here:  https://help.github.com/articles/using-pull-requests/
+    1. There is a good beginner video (by Ashley Grant) here as well: https://www.youtube.com/watch?v=M7ZYkjOWr6g
 1. Fork this repository.
     1. Go to this repository's home page in Github and then in the top right corner find the 'Fork' button and click it.
 1. Go to the newly forked repository's home page (in your Github account) and get its clone URL (on right margin)
