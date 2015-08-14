@@ -97,19 +97,3 @@ git push --force
 ```
 1. You have rebased.  Go back to the previous section and try sending your pull again.
 
- 
-
-## Other Brocade SDN Controller Libraries
-* rubybvc - Ruby gem for Brocade SDN Controller:  https://github.com/BRCDcomm/rubybvc
-* perlbsc - Perl library for Brocade SDN Controller:  https://github.com/BRCDcomm/perlbsc
-
-## Current Version:
-1.3.1
-
-## Prerequisites
-   - Python 2.7.x: 
-       - Test if your system already has it
-
-         ```bash
-         python --version
-         ```C#
