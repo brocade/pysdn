@@ -21,6 +21,11 @@ Typically the answer to this question is, "Hurray!  Yes!  Thank you!  Definitely
 - If you have ideas for a better internal software design/archictecture, log it as an issue so we can discuss it.
 - In general, it is better to communicate with us before launching into a large modification.  We prefer to communicate publically so that all users can participate if they so choose.  Please go to the github page for this repository and use the github issues page.
 
+## Legal Stuff:
+Be aware that all contributions must be written by you.  You cannot copy code from other developers and contribute it as yours.  Also, this is a BSD project and any libraries that your contribution utilizes must not alter/jeopardize the BSD license of this project.
+
+When you contribute your code you are agreeing that the code will licensed under the BSD license of this project.
+
 ## How do I contribute:
 
 1. First, read the 'Will my contribution be accepted by the maintainer(s)' section above.
@@ -104,7 +109,7 @@ Typically the answer to this question is, "Hurray!  Yes!  Thank you!  Definitely
 	git rebase master
 	```
 1. Check the output of the last command.  Did you get CONFLICT messages?  If yes, then you need to open the files that had CONFLICT, look at them and figure out how to merge the conflicts.  The conflicts will be marked in the files.  The CONFLICT areas will begin with <<<<< and end with >>>>  In between these will be your original text and the text from the current project.   
-1. Once you resolve all the conflicts and run the unit tests (coming soon)
+1. Once you resolve all the conflicts and run the unit tests (coming soon) you are ready to finish the rebase:
 1. Inform git about all the files you changed by doing a git add for each
 
 	```bash
