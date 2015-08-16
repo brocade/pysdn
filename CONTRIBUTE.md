@@ -23,6 +23,7 @@ Typically the answer to this question is, 'definitely':
     1. Go to this repository's home page in Github and then in the top right corner find the 'Fork' button and click it.
 1. Go to the newly forked repository's home page (in your Github account) and get its clone URL (on right margin)
 1. On your laptop open a command window and clone your fork of the project
+
 	```bash
 	git clone <clone url of your fork of the project>
 	```
