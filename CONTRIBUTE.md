@@ -23,16 +23,16 @@ Typically the answer to this question is, 'definitely':
     1. Go to this repository's home page in Github and then in the top right corner find the 'Fork' button and click it.
 1. Go to the newly forked repository's home page (in your Github account) and get its clone URL (on right margin)
 1. On your laptop open a command window and clone your fork of the project
-```bash
-git clone <clone url of your fork of the project>
-```
+	```bash
+	git clone <clone url of your fork of the project>
+	```
 1. Change into the directory created
 1. Set your local repo to track the original repository
 ```bash
 git remote add upstream <clone url for the original project>
 ```
 1. Never, Never, NEVER make changes in this master branch on your laptop.  It will always be your copy of the original project and never have changes you make.  You will make your changes in feature branches.  You may have only one feature branch or you may have multiples, depending on how many changes you are going to request be made to the original project.
-1. Create a feature branch for each feature you will ask to be made to the original project.  For instance if you have a two bug fixes and a new feature then it would be cleanest to put each of those into its own feature branch.  That way if one of your pull requests takes a long time to resolve and get into the original project the other ones can still get in quickly.
+1. Create a feature branch for each feature you will ask to be made to the original project.  For instance if you have two bug fixes and a new feature then it would be cleanest to put each of those into its own feature branch (so you would have three (3) feature branches).  That way if one of your pull requests takes a long time to resolve and get into the original project the other ones can still get in quickly.
 ```bash
 git checkout -b <name of your feature branch>
 ```
