@@ -15,7 +15,7 @@ Typically the answer to this question is, "Hurray!  Yes!  Thank you!  Definitely
 
 	1. track the issue
 	1. be sure it is a bug (and not a misunderstanding of a feature)
-	1. not already being worked on
+	1. be sure it is not already being worked on
 - If you contribute a new feature it should match the goal/scope of this project:  provide Python developers a Python library of classes to more easily work with Brocade's OpenDaylight Controller. This is to avoid feature creep and ensure that there are opportunities for others to build new github repositories with libraries and apps atop this library.
 - If something drives you nuts about using the API then log it as an issue and then see bug fix above. 
 - If you have ideas for a better internal software design/archictecture, log it as an issue so we can discuss it.
