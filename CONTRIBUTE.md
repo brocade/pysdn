@@ -11,7 +11,7 @@ Why would you want to contribute source code?
 ## Will my contribution be accepted by the maintainer(s)
 Typically the answer to this question is, "Hurray!  Yes!  Thank you!  Definitely!" But lets communicate with the community to be sure there is no duplicate effort or that what you want to do is not a new github project altogether:
 
-- If you contribute a bug fix then please find or create an issue first (go to the github page for this reposistory and use the github issues page, on right margin).  This is to 
+- If you contribute a bug fix then please find or create an issue first (go to the github page for this repository and use the github issues page, on right margin).  This is to 
 
 	1. track the issue
 	1. be sure it is a bug (and not a misunderstanding of a feature)
