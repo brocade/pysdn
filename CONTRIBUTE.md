@@ -8,15 +8,22 @@ Why would you want to contribute source code?
 - You have a new feature
 - You have some ideas
 
-## Will my contribution be accepted by the maintainer
-Typically the answer to this question is, 'definitely':
-- If you contribute a bug fix it should be accepted.  You must create an issue first (go to the github page for this reposistory and use the github issues page).  This is to 1) track the issue and also to be sure it is a bug (and not a misunderstanding of a feature) and not already being worked on.
-- If you contribute a new feature it should match the goal/scope of this project:  provide Python developers a Python library of classes to more easily work with Brocade's OpenDaylight Controller. This is to avoid feature creep and ensure that there are opportunities for others to build libraries and apps atop this library.
-- If you have ideas for a better software design/archictecture it may not be accepted, please discuss your suggestion with us first. 
-- In general, it is better to communicate with us before launching into a large modification.  The best way is to communicate publically so that all users can participate if they so choose.  Please go to the github page for this repository and use the github issues page.
+## Will my contribution be accepted by the maintainer(s)
+Typically the answer to this question is, "Hurray!  Yes!  Thank you!  Definitely!" But lets communicate with the community to be sure there is no duplicate effort or that what you want to do is not a new github project altogether:
 
-## How do I contribute (now that I have talked to you guys...or my change is small and I am sure you will accept it):
+- If you contribute a bug fix then please find or create an issue first (go to the github page for this reposistory and use the github issues page, on right margin).  This is to 
 
+	1. track the issue
+	1. be sure it is a bug (and not a misunderstanding of a feature)
+	1. not already being worked on
+- If you contribute a new feature it should match the goal/scope of this project:  provide Python developers a Python library of classes to more easily work with Brocade's OpenDaylight Controller. This is to avoid feature creep and ensure that there are opportunities for others to build new github repositories with libraries and apps atop this library.
+- If something drives you nuts about using the API then log it as an issue and then see bug fix above. 
+- If you have ideas for a better internal software design/archictecture, log it as an issue so we can discuss it.
+- In general, it is better to communicate with us before launching into a large modification.  We prefer to communicate publically so that all users can participate if they so choose.  Please go to the github page for this repository and use the github issues page.
+
+## How do I contribute:
+
+1. First, read the 'Will my contribution be accepted by the maintainer(s)' section above.
 1. We use the Fork & Pull methdology for pull requests as described here:  https://help.github.com/articles/using-pull-requests/
     1. There is a good beginner video (by Ashley Grant) here as well: https://www.youtube.com/watch?v=M7ZYkjOWr6g
 1. Fork this repository.
