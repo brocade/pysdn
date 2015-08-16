@@ -29,6 +29,7 @@ Typically the answer to this question is, 'definitely':
 	```
 1. Change into the directory created
 1. Set your local repo to track the original repository
+
 ```bash
 git remote add upstream <clone url for the original project>
 ```
