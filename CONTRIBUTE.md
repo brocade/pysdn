@@ -22,9 +22,9 @@ Typically the answer to this question is, "Hurray!  Yes!  Thank you!  Definitely
 - In general, it is better to communicate with us before launching into a large modification.  We prefer to communicate publically so that all users can participate if they so choose.  Please go to the github page for this repository and use the github issues page.
 
 ## Legal Stuff:
-Be aware that all contributions must be written by you.  You cannot copy code from other developers and contribute it as yours.  Also, this is a BSD project and any libraries that your contribution utilizes must not alter/jeopardize the BSD license of this project.
-
-When you contribute your code you are agreeing that the code will licensed under the BSD license of this project.
+When you do your first pull request we will ask you to sign a contributor license agreement (CLA).
+This is to ensure that we can keep pybvc open source for everyone.
+We thought that this StackOverflow answer did a good job describing the reasons for CLA: http://programmers.stackexchange.com/questions/168020/how-signing-out-a-cla-prevents-legal-issues-in-open-source-projects 
 
 ## How do I contribute:
 
