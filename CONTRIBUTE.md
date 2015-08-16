@@ -11,7 +11,7 @@ Why would you want to contribute source code?
 ## Will my contribution be accepted by the maintainer
 Typically the answer to this question is, 'definitely':
 - If you contribute a bug fix it should be accepted.  You must create an issue first (go to the github page for this reposistory and use the github issues page).  This is to 1) track the issue and also to be sure it is a bug (and not a misunderstanding of a feature) and not already being worked on.
-- If you contribute a new feature it should match the goal/scope of this project:  provide Python developers a Python library of classes to more easily work with Brocade's OpenDaylight Controller. This is to avoid feature creep and ensure that there are opportunities for others to build libraries and apps atop this library for focused project.
+- If you contribute a new feature it should match the goal/scope of this project:  provide Python developers a Python library of classes to more easily work with Brocade's OpenDaylight Controller. This is to avoid feature creep and ensure that there are opportunities for others to build libraries and apps atop this library.
 - If you have ideas for a better software design/archictecture it may not be accepted, please discuss your suggestion with us first. 
 - In general, it is better to communicate with us before launching into a large modification.  The best way is to communicate publically so that all users can participate if they so choose.  Please go to the github page for this repository and use the github issues page.
 
