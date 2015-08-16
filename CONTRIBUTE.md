@@ -18,8 +18,8 @@ Typically the answer to this question is, "Hurray!  Yes!  Thank you!  Definitely
 	1. be sure it is not already being worked on
 - If you contribute a new feature it should match the goal/scope of this project:  provide Python developers a Python library of classes to more easily work with Brocade's OpenDaylight Controller. This is to avoid feature creep and ensure that there are opportunities for others to build new github repositories with libraries and apps atop this library.
 - If something drives you nuts about using the API then log it as an issue and then see bug fix above. 
-- If you have ideas for a better internal software design/archictecture, log it as an issue so we can discuss it.
-- In general, it is better to communicate with us before launching into a large modification.  We prefer to communicate publically so that all users can participate if they so choose.  Please go to the github page for this repository and use the github issues page.
+- If you have ideas for a better internal software design/architecture, log it as an issue so we can discuss it.
+- In general, it is better to communicate with us before launching into a large modification.  We prefer to communicate publicly so that all users can participate if they so choose.  Please go to the github page for this repository and use the github issues page.
 
 ## Legal Stuff:
 When you do your first pull request we will ask you to sign a contributor license agreement (CLA).
@@ -29,7 +29,7 @@ We thought that this StackOverflow answer did a good job describing the reasons 
 ## How do I contribute:
 
 1. First, read the 'Will my contribution be accepted by the maintainer(s)' section above.
-1. We use the Fork & Pull methdology for pull requests as described here:  https://help.github.com/articles/using-pull-requests/
+1. We use the Fork & Pull methodology for pull requests as described here:  https://help.github.com/articles/using-pull-requests/
     1. There is a good beginner video (by Ashley Grant) here as well: https://www.youtube.com/watch?v=M7ZYkjOWr6g
 1. Fork this repository.
     1. Go to this repository's home page in Github and then in the top right corner find the 'Fork' button and click it.

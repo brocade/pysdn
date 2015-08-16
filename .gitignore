@@ -60,3 +60,5 @@ target/
 
 # VI files
 *.swp
+
+*.bak
