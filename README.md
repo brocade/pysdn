@@ -6,7 +6,7 @@ Python library to program your network via the Brocade SDN Controller
 * perlbsc - Perl library for Brocade SDN Controller:  https://github.com/BRCDcomm/perlbsc
 
 ## Current Version:
-1.3.1
+1.3.2
 
 ## Prerequisites
    - Python 2.7.x: 
