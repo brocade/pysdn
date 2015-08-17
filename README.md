@@ -64,6 +64,8 @@ If you want to contribute to this project, fantastic!  Please check out our CONT
      ```bash
      git clone https://github.com/brcdcomm/pybvcsamples.git
      ```
+## Twitter:
+If you use twitter, then follow [@jebpublic](http://twitter.com/intent/user?screen_name=jebpublic).  This is where announcements about updates are sent.
 
 ## Example 1:  Add and remove firewall on Vyatta vrouter5600 via Brocade SDN Controller:
 
