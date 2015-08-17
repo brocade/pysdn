@@ -24,6 +24,12 @@ In master branch of brcdcom/pybvc
 	- Increment X when you break backwards-compatibility or add major features
 2.  Update 'version' and 'release' in file docs/source/conf.py
 
+PUSH TO GITHUB:
+---------------
+git add .
+git commit -m "Update to version <version>"
+git push
+
 UPDATE DOCS:
 ------------
 See howToUpdateDocs.txt
