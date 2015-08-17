@@ -1,28 +1,35 @@
 
 """
-Copyright (c) 2015
+Copyright (c) 2015,  BROCADE COMMUNICATIONS SYSTEMS, INC
+
+All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
--  Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
--  Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
--  Neither the name of the copyright holder nor the names of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
+
+1. Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+contributors may be used to endorse or promote products derived from this
+software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES;LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
+
 
 @authors: Sergei Garbuzov
 @status: Development
@@ -48,6 +55,7 @@ from pybvc.common.utils import find_dict_in_list
 from pybvc.common.utils import strip_none
 from pybvc.common.utils import dict_keys_dashed_to_underscored
 from pybvc.common.utils import dbg_print
+from pybvc.controller.inventory import GroupFeatures
 
 #-------------------------------------------------------------------------------
 # 
@@ -533,12 +541,305 @@ class OFSwitch(OpenflowNode):
     #---------------------------------------------------------------------------
     def get_configured_FlowEntries(self, flow_table_id):
         return self.get_FlowEntries(flow_table_id, False)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_group_ids(self, operational=True):
+        """ Retrieve list of group IDs available on the Controller
+            (refer to operational or configuration data store)
+        """
+        status = OperStatus()
+        group_ids = []
+        ctrl = self.ctrl
+        
+        url = ""
+        if (operational):
+            url = ctrl.get_node_operational_url(self.name)
+        else:
+            url = ctrl.get_node_config_url(self.name)
+        
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p1 = 'node'
+            d = json.loads(resp.content)
+            l1 = d.get(p1, None)
+            if (isinstance(l1, list) and l1):
+                p2 = 'flow-node-inventory:group'
+                l2 = l1[0].get(p2, None)
+                if (isinstance(l2, list) and l2):
+                    p3 = 'group-id'
+                    for item in l2:
+                        gid = item.get(p3, None)
+                        if gid:
+                            group_ids.append(gid)
+            
+            status.set_status(STATUS.OK
+                              if group_ids
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, sorted(group_ids))
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_operational_group_ids(self):
+        """ Retrieve list of group IDs in the operational data store
+            of the Controller
+        """
+        return self.get_group_ids(operational=True)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_configured_group_ids(self):
+        """ Retrieve list of group IDs in the configuration data store
+            of the Controller
+        """
+        return self.get_group_ids(operational=False)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def add_modify_group(self, group_entry):
+        """ Create a new or modify an existing group in the configuration
+            data store of the Controller
+        """
+        status = OperStatus()
+        templateUrlExt = "/flow-node-inventory:group/{}"
+        headers = {'content-type': 'application/yang.data+json'}
+        resp = None
+        if isinstance(group_entry, GroupEntry):
+            ctrl = self.ctrl
+            url = ctrl.get_node_config_url(self.name)
+            urlext = templateUrlExt.format(group_entry.get_group_id())
+            url += urlext
+            payload = group_entry.get_payload()
+            resp = ctrl.http_put_request(url, payload, headers)
+            if(resp == None):
+                status.set_status(STATUS.CONN_ERROR)
+            elif(resp.content == None):
+                status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+            elif (resp.status_code == 200):
+                status.set_status(STATUS.OK)
+            else:
+                status.set_status(STATUS.HTTP_ERROR, resp)
+        else:
+            dbg_print("DEBUG: unsupported data format ")
+            status.set_status(STATUS.MALFORM_DATA)
+        
+        return Result(status, resp)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def delete_group(self, group_id):
+        """ Remove given group from the configuration data store
+            of the Controller
+        """
+        status = OperStatus()
+        templateUrlExt = "/flow-node-inventory:group/{}"
+        ctrl = self.ctrl
+        url = ctrl.get_node_config_url(self.name)
+        urlext = templateUrlExt.format(group_id)
+        url += urlext
+        
+        resp = ctrl.http_delete_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            status.set_status(STATUS.OK)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, None)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_group(self, group_id, operational=True):
+        """ Retrieve group information from the Controller,
+            (refer to operational or configuration data store)
+        """
+        status = OperStatus()
+        group = None
+        templateUrlExt = "/flow-node-inventory:group/{}"
+        urlext = templateUrlExt.format(group_id)
+        ctrl = self.ctrl
+        
+        url = ""
+        if (operational):
+            url = ctrl.get_node_operational_url(self.name)
+        else:
+            url = ctrl.get_node_config_url(self.name)
+        
+        url += urlext
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p = 'flow-node-inventory:group'
+            l = json.loads(resp.content).get(p, None)
+            if (isinstance(l, list) and l):
+                group = l[0]
+            
+            status.set_status(STATUS.OK
+                              if group
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, group)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_operational_group(self, group_id):
+        """ Retrieve group information from the Controller's
+            operational data store
+        """
+        return self.get_group(group_id, operational=True)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_configured_group(self, group_id):
+        """ Retrieve group information from the Controller's
+            configuration data store
+        """
+        return self.get_group(group_id, operational=False)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_group_description(self, group_id):
+        """ Retrieve description of the group (along with
+            the group's bucket actions) from the Controller's
+            operational data store
+        """
+        status = OperStatus()
+        group = None
+        templateUrlExt = "/flow-node-inventory:group/{}" + \
+                         "/opendaylight-group-statistics:group-desc"
+        urlext = templateUrlExt.format(group_id)
+        ctrl = self.ctrl
+        
+        url = ctrl.get_node_operational_url(self.name)
+        url += urlext
+        
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p = 'opendaylight-group-statistics:group-desc'
+            group = json.loads(resp.content).get(p, None)
+            
+            status.set_status(STATUS.OK
+                              if group
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, group)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_group_statistics(self, group_id):
+        """  Retrieve statistics for the group from the Controller's
+             operational data store
+        """
+        status = OperStatus()
+        group = None
+        templateUrlExt = "/flow-node-inventory:group/{}" + \
+                         "/opendaylight-group-statistics:group-statistics/"
+        urlext = templateUrlExt.format(group_id)
+        ctrl = self.ctrl
+        
+        url = ctrl.get_node_operational_url(self.name)
+        url += urlext
+        
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p = 'opendaylight-group-statistics:group-statistics'
+            group = json.loads(resp.content).get(p, None)
+            
+            status.set_status(STATUS.OK
+                              if group
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, group)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_group_features(self):
+        """ Retrieve from the Controller's operational data store
+            group features information supported by this OpenFlow
+            switch
+        """
+        status = OperStatus()
+        group_features = None
+        templateUrlExt = "/opendaylight-group-statistics:group-features"
+        urlext = templateUrlExt
+        ctrl = self.ctrl
+        url = ctrl.get_node_operational_url(self.name)
+        url += urlext
+        
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp == None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content == None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p = 'opendaylight-group-statistics:group-features'
+            d = json.loads(resp.content).get(p, None)
+            if d:
+                group_features = GroupFeatures(d)
+            
+            status.set_status(STATUS.OK
+                              if group_features
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        
+        return Result(status, group_features)
 
 #-------------------------------------------------------------------------------
 # 
 #-------------------------------------------------------------------------------
 class FlowEntry(object):
-    ''' Class for creating and interacting with OpenFlow flows '''
+    """ Class for creating and interacting with OpenFlow flows """
+    
+    ''' Reference name in the YANG data tree on the Controller '''
     _mn = "flow-node-inventory:flow"
     
     #---------------------------------------------------------------------------
@@ -658,7 +959,8 @@ class FlowEntry(object):
     #---------------------------------------------------------------------------
     def to_json(self):
         """ Return FlowEntry as JSON """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
     
     #---------------------------------------------------------------------------
     # 
@@ -696,7 +998,8 @@ class FlowEntry(object):
         d1 = json.loads(s)
         d2 = strip_none(d1)
         payload = {self._mn : d2}
-        return json.dumps(payload, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(payload, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
     
     #---------------------------------------------------------------------------
     # 
@@ -1169,7 +1472,7 @@ class FlowEntry(object):
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('Instruction' instance is expected)" % instruction)
-            
+    
     #---------------------------------------------------------------------------
     # 
     #---------------------------------------------------------------------------
@@ -3864,4 +4167,241 @@ class Metadata(Match):
             res = getattr(self, p)
         
         return res
+
+#-------------------------------------------------------------------------------
+# 
+#-------------------------------------------------------------------------------
+class GroupEntry():
+    """ Class that represents a group entry in the OpenFlow Group Table """
     
+    ''' Reference name in the YANG data tree on the Controller '''
+    _mn = "flow-node-inventory:group"
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def __init__(self, group_id, group_type):
+        
+        ''' Uniquely identifies a group within a switch. '''
+        self.group_id = group_id
+        
+        ''' Group type, should be one of the following:
+               OFPGT_ALL      - All group (multicast/broadcast)
+               OFPGT_SELECT   - Select group
+               OFPGT_INDIRECT - Indirect group
+               OFPGT_FF       - Fast failover group
+         '''
+        self.group_type = group_type
+        
+        ''' Associative name for this group.
+            Controller's specific attribute (optional) '''
+        self.group_name = None
+        
+        ''' Unclear what is it for ???
+            Controller's specific attribute (optional) '''
+        self.container_name = None
+        
+        ''' Unclear what is it for ???
+            Would assume it serves for the same purpose as in FlowEntry.
+            Controller's specific attribute (optional) '''
+        self.barrier = None
+        
+        ''' An ordered list of action buckets in this group.
+            Each action bucket contains a set of actions to execute
+            and associated parameters.
+         '''
+        self.buckets = {'bucket': []}
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def to_json(self):
+        """ Return GroupEntry represented as JSON object """
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_payload(self):
+        """ Return GroupEntry as a payload for the HTTP request body """
+        s = self.to_json()
+        # Convert all 'underscored' keywords to 'dash-separated' form used
+        # by ODL YANG models naming conventions
+        s = s.replace('_', '-')
+        # Following are exceptions from the common ODL rules for having all
+        # multi-part keywords in YANG models being hash separated
+        s = s.replace('watch-group', 'watch_group')
+        s = s.replace('watch-port', 'watch_port')
+        d1 = json.loads(s)
+        d2 = strip_none(d1)
+        payload = {self._mn : d2}
+        return json.dumps(payload, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_group_id(self, group_id):
+        self.group_id = group_id
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_group_id(self):
+        return self.group_id
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_group_type(self, group_type):
+        self.group_type = group_type
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_group_type(self):
+        return self.group_type
+    
+    def set_group_name(self, name):
+        self.group_name = name
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_group_name(self):
+        return self.group_name
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_container_name(self, name):
+        self.container_name = name
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_container_name(self):
+        return self.container_name
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_barrier(self, barrier):
+        self.barrier = barrier
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_barrier(self, barrier):
+        return self.barrier
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def add_bucket(self, bucket): 
+        if isinstance(bucket, GroupBucket):
+            self.buckets['bucket'].append(bucket)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('GroupBucket' instance is expected)" % bucket)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_buckets(self):
+        res = None
+        p = 'buckets'
+        if (hasattr(self, p)):
+            attr = getattr(self, p)
+            p2 = 'bucket'
+            if (isinstance(attr, dict) and p2 in attr):
+                res = attr[p2]
+        
+        return res
+
+#-------------------------------------------------------------------------------
+# 
+#-------------------------------------------------------------------------------
+class GroupBucket():
+    """ Helper class for representing 'buckets' property
+        of the GroupEntry class """
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def __init__(self, bucket_id):
+        
+        ''' Identifier (index) of the bucket within the group '''
+        self.bucket_id = bucket_id
+        
+        ''' Relative weight of this bucket.
+            Only defined for select groups. '''
+        self.weight = None
+        
+        ''' Port whose state affects whether this bucket is live.
+            Indicates the port whose liveness controls whether this
+            bucket is a candidate for forwarding.
+            Only required for fast failover groups, but may be optionally
+            implemented for other group types also '''
+        self.watch_port = None
+        
+        ''' Group whose state affects whether this bucket is live.
+            Indicates the group whose liveness controls whether this
+            bucket is a candidate for forwarding.
+            Only required for fast failover groups, but may be optionally
+            implemented for other group types also '''
+        self.watch_group = None
+        
+        ''' Set of actions to execute by this bucket '''
+        self.action = []
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def to_json(self):
+        """ Return 'GroupBucket' represented as JSON object """
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_weight(self, weight):
+        self.weight = weight
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_weight(self):
+        return self.weight
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_watch_port(self, port):
+        self.watch_port = port
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_watch_port(self):
+        return self.watch_port
+    
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def set_watch_group(self, group_id):
+        self.watch_group = group_id
+        
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def get_watch_group(self):
+        return self.watch_group
+        
+    #---------------------------------------------------------------------------
+    # 
+    #---------------------------------------------------------------------------
+    def add_action(self, action):
+        self.action.append(action)

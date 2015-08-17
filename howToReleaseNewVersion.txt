@@ -9,12 +9,19 @@ COPY FROM DEVELOPMENT REPOSITORY:
         cp -r elbrys/pydevodl/framework/* brcd/pybvc
               NOTE the paths will need to be changed to match your setup
 5.  In the brcd/pybvc folder do a global search and replace:  find 'pybvc.' and replace with 'pybvc.'
+6.  Run the copyright check perl script as follows and verify that no source files show error (missing copyright):
+        cd pybvc
+        perl b00-copyright.t
 
 
 UPDATE VERSION:
 ---------------
 In master branch of brcdcom/pybvc
 1.  Update VERSION in the file pybvc/__init__.py
+    - X.Y.Z
+	- Increment Z when you fix something
+	- Increment Y when you add a new feature
+	- Increment X when you break backwards-compatibility or add major features
 2.  Update 'version' and 'release' in file docs/source/conf.py
 
 UPDATE DOCS:
