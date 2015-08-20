@@ -45,40 +45,26 @@ import json
 
 from pybvc.common.utils import dict_keys_dashed_to_underscored
 
-#-------------------------------------------------------------------------------
-# Class 'Inventory'
-#-------------------------------------------------------------------------------
+
 class Inventory():
     ''' Class that represents current state of
         the Controller's inventory store '''
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init__(self, inv_json=None):
         self.openflow_nodes = []
         self.netconf_nodes = []
-        if (inv_json != None):
+        if (inv_json is not None):
             self.__init_from_json__(inv_json)
             return
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def add_openflow_node(self, node):
         assert(isinstance(node, OpenFlowCapableNode))
         self.openflow_nodes.append(node)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def add_netconf_node(self, node):
         assert(isinstance(node, NetconfCapableNode))
         self.netconf_nodes.append(node)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init_from_json__(self, s):
         if (isinstance(s, basestring)):
             l = json.loads(s)
@@ -98,90 +84,64 @@ class Inventory():
         else:
             raise TypeError("[Inventory] wrong argument type '%s'"
                             " (JSON 'string' is expected)" % type(s))
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_openflow_node_ids(self):
         ids = []
         for item in self.openflow_nodes:
             ids.append(item.get_id())
-        
         return sorted(ids)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_openflow_node(self, node_id):
         node = None
         for item in self.openflow_nodes:
             if node_id == item.get_id():
                 node = item
                 break
-        
         return node
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_openflow_node_flows_cnt(self, node_id):
         cnt = 0
         node = self.get_openflow_node(node_id)
         if node:
             assert(isinstance(node, OpenFlowCapableNode))
             cnt = node.get_flows_cnt()
-        
         return cnt
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_netconf_node_ids(self):
         ids = []
         for item in self.netconf_nodes:
             ids.append(item.get_id())
-        
         return sorted(ids)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_netconf_node(self, node_id):
         node = None
         for item in self.netconf_nodes:
             if node_id == item.get_id():
                 node = item
                 break
-        
         return node
 
-#-------------------------------------------------------------------------------
-# Class 'OpenFlowCapableNode'
-#-------------------------------------------------------------------------------
+
 class OpenFlowCapableNode():
     ''' Class that represents current state of an OpenFlow capable node
         in the Controller's inventory store
         Helper class of the 'Inventory' class '''
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init__(self, inv_json=None, inv_dict=None):
-        self.ports=[]
-        self.group_features = [] # Group support capabilities of the switch
-        self.groups = []         # Current groups on the switch
-        
+        self.ports = []
+        # Group support capabilities of the switch
+        self.group_features = []
+        # Current groups on the switch
+        self.groups = []
+
         if (inv_json):
             self.__init_from_json__(inv_json)
             return
-        
+
         if(inv_dict):
             self.__init_from_dict__(inv_dict)
             return
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init_from_json__(self, s):
         assert(isinstance(s, basestring))
         obj = json.loads(s)
@@ -202,38 +162,23 @@ class OpenFlowCapableNode():
                     self.groups.append(of_group)
             else:
                 setattr(self, k, v)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init_from_dict__(self, d):
         assert(isinstance(d, dict))
         js = json.dumps(d)
         self.__init_from_json__(js)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_string(self):
         """ Returns string representation of this object. """
         return str(vars(self))
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_json(self):
         """ Returns JSON representation of this object. """
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_id(self):
         return self.id
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_manufacturer_info(self):
         info = ""
         p = 'flow_node_inventory:manufacturer'
@@ -241,12 +186,8 @@ class OpenFlowCapableNode():
             info = getattr(self, p)
         else:
             assert(False)
-        
         return info
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_hardware_info(self):
         info = ""
         p = 'flow_node_inventory:hardware'
@@ -254,12 +195,8 @@ class OpenFlowCapableNode():
             info = getattr(self, p)
         else:
             assert(False)
-        
         return info
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_software_info(self):
         info = ""
         p = 'flow_node_inventory:software'
@@ -267,12 +204,8 @@ class OpenFlowCapableNode():
             info = getattr(self, p)
         else:
             assert(False)
-        
         return info
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_description(self):
         descr = ""
         p = 'flow_node_inventory:description'
@@ -280,12 +213,8 @@ class OpenFlowCapableNode():
             descr = getattr(self, p)
         else:
             assert(False)
-        
         return descr
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_capabilities(self):
         capabilities = []
         p1 = 'flow_node_inventory:switch_features'
@@ -297,12 +226,8 @@ class OpenFlowCapableNode():
                 for item in d[p1][p2]:
                     s = item.replace(p3, "").replace('_', ' ').upper()
                     capabilities.append(s)
-        
         return capabilities
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_ip_address(self):
         addr = ""
         p = 'flow_node_inventory:ip_address'
@@ -310,12 +235,8 @@ class OpenFlowCapableNode():
             addr = getattr(self, p)
         else:
             assert(False)
-            
         return addr
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_flows_cnt(self):
         flow_cnt = 0
         p1 = 'flow_node_inventory:table'
@@ -325,12 +246,8 @@ class OpenFlowCapableNode():
         for item in flow_table:
             if (isinstance(item, dict) and p2 in item):
                 flow_cnt += item[p2][p3]
-        
         return flow_cnt
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_serial_number(self):
         sn = ""
         p = 'flow_node_inventory:serial_number'
@@ -338,12 +255,8 @@ class OpenFlowCapableNode():
             sn = getattr(self, p)
         else:
             assert(False)
-        
         return sn
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_max_buffers_info(self):
         n = ""
         p1 = 'flow_node_inventory:switch_features'
@@ -351,12 +264,8 @@ class OpenFlowCapableNode():
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
             n = self.__dict__[p1][p2]
-        
         return n
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_max_tables_info(self):
         n = ""
         p1 = 'flow_node_inventory:switch_features'
@@ -364,12 +273,8 @@ class OpenFlowCapableNode():
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
             n = self.__dict__[p1][p2]
-        
         return n
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_flow_tables_cnt(self):
         cnt = ""
         p = 'flow_node_inventory:table'
@@ -377,12 +282,8 @@ class OpenFlowCapableNode():
             cnt = len(getattr(self, p))
         else:
             assert(False)
-        
         return cnt
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_flows_in_table_cnt(self, table_id):
         flow_cnt = 0
         p1 = 'flow_node_inventory:table'
@@ -394,115 +295,71 @@ class OpenFlowCapableNode():
                 if(item['id'] == table_id):
                     flow_cnt += item[p2][p3]
                     break
-        
         return flow_cnt
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_port_ids(self):
         port_ids = []
         for item in self.ports:
             port_id = item.get_port_id()
             port_ids.append(port_id)
-        
         return sorted(port_ids)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_port_number(self, port_id):
         pnum = None
         for item in self.ports:
             if(item.get_port_id() == port_id):
                 pnum = item.get_port_number()
                 break
-        
         return pnum
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_port_name(self, port_id):
         pname = None
         for item in self.ports:
             if(item.get_port_id() == port_id):
                 pname = item.get_port_name()
                 break
-        
         return pname
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_port_obj(self, port_id):
         port_obj = None
         for item in self.ports:
             if(item.get_port_id() == port_id):
                 port_obj = item
-        
         return port_obj
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_group_features(self):
         return self.group_features
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_groups_total_num(self):
         return len(self.groups)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_group_ids(self):
         ids = []
         for item in self.groups:
             ids.append(item.get_id())
-        
         return sorted(ids)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_group(self, group_id):
         return None
 
-#-------------------------------------------------------------------------------
-# Class 'OpenFlowPort'
-#-------------------------------------------------------------------------------
+
 class OpenFlowPort():
     ''' Class that represents current state of an OpenFlow enabled port
         Helper class of the 'OpenFlowCapableNode' class '''
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init__(self, d):
         assert(isinstance(d, dict))
         for k, v in d.items():
             setattr(self, k, v)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_string(self):
         """ Returns string representation of this object. """
         return str(vars(self))
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_json(self):
         """ Returns JSON representation of this object. """
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_port_id(self):
         pid = ""
         p = 'id'
@@ -510,12 +367,8 @@ class OpenFlowPort():
             pid = getattr(self, p)
         else:
             assert(False)
-        
         return pid
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_port_number(self):
         pnum = ""
         p = 'flow_node_inventory:port_number'
@@ -523,12 +376,8 @@ class OpenFlowPort():
             pnum = getattr(self, p)
         else:
             assert(False)
-        
         return pnum
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_port_name(self):
         pname = ""
         p = 'flow_node_inventory:name'
@@ -536,12 +385,8 @@ class OpenFlowPort():
             pname = getattr(self, p)
         else:
             assert(False)
-        
         return pname
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_mac_address(self):
         pmac = ""
         p = 'flow_node_inventory:hardware_address'
@@ -549,38 +394,26 @@ class OpenFlowPort():
             pmac = getattr(self, p)
         else:
             assert(False)
-        
         return pmac.lower()
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_link_state(self):
         state = ""
         p1 = 'flow_node_inventory:state'
         p2 = 'link_down'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
-            state = "UP" if(d[p1][p2] == False) else "DOWN"
-        
+            state = "UP" if(d[p1][p2] is False) else "DOWN"
         return state
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_forwarding_state(self):
         state = ""
         p1 = 'flow_node_inventory:state'
         p2 = 'blocked'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
-            state = "FORWARDING" if(d[p1][p2] == False) else "BLOCKED"
-        
+            state = "FORWARDING" if(d[p1][p2] is False) else "BLOCKED"
         return state
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_packets_received(self):
         pkts_cnt = 0
         p1 = 'opendaylight_port_statistics:flow_capable_node_connector_statistics'
@@ -590,12 +423,8 @@ class OpenFlowPort():
             p3 = 'received'
             if (p3 in d[p1][p2]):
                 pkts_cnt = d[p1][p2][p3]
-        
         return pkts_cnt
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_packets_transmitted(self):
         pkts_cnt = 0
         p1 = 'opendaylight_port_statistics:flow_capable_node_connector_statistics'
@@ -605,12 +434,8 @@ class OpenFlowPort():
             p3 = 'transmitted'
             if (p3 in d[p1][p2]):
                 pkts_cnt = d[p1][p2][p3]
-        
         return pkts_cnt
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_bytes_received(self):
         bytes_cnt = 0
         p1 = 'opendaylight_port_statistics:flow_capable_node_connector_statistics'
@@ -620,12 +445,9 @@ class OpenFlowPort():
             p3 = 'received'
             if (p3 in d[p1][p2]):
                 bytes_cnt = d[p1][p2][p3]
-        
+
         return bytes_cnt
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_bytes_transmitted(self):
         bytes_cnt = 0
         p1 = 'opendaylight_port_statistics:flow_capable_node_connector_statistics'
@@ -635,12 +457,8 @@ class OpenFlowPort():
             p3 = 'transmitted'
             if (p3 in d[p1][p2]):
                 bytes_cnt = d[p1][p2][p3]
-        
         return bytes_cnt
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_current_features(self):
         features = []
         p = 'flow_node_inventory:current_feature'
@@ -648,21 +466,14 @@ class OpenFlowPort():
         if (p in d and isinstance(d[p], basestring)):
             s = d[p].upper().replace('_', '-')
             features = s.split()
-        
         return features
 
-#-------------------------------------------------------------------------------
-# Class 'GroupInfo'
-#-------------------------------------------------------------------------------
+
 class GroupInfo():
     """ Helper class that represents current state of an OpenFlow
         group entry in the Controller's operational data store
         (OpenFlow switch context specific data)
     """
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def __init__(self, group_info):
         if (isinstance(group_info, dict)):
             d = dict_keys_dashed_to_underscored(group_info)
@@ -671,10 +482,7 @@ class GroupInfo():
         else:
             raise TypeError("[GroupInfo] wrong argument type '%s'"
                             " (dictionary is expected)" % type(group_info))
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_id(self):
         myid = ""
         p = 'group_id'
@@ -682,29 +490,22 @@ class GroupInfo():
             myid = getattr(self, p)
         else:
             assert(False)
-        
         return myid
 
-#-------------------------------------------------------------------------------
-# Class 'OpenFlowPort'
-#-------------------------------------------------------------------------------
+
 class GroupFeatures():
     """ Helper class that is used to represent group features on the switch
         (group types, max number of groups for each type, group capabilities
         and group supported actions) """
-    
     # mapping of group type names to their numerical values
     # in the OFPGT_* enum
-    group_types = {'group-all' : 0, 'group-select' : 1,
-                   'group-indirect' : 2, 'group-ff' : 3}
+    group_types = {'group-all': 0, 'group-select': 1,
+                   'group-indirect': 2, 'group-ff': 3}
     # mapping of group capability names to their bit positions
     # in the OFPGFC_* bitmap
-    group_capabilities = {'select-weight' : 1, 'select-liveness' : 2,
-                          'chaining' : 4, 'chaining-checks' : 8}
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+    group_capabilities = {'select-weight': 1, 'select-liveness': 2,
+                          'chaining': 4, 'chaining-checks': 8}
+
     def __init__(self, features):
         if (isinstance(features, dict)):
             d = dict_keys_dashed_to_underscored(features)
@@ -713,22 +514,13 @@ class GroupFeatures():
         else:
             raise TypeError("[GroupFeatures] wrong argument type '%s'"
                             " (dictionary is expected)" % type(features))
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def _sort_key_capabilities(self, var):
         return self.group_capabilities.get(var.lower())
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def _sort_key_types(self, var):
         return self.group_types.get(var.lower())
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_max_groups(self):
         """ The 'max_groups' field is the maximum number of groups
             for each type of group
@@ -737,18 +529,14 @@ class GroupFeatures():
         p = 'max_groups'
         if hasattr(self, p):
             res = self.max_groups
-        
         return res
-        
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_capabilities(self):
         """ The 'capabilities' field uses a combination of the
             following flags:
                OFPGFC_SELECT_WEIGHT   - Support weight for select groups
                OFPGFC_SELECT_LIVENESS - Support liveness for select groups
-               OFPGFC_CHAINING        - Support chaining groups 
+               OFPGFC_CHAINING        - Support chaining groups
                OFPGFC_CHAINING_CHECKS - Check chaining for loops and delete
         """
         res = None
@@ -756,14 +544,10 @@ class GroupFeatures():
         if hasattr(self, p1):
             l = self.group_capabilities_supported
             p2 = 'opendaylight-group-types:'
-            l1 = [i.encode('ascii','ignore').replace(p2, '').upper() for i in l]
+            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper() for i in l]
             res = sorted(l1, key=self._sort_key_capabilities)
-        
         return res
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_types(self):
         """ The 'types' field is a bitmap of group types supported
             by the switch
@@ -773,14 +557,10 @@ class GroupFeatures():
         if hasattr(self, p1):
             l = self.group_types_supported
             p2 = 'opendaylight-group-types:'
-            l1 = [i.encode('ascii','ignore').replace(p2, '').upper() for i in l]
+            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper() for i in l]
             res = sorted(l1, key=self._sort_key_types)
-        
         return res
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_actions(self):
         """ The 'actions' field is a set of bitmaps of actions supported
             by each group type. The first bitmap applies to the OFPGT_ALL
@@ -792,63 +572,41 @@ class GroupFeatures():
         p = 'actions'
         if hasattr(self, p):
             res = self.actions
-        
         return res
 
-#-------------------------------------------------------------------------------
-# Class 'NetconfCapableNode'
-#-------------------------------------------------------------------------------
+
 class NetconfCapableNode():
     ''' Class that represents current state of a NETCONF capable node
         Helper class of the 'Inventory' class '''
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init__(self, inv_json=None, inv_dict=None):
-        if (inv_dict != None):
+        if (inv_dict is not None):
             self.__init_from_dict__(inv_dict)
             return
-        
-        if (inv_json != None):
+        if (inv_json is not None):
             self.__init_from_json__(inv_json)
             return
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init_from_json__(self, s):
         assert(isinstance(s, basestring))
         obj = json.loads(s)
         d = dict_keys_dashed_to_underscored(obj)
         for k, v in d.items():
             setattr(self, k, v)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init_from_dict__(self, d):
         assert(isinstance(d, dict))
         js = json.dumps(d)
         self.__init_from_json__(js)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_string(self):
         """ Returns string representation of this object. """
         return str(vars(self))
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_json(self):
         """ Returns JSON representation of this object. """
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_id(self):
         myid = ""
         p = 'id'
@@ -856,12 +614,8 @@ class NetconfCapableNode():
             myid = getattr(self, p)
         else:
             assert(False)
-        
         return myid
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def is_connected(self):
         res = None
         p = "netconf_node_inventory:connected"
@@ -869,19 +623,12 @@ class NetconfCapableNode():
             res = getattr(self, p)
         else:
             assert(False)
-        
         return res
-        
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_conn_status(self):
         status = "CONNECTED" if self.is_connected else "DISCONNECTED"
         return status
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_initial_capabilities(self):
         clist = []
         p = 'netconf_node_inventory:initial_capability'
@@ -893,40 +640,27 @@ class NetconfCapableNode():
                 clist.append(s)
         else:
             assert(False)
-        
         return clist
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_current_capabilities(self):
         pass
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def _capability_str_to_schema_str(self, capability_str):
         revision = ""
         schema = ""
         s = re.split(r'[(?)]', capability_str)
-        for i in range (1, len(s)):
-            if i==2:
+        for i in range(1, len(s)):
+            if i == 2:
                 revision = s[i].replace('revision=', '').replace('_', '-')
-            elif i==3:
+            elif i == 3:
                 schema = s[i].replace('_', '-')
-    
         return "%s@%s.yang" % (schema, revision)
 
-#-------------------------------------------------------------------------------
-# Class 'NetconfConfigModule'
-#-------------------------------------------------------------------------------
+
 class NetconfConfigModule():
     ''' Class that represents NETCONF node configuration module
         on the Controller '''
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def __init__(self, d):
         assert(isinstance(d, dict))
         p = 'odl-sal-netconf-connector-cfg:'
@@ -935,24 +669,15 @@ class NetconfConfigModule():
         d1 = dict_keys_dashed_to_underscored(obj)
         for k, v in d1.items():
             setattr(self, k, v)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_string(self):
         """ Returns string representation of this object. """
         return str(vars(self))
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_json(self):
         """ Returns JSON representation of this object. """
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_name(self):
         name = ""
         p = 'name'
@@ -960,12 +685,8 @@ class NetconfConfigModule():
             name = getattr(self, p)
         else:
             assert(False)
-        
         return name
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_ip_address(self):
         addr = ""
         p = 'address'
@@ -973,12 +694,8 @@ class NetconfConfigModule():
             addr = getattr(self, p)
         else:
             assert(False)
-       
         return addr
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_tcp_port(self):
         port = ""
         p = 'port'
@@ -986,12 +703,8 @@ class NetconfConfigModule():
             port = getattr(self, p)
         else:
             assert(False)
-       
         return port
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_conn_timeout(self):
         timeout = ""
         p = 'connection_timeout_millis'
@@ -999,12 +712,8 @@ class NetconfConfigModule():
             timeout = getattr(self, p)
         else:
             assert(False)
-       
         return timeout
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_retry_conn_timeout(self):
         timeout = ""
         p = 'between_attempts_timeout_millis'
@@ -1012,12 +721,8 @@ class NetconfConfigModule():
             timeout = getattr(self, p)
         else:
             assert(False)
-       
         return timeout
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_max_conn_attempts(self):
         cnt = ""
         p = 'max_connection_attempts'
@@ -1025,12 +730,8 @@ class NetconfConfigModule():
             cnt = getattr(self, p)
         else:
             assert(False)
-       
         return cnt
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_admin_name(self):
         uname = ""
         p = 'username'
@@ -1038,12 +739,8 @@ class NetconfConfigModule():
             uname = getattr(self, p)
         else:
             assert(False)
-       
         return uname
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_admin_pswd(self):
         pswd = ""
         p = 'password'
@@ -1051,5 +748,5 @@ class NetconfConfigModule():
             pswd = getattr(self, p)
         else:
             assert(False)
-       
+
         return pswd

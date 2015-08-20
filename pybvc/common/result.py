@@ -43,32 +43,20 @@ result.py: Result of HTTP communication session (status and data)
 
 from pybvc.common.status import OperStatus
 
-#-------------------------------------------------------------------------------
-# Class 'Result'
-#-------------------------------------------------------------------------------
+
 class Result(object):
     """ Result of completed HTTP session (status and data) """
 
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def __init__(self, status=None, data=None):
         """ Initializes this object properties. """
-        if isinstance(status, OperStatus) == False:
+        if not isinstance(status, OperStatus):
             raise TypeError(status)
         self.status = status
         self.data = data
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_status(self):
-        assert (self.status != None)
+        assert (self.status is not None)
         return self.status
 
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_data(self):
         return self.data
-    

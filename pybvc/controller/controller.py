@@ -51,18 +51,12 @@ from pybvc.common.status import OperStatus, STATUS
 from pybvc.common.utils import find_key_values_in_dict
 from pybvc.common.utils import dbg_print
 from pybvc.controller.topology import Topology
-from pybvc.controller.inventory import Inventory, \
-                                           OpenFlowCapableNode, \
-                                           NetconfCapableNode, \
-                                           NetconfConfigModule
+from pybvc.controller.inventory import Inventory, OpenFlowCapableNode
+from pybvc.controller.inventory import NetconfCapableNode, NetconfConfigModule
 
 
-#-------------------------------------------------------------------------------
-# Class 'Controller'
-#-------------------------------------------------------------------------------
 class Controller():
     """ Class that represents a Controller device. """
-    
     def __init__(self, ipAddr, portNum, adminName, adminPassword, timeout=5):
         """Initializes this object properties."""
         self.ipAddr = ipAddr
@@ -70,35 +64,26 @@ class Controller():
         self.adminName = adminName
         self.adminPassword = adminPassword
         self.timeout = timeout
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_string(self):
         """ Returns string representation of this object. """
         return str(vars(self))
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def to_json(self):
         """ Returns JSON representation of this object. """
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    
+
     def brief_json(self):
         """ Returns JSON representation of this object (brief info). """
-        d = {'ipAddr': self.ipAddr, 
-             'portNum': self.portNum, 
-             'adminName': self.adminName, 
-             'adminPassword' : self.adminPassword}
+        d = {'ipAddr': self.ipAddr,
+             'portNum': self.portNum,
+             'adminName': self.adminName,
+             'adminPassword': self.adminPassword}
         return json.dumps(d, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def http_get_request(self, url, data, headers):
         """ Sends HTTP GET request to a remote server and returns the response.
-        
+
         :param string url: The complete url including protocol:
                            http://www.example.com/path/to/resource
         :param string data: The data to include in the body of the request.
@@ -107,11 +92,11 @@ class Controller():
         :return: The response from the http request.
         :rtype: None or `requests.response`
                 <http://docs.python-requests.org/en/latest/api/#requests.Response>
-        
+
         """
-        
+
         resp = None
-        
+
         try:
             resp = requests.get(url,
                                 auth=HTTPBasicAuth(self.adminName, self.adminPassword),
@@ -121,9 +106,6 @@ class Controller():
         
         return (resp)
         
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def http_post_request(self, url, data, headers):
         """Sends HTTP POST request to a remote server and returns the response.
         
@@ -149,9 +131,6 @@ class Controller():
         
         return (resp)
 
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def http_put_request(self, url, data, headers):
         """Sends HTTP PUT request to a remote server and returns the response.
         
@@ -177,9 +156,6 @@ class Controller():
         
         return (resp)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def http_delete_request(self, url, data, headers):
         """Sends HTTP DELETE request to a remote server and returns the response.
         
@@ -204,9 +180,6 @@ class Controller():
         
         return (resp)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_nodes_operational_list(self):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -215,9 +188,9 @@ class Controller():
         nlist = [] 
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -239,9 +212,6 @@ class Controller():
         
         return Result(status, nlist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_node_info(self, nodeId):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -250,9 +220,9 @@ class Controller():
         info = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -270,9 +240,6 @@ class Controller():
         
         return Result(status, info)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def check_node_config_status(self, nodeId):
         """Return the configuration status of the node:  
         
@@ -295,9 +262,9 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum, nodeId)
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             status.set_status(STATUS.NODE_CONFIGURED)
@@ -306,9 +273,6 @@ class Controller():
         
         return Result(status, None)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def check_node_conn_status(self, nodeId):
         """Return the connection status of the node to the controller:
         
@@ -333,9 +297,9 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum)
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -364,7 +328,7 @@ class Controller():
                             # Controller does not report connection status for
                             # a NETCONF device until successfully connected to
                             # to that device
-                            if(p4 in item and item[p4] == True):
+                            if(p4 in item and item[p4]):
                                 connected = True
                             break
                 
@@ -382,9 +346,6 @@ class Controller():
         
         return Result(status, None)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_all_nodes_in_config(self):
         """Return a list of nodes in the controller's configuration data store
         
@@ -408,9 +369,9 @@ class Controller():
         nlist = [] 
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -432,9 +393,6 @@ class Controller():
         
         return Result(status, nlist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_all_nodes_conn_status(self):
         """Return a list of nodes and the status of their connection
            to the controller.
@@ -461,9 +419,9 @@ class Controller():
         nlist = [] 
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -479,21 +437,21 @@ class Controller():
                 for item in itemslist:
                     node_id = item[p3]
                     nd = dict()
-                    nd.update({p2 : str(node_id)})
+                    nd.update({p2: str(node_id)})
                     # OpenFlow devices that are connected to the
                     # Controller appear in the inventory with 'openflow'
                     # prefix as part of the node 'id'. If device with
                     # given nodeId is found in the Controller's inventory
                     # its status is 'connected'
                     if (node_id.startswith(p6)):
-                        nd.update({p5 : True})
+                        nd.update({p5: True})
                     # Controller does not report connection status for
                     # a NETCONF device until successfully connected to
                     # to that device
-                    elif ((p4 in item) and (item[p4] == True)):
-                        nd.update({p5 : True})
+                    elif ((p4 in item) and (item[p4] is True)):
+                        nd.update({p5: True})
                     else:
-                        nd.update({p5 : False})
+                        nd.update({p5: False})
                     nlist.append(nd)
                 status.set_status(STATUS.OK)
             except(Exception):
@@ -504,9 +462,6 @@ class Controller():
         
         return Result(status, nlist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_netconf_nodes_in_config(self):
         """Return a list of NETCONF nodes in the controller's configuration
            data store
@@ -532,9 +487,9 @@ class Controller():
         nlist = []
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -551,7 +506,7 @@ class Controller():
                     # prefix as part of the node 'id'. So we use an extra
                     # check in order to ignore OpenFlow devices.
                     node_id = item[p3]
-                    if(node_id.startswith(p4) == False):
+                    if(node_id.startswith(p4) is False):
                         nlist.append(str(node_id))
                 status.set_status(STATUS.OK)
             except(Exception):
@@ -562,9 +517,6 @@ class Controller():
         
         return Result(status, nlist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_netconf_nodes_conn_status(self):
         """Return a list of NETCONF nodes and the status of their connection
            to the controller.
@@ -591,9 +543,9 @@ class Controller():
         nlist = [] 
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -612,16 +564,16 @@ class Controller():
                     # Controller appear in the inventory with 'openflow'
                     # prefix as part of the node 'id'. So we use an extra check
                     # for the 'openflow' prefixes in order to ignore them
-                    if (node_id.startswith(p6) == False):
+                    if (node_id.startswith(p6) is False):
                         nd = dict()
-                        nd.update({p2 : str(node_id)})
+                        nd.update({p2: str(node_id)})
                         # Controller does not report connection status for
                         # a NETCONF device until successfully connected to
                         # to that device
-                        if ((p4 in item) and (item[p4] == True)):
-                            nd.update({p5 : True})
+                        if ((p4 in item) and (item[p4] is True)):
+                            nd.update({p5: True})
                         else:
-                            nd.update({p5 : False})
+                            nd.update({p5: False})
                         nlist.append(nd)
                 status.set_status(STATUS.OK)
             except(Exception):
@@ -632,9 +584,6 @@ class Controller():
         
         return Result(status, nlist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_schemas(self, nodeName):
         """Return a list of YANG model schemas for the node.
         
@@ -661,9 +610,9 @@ class Controller():
         slist = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -681,9 +630,6 @@ class Controller():
         
         return Result(status, slist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_schema(self, nodeName, schemaId, schemaVersion):
         """Return a YANG schema for the indicated schema on the indicated node.
         
@@ -710,14 +656,14 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         headers = {'content-type': 'application/yang.data+json',
                    'accept': 'text/json, text/html, application/xml, */*'}
-        payload = {'input': {'identifier' : schemaId, 
-                             'version' : schemaVersion, 'format' : 'yang'}}
+        payload = {'input': {'identifier': schemaId, 
+                             'version': schemaVersion, 'format': 'yang'}}
         schema = None
         
         resp = self.http_post_request(url, json.dumps(payload), headers)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             if(resp.headers.get('content-type') == "application/xml"):
@@ -741,9 +687,6 @@ class Controller():
         
         return Result(status, schema)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_netconf_operations(self, nodeName):
         """Return a list of operations supported by the indicated node.
         
@@ -771,9 +714,9 @@ class Controller():
         olist = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -790,9 +733,6 @@ class Controller():
         
         return Result(status, olist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_config_modules(self):
         """Return a list of configuration modules.
         
@@ -818,9 +758,9 @@ class Controller():
         mlist = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -838,9 +778,6 @@ class Controller():
         
         return Result(status, mlist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_module_operational_state(self, moduleType, moduleName):
         """Return operational state for specified module.
         
@@ -869,9 +806,9 @@ class Controller():
         module = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -888,9 +825,6 @@ class Controller():
         
         return Result(status, module)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_sessions_info(self, nodeName):
         """Return sessions for indicated node.
         
@@ -919,9 +853,9 @@ class Controller():
         slist = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -938,9 +872,6 @@ class Controller():
         
         return Result(status, slist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_streams_info(self):
         """Return streams available for subscription.
         
@@ -965,9 +896,9 @@ class Controller():
         slist = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -984,9 +915,6 @@ class Controller():
         
         return Result(status, slist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_service_providers_info(self):
         """Return a list of service providers available.
         
@@ -1014,9 +942,9 @@ class Controller():
         slist = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1034,9 +962,6 @@ class Controller():
         
         return Result(status, slist)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_service_provider_info(self, name):
         """Return info about a single service provider.
         
@@ -1065,9 +990,9 @@ class Controller():
         service = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1084,9 +1009,6 @@ class Controller():
         
         return Result(status, service)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def add_netconf_node(self, node):
         """ Connect a netconf device to the controller
             (for example connect vrouter to controller via NETCONF)
@@ -1149,9 +1071,9 @@ class Controller():
                    'accept': 'application/xml'}
         
         resp = self.http_post_request(url, payload, headers)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200 or resp.status_code == 204):
             status.set_status(STATUS.OK)
@@ -1160,9 +1082,6 @@ class Controller():
         
         return Result(status, resp)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def delete_netconf_node(self, netconfdev):
         """ Disconnect a netconf device from the controller
         
@@ -1189,9 +1108,9 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum, netconfdev.name)
         
         resp = self.http_delete_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             status.set_status(STATUS.OK)
@@ -1241,9 +1160,9 @@ class Controller():
         headers = {'content-type': 'application/xml', 'accept': 'application/xml'}
         
         resp = self.http_post_request(url, payload, headers)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             status.set_status(STATUS.OK)
@@ -1251,46 +1170,31 @@ class Controller():
             status.set_status(STATUS.HTTP_ERROR, resp)
         
         return Result(status, None)
-    
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
+
     def get_ext_mount_config_url(self, node):
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_ext_mount_operational_url(self, node):
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_node_operational_url(self, node):
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_node_config_url(self, node):
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_openflow_nodes_operational_list(self):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -1298,9 +1202,9 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1323,9 +1227,6 @@ class Controller():
         
         return Result(status, sorted(nlist))
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_openflow_operational_flows_total_cnt(self):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -1333,9 +1234,9 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum)
         cnt = 0
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1358,9 +1259,6 @@ class Controller():
         
         return Result(status, cnt)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_topology_ids(self):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -1369,9 +1267,9 @@ class Controller():
         
         url = templateUrl.format(self.ipAddr, self.portNum)
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1392,9 +1290,6 @@ class Controller():
         
         return Result(status, sorted(tnames))
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def build_topology_object(self, topo_name):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -1403,9 +1298,9 @@ class Controller():
         
         url = templateUrl.format(self.ipAddr, self.portNum, topo_name)
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1428,9 +1323,6 @@ class Controller():
         
         return Result(status, topo_obj)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def build_inventory_object(self, operational=True):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/{}/opendaylight-inventory:nodes"
@@ -1439,9 +1331,9 @@ class Controller():
         inv_type = "operational" if operational else "config"
         url = templateUrl.format(self.ipAddr, self.portNum, inv_type)
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1461,9 +1353,6 @@ class Controller():
         
         return Result(status, inv_obj)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def build_openflow_node_inventory_object(self, node_id, operational=True):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/{}/" + \
@@ -1474,9 +1363,9 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum, inv_type, node_id)
         resp = self.http_get_request(url, data=None, headers=None)
         
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1497,9 +1386,6 @@ class Controller():
         
         return Result(status, inv_obj)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def build_netconf_node_inventory_object(self, node_id, operational=True):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/{}/" + \
@@ -1509,9 +1395,9 @@ class Controller():
         inv_type = "operational" if operational else "config"
         url = templateUrl.format(self.ipAddr, self.portNum, inv_type, node_id)
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1529,9 +1415,6 @@ class Controller():
         
         return Result(status, inv_obj)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def build_netconf_config_objects(self):
         status = OperStatus()
         objs = []
@@ -1540,9 +1423,9 @@ class Controller():
                       "yang-ext:mount/config:modules"
         url = templateUrl.format(self.ipAddr, self.portNum)
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1565,9 +1448,6 @@ class Controller():
         
         return Result(status, objs)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def build_netconf_config_object(self, netconf_id):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -1578,9 +1458,9 @@ class Controller():
         cfg_obj = None
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1598,9 +1478,6 @@ class Controller():
         
         return Result(status, cfg_obj)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def create_data_change_event_subscription(self, datastore, scope, path):
         status = OperStatus()
         stream_name = None
@@ -1613,9 +1490,9 @@ class Controller():
                              'datastore' : datastore,
                              'scope' : scope}}
         resp = self.http_post_request(url, json.dumps(payload), headers)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1634,9 +1511,6 @@ class Controller():
         
         return Result(status, stream_name)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def subscribe_to_stream(self, stream_name):
         status = OperStatus()
         stream_location = None
@@ -1644,9 +1518,9 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum, stream_name)
         
         resp = self.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
             # If format of the response differs from our expectation then
@@ -1663,9 +1537,6 @@ class Controller():
         
         return Result(status, stream_location)
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_network_topology_yang_schema_path(self, topo_id=None):
         base_path = "/network-topology:network-topology"
         ext = "/network-topology:topology[network-topology:topology-id=\"{}\"]"
@@ -1675,10 +1546,6 @@ class Controller():
         
         return path
     
-    #---------------------------------------------------------------------------
-    # 
-    #---------------------------------------------------------------------------
     def get_inventory_nodes_yang_schema_path(self):
         base_path = "opendaylight-inventory:nodes"
         return base_path
-    
