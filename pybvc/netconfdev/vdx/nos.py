@@ -58,13 +58,7 @@ class NOS(NetconfNode):
 
     def __init__(self, ctrl, name, ip_address, port_number, admin_name,
                  admin_password, tcp_only=False):
-        self.ctrl = ctrl
-        self.name = name
-        self.ip_address = ip_address
-        self.port_number = port_number
-        self.admin_name = admin_name
-        self.admin_password = admin_password
-        self.tcp_only = tcp_only
+        NetconfNode.__init__(self, ctrl. name, ip_address, port_number, admin_name, admin_name, tcp_only)
 
     def to_string(self):
         """ Returns string representation of this object. """
