@@ -1463,7 +1463,7 @@ class StripVlanAction(Action):
 
 class SetDlSrcAction(Action):
     ''' Set Ethernet source address '''
-   
+
     def __init__(self, order=None, mac_addr=None):
         super(SetDlSrcAction, self).__init__(order)
         self.set_dl_src_action = {'address' : mac_addr}
@@ -1474,7 +1474,7 @@ class SetDlSrcAction(Action):
 
 class SetDlDstAction(Action):
     ''' Set Ethernet destination address '''
-   
+
     def __init__(self, order=None, mac_addr=None):
         super(SetDlDstAction, self).__init__(order)
         self.set_dl_dst_action = {'address' : mac_addr}
@@ -1595,10 +1595,10 @@ class PushMplsHeaderAction(Action):
    
     def __init__(self, order=None, ethernet_type=None, d=None):
         super(PushMplsHeaderAction, self).__init__(order)
-         if (d is not None):
+        if (d is not None):
             self.__init_from_dict__(d)
             return
-         self.push_mpls_action = {'ethernet_type': ethernet_type}
+        self.push_mpls_action = {'ethernet_type': ethernet_type}
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
@@ -1743,10 +1743,10 @@ class SetFieldAction(Action):
    
     def __init__(self, order=None, d=None):
         super(SetFieldAction, self).__init__(order)
-         if (d is not None):
+        if (d is not None):
             self.__init_from_dict__(d)
             return
-         self.set_field = {'vlan_match': None,
+        self.set_field = {'vlan_match': None,
                           'protocol_match_fields' : None,
                           'ip_match': None}
 
@@ -1871,6 +1871,7 @@ class LoopbackAction(Action):
         super(LoopbackAction, self).__init__(order)
         self.loopback_action = {}
 
+
 class SetNwTosAction(Action):
     ''' Modify IPv4 ToS bits.
         Replace the existing IP ToS field. This action is only applied
@@ -1879,7 +1880,7 @@ class SetNwTosAction(Action):
    
     def __init__(self, order=None, d=None, tos=None):
         super(SetNwTosAction, self).__init__(order)
-         ''' Value with which to replace existing IPv4 ToS field
+        ''' Value with which to replace existing IPv4 ToS field
             NOTE: The modern redefinition of the ToS field is a 6 bit
                   Differentiated Services Code Point (DSCP) field (the
                   6 upper bits of the original TOS field) and a 2 bit
@@ -1907,7 +1908,7 @@ class Match(object):
         ''' Ingress port. Numerical representation of in-coming port, starting at 1
             (may be a physical or switch-defined logical port) '''
         self.in_port = None
-         ''' Physical port (in 'ofp_packet_in messages'), underlying physical port when
+        ''' Physical port (in 'ofp_packet_in messages'), underlying physical port when
             packet received on a logical port) '''
         self.in_phy_port = None
         ''' Ethernet match fields: 
@@ -2459,7 +2460,8 @@ class EthernetMatch(Match):
     def __init__(self, d=None):
         if (d is not None):
             self.__init_from_dict__(d)
-            return self.ethernet_type = None
+            return
+        self.ethernet_type = None
         self.ethernet_source = None
         self.ethernet_destination = None
 
@@ -2542,13 +2544,14 @@ class VlanMatch(Match):
 
     def set_vid(self, vid):
         if(self.vlan_id is None):
-            self.vlan_id = VlanId()             self.vlan_id.set_vid(vid)
+            self.vlan_id = VlanId()
+            self.vlan_id.set_vid(vid)
 
     def get_vid(self):
         res = None
         p = 'vlan_id'
         if (hasattr(self, p) and isinstance(getattr(self, p), VlanId)):
-            vm =  getattr(self, p)
+            vm = getattr(self, p)
             res = vm.get_vid()
         return res
 
@@ -2570,9 +2573,9 @@ class VlanId(VlanMatch):
     def __init__(self, d=None):
         if (d is not None):
             self.__init_from_dict__(d)
-            return          ''' VLAN-ID from 802.1Q header '''
+            return ''' VLAN-ID from 802.1Q header '''
         self.vlan_id = None
-         ''' Flag that indicates that 'vlan_id' value is set and matching is
+        ''' Flag that indicates that 'vlan_id' value is set and matching is
             only for packets with VID equal to 'vlan_id' value '''
         self.vlan_id_present = False
 
@@ -2687,9 +2690,9 @@ class IpMatch(Match):
             return
         ''' "IP DSCP (6 bits in ToS field) '''
         self.ip_dscp = None
-         ''' IP ECN (2 bits in ToS field) '''
+        ''' IP ECN (2 bits in ToS field) '''
         self.ip_ecn = None
-         ''' IPv4 or IPv6 Protocol Number '''
+        ''' IPv4 or IPv6 Protocol Number '''
         self.ip_protocol = None
 
     def __init_from_dict__(self, d):
