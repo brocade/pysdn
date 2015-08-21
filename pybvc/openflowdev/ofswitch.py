@@ -1595,10 +1595,10 @@ class PushMplsHeaderAction(Action):
    
     def __init__(self, order=None, ethernet_type=None, d=None):
         super(PushMplsHeaderAction, self).__init__(order)
-         if (d is not None):
+        if (d is not None):
             self.__init_from_dict__(d)
             return
-         self.push_mpls_action = {'ethernet_type': ethernet_type}
+        self.push_mpls_action = {'ethernet_type': ethernet_type}
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
