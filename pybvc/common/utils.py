@@ -47,9 +47,7 @@ import time
 import yaml
 import inspect
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
+
 def remove_empty_from_dict(d):
     if type(d) is dict:
         return dict((k, remove_empty_from_dict(v)) for k, v in d.iteritems() if v and remove_empty_from_dict(v))
@@ -59,28 +57,23 @@ def remove_empty_from_dict(d):
         return d
 
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
 def strip_none(data):
     if isinstance(data, dict):
-        res = {k:strip_none(v) for k, v in data.items() if k != None and v != None}
+        res = {k: strip_none(v) for k, v in data.items() if k is not None and v is not None}
         return res
     elif isinstance(data, list):
-        res = [strip_none(item) for item in data if item != None]
+        res = [strip_none(item) for item in data if item is not None]
         return res
     elif isinstance(data, tuple):
-        res = tuple(strip_none(item) for item in data if item != None)
+        res = tuple(strip_none(item) for item in data if item is not None)
         return res
     elif isinstance(data, set):
-        res = {strip_none(item) for item in data if item != None}
+        res = {strip_none(item) for item in data if item is not None}
         return res
     else:
         return data
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
+
 def load_dict_from_file(f, d):
     try:
         with open(f, 'r') as f:
@@ -92,9 +85,7 @@ def load_dict_from_file(f, d):
         print("Error: failed to read file '%s'" % f)
         return False
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
+
 def find_key_values_in_dict(d, key):
     """
     Searches a dictionary (with nested lists and dictionaries)
@@ -115,12 +106,9 @@ def find_key_values_in_dict(d, key):
                     more_results = find_key_values_in_dict(item, key)
                     for another_result in more_results:
                         values.append(another_result)
-    
     return values
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
+
 def find_key_value_in_dict(d, key):
     """
     Searches a dictionary (with nested lists and dictionaries)
@@ -131,25 +119,23 @@ def find_key_value_in_dict(d, key):
             return v
         elif isinstance(v, dict):
             r = find_key_value_in_dict(v, key)
-            if r != None:
+            if r is not None:
                 return r
         elif isinstance(v, list):
             for item in v:
                 if isinstance(item, dict):
                     r = find_key_value_in_dict(item, key)
-                    if r != None:
+                    if r is not None:
                         return r
-        
     return None
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
+
 def find_dict_in_list(slist, key):
     for item in slist:
-        if (type(item) is dict and item.has_key(key)):
+        if (type(item) is dict and item in key):
             return item
     return None
+
 
 def replace_str_value_in_dict(d, old, new):
     if type(d) is dict:
@@ -158,19 +144,17 @@ def replace_str_value_in_dict(d, old, new):
         return [replace_str_value_in_dict(v, old, new) for v in d if v and replace_str_value_in_dict(v, old, new)]
     elif type(d) is unicode:
         d = d.replace(unicode(old), unicode(new))
-        return d        
+        return d
     elif type(d) is str:
         d = d.replace(old, new)
         return d
     else:
         return d
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
+
 def dict_keys_underscored_to_dashed(d):
     new_dict = {}
-    
+
     if(isinstance(d, dict) or isinstance(d, list)):
         for k, v in d.iteritems():
             if isinstance(v, dict):
@@ -180,15 +164,12 @@ def dict_keys_underscored_to_dashed(d):
             new_dict[k.replace('_', '-')] = v
     else:
         return d
-    
     return new_dict
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
+
 def dict_keys_dashed_to_underscored(d):
     new_dict = {}
-    
+
     if(isinstance(d, dict) or isinstance(d, list)):
         for k, v in d.iteritems():
             if isinstance(v, dict):
@@ -198,28 +179,24 @@ def dict_keys_dashed_to_underscored(d):
             new_dict[k.replace('-', '_')] = v
     else:
         return d
-    
+
     return new_dict
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
+
 def progress_wait_secs(msg=None, waitTime=None, sym="."):
-    if (waitTime != None):
-#        sys.stdout.write ("(waiting for %s seconds) " % waitTime)
-#        sys.stdout.write ("waiting for %s seconds: " % waitTime)
-#        sys.stdout.write ("waiting for %s seconds: " % waitTime)
-        if (msg != None):
-            sys.stdout.write ("%s" % msg)
+    if (waitTime is not None):
+        # sys.stdout.write ("(waiting for %s seconds) " % waitTime)
+        # sys.stdout.write ("waiting for %s seconds: " % waitTime)
+        # sys.stdout.write ("waiting for %s seconds: " % waitTime)
+        if (msg is not None):
+            sys.stdout.write("%s" % msg)
         for i in range(0, waitTime, 1):
             print "%s" % sym, # <- no newline
             sys.stdout.flush() #<- makes python print it anyway
             time.sleep(1)
-        sys.stdout.write ("\n")
+        sys.stdout.write("\n")
 
-#-------------------------------------------------------------------------------
-# 
-#-------------------------------------------------------------------------------
+
 def dbg_print(msg=None):
     frame = inspect.currentframe()
     try:
@@ -232,5 +209,6 @@ def dbg_print(msg=None):
     except(Exception):
         pass
     finally:
-        if s: print s
+        if s:
+            print s
         del frame
