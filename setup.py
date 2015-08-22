@@ -1,4 +1,4 @@
-from setuptools import setup 
+from setuptools import setup
 import pybvc
 
 setup(
@@ -10,16 +10,16 @@ setup(
     author_email='jeb@elbrys.com',
     url='https://github.com/brcdcomm/pybvc',
     packages=['pybvc',
-               'pybvc.common',
-               'pybvc.controller',
-               'pybvc.netconfdev',
-               'pybvc.netconfdev.vrouter',
-               'pybvc.openflowdev',
-],
-    install_requires=[
-               'requests>=1.0.0',
-               'PyYAML',
-               'xmltodict'],
+              'pybvc.common',
+              'pybvc.controller',
+              'pybvc.netconfdev',
+              'pybvc.netconfdev.vrouter',
+              'pybvc.netconfdev.vdx',
+              'pybvc.openflowdev'
+              ],
+    install_requires=['requests>=1.0.0',
+                      'PyYAML',
+                      'xmltodict'],
     zip_safe=False,
     include_package_data=True,
     platforms='any',
