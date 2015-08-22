@@ -191,7 +191,7 @@ def dict_unicode_to_string(d):
     elif isinstance(d, unicode):
         return str(d)
     else:
-        return dict_unicode_to_string
+        return d
 
 
 def progress_wait_secs(msg=None, waitTime=None, sym="."):
