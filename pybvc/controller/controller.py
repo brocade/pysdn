@@ -81,7 +81,7 @@ class Controller():
              'adminPassword': self.adminPassword}
         return json.dumps(d, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-    def http_get_request(self, url, data, headers):
+    def http_get_request(self, url, data, headers, timeout=None):
         """ Sends HTTP GET request to a remote server and returns the response.
 
         :param string url: The complete url including protocol:
@@ -89,6 +89,7 @@ class Controller():
         :param string data: The data to include in the body of the request.
                             Typically set to None.
         :param dict headers: The headers to include in the request.
+        :param string timeout: Pass a timeout for longlived queries
         :return: The response from the http request.
         :rtype: None or `requests.response`
                 <http://docs.python-requests.org/en/latest/api/#requests.Response>
@@ -96,11 +97,13 @@ class Controller():
         """
 
         resp = None
+        if timeout is None:
+            timeout = self.timeout
 
         try:
             resp = requests.get(url,
                                 auth=HTTPBasicAuth(self.adminName, self.adminPassword),
-                                data=data, headers=headers, timeout=self.timeout)
+                                data=data, headers=headers, timeout=timeout)
         except (ConnectionError, Timeout) as e:
             print "Error: " + repr(e)
         
