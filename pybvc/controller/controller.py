@@ -1069,7 +1069,7 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum)
         headers = {'content-type': 'application/xml', 
                    'accept': 'application/xml'}
-        
+
         resp = self.http_post_request(url, payload, headers)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -1079,34 +1079,30 @@ class Controller():
             status.set_status(STATUS.OK)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, resp)
-    
+
     def delete_netconf_node(self, netconfdev):
         """ Disconnect a netconf device from the controller
-        
         :param netconfdev: :class:`pybvc.controller.netconfnode.NetconfNode`
         :return: Status, None.
         :rtype: :class:`pybvc.common.status.OperStatus`,
                  JSON providing response from adding netconf noed.
-        
-        - STATUS.CONN_ERROR: If the controller did not respond. 
+        - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
-                                      provide any status. 
-        - STATUS.OK:  Success. 
+                                      provide any status.
+        - STATUS.OK:  Success.
         - STATUS.HTTP_ERROR: If the controller responded with an error
-                             status code. 
-        
+                             status code.
         """
-        
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes/node/" + \
                       "controller-config/" + \
                       "yang-ext:mount/config:modules/module/" + \
                       "odl-sal-netconf-connector-cfg:sal-netconf-connector/{}"
-        url = templateUrl.format(self.ipAddr, self.portNum, netconfdev.name)
-        
+        url = templateUrl.format(self.ipAddr, self.portNum, netconfdev.id)
+
         resp = self.http_delete_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -1116,33 +1112,29 @@ class Controller():
             status.set_status(STATUS.OK)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
         return Result(status, None)
-    
-    #---------------------------------------------------------------------------
-    # TBD: 
+
+    # ---------------------------------------------------------------------------
+    # TBD:
     # NOTE: It is unclear which NETCONF node attributes are allowed for dynamic
     #       configuration changes. For now just follow an example that is
     #       published on ODL wiki:
     #       https://wiki.opendaylight.org/view/OpenDaylight_Controller:Config:Examples:Netconf
-    #---------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------
     def modify_netconf_node_in_config(self, netconfdev):
         """ Modify connected netconf device's info in the controller
-        
+
         :param netconfdev: :class:`pybvc.controller.netconfnode.NetconfNode`
         :return: Status, None.
         :rtype: :class:`pybvc.common.status.OperStatus`,
                  JSON providing response from adding netconf noed.
-        
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                       provide any status.
         - STATUS.OK: Success.
         - STATUS.HTTP_ERROR: If the controller responded with an error
-                             status code. 
-        
+                             status code.
         """
-        
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes/node/" + \
@@ -1158,7 +1150,7 @@ class Controller():
         '''
         payload = xmlPayloadTemplate.format(netconfdev.devName, netconfdev.adminName, netconfdev.adminPassword)
         headers = {'content-type': 'application/xml', 'accept': 'application/xml'}
-        
+
         resp = self.http_post_request(url, payload, headers)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -1168,7 +1160,7 @@ class Controller():
             status.set_status(STATUS.OK)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, None)
 
     def get_ext_mount_config_url(self, node):
@@ -1176,25 +1168,25 @@ class Controller():
                       "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
-    
+
     def get_ext_mount_operational_url(self, node):
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
-    
+
     def get_node_operational_url(self, node):
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
-    
+
     def get_node_config_url(self, node):
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
-    
+
     def get_openflow_nodes_operational_list(self):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -1224,9 +1216,9 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, sorted(nlist))
-    
+
     def get_openflow_operational_flows_total_cnt(self):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -1256,15 +1248,15 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, cnt)
-    
+
     def get_topology_ids(self):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "network-topology:network-topology"
         tnames = []
-        
+
         url = templateUrl.format(self.ipAddr, self.portNum)
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
@@ -1287,15 +1279,15 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, sorted(tnames))
-    
+
     def build_topology_object(self, topo_name):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "network-topology:network-topology/topology/{}"
         topo_obj = None
-        
+
         url = templateUrl.format(self.ipAddr, self.portNum, topo_name)
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
@@ -1320,14 +1312,14 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, topo_obj)
-    
+
     def build_inventory_object(self, operational=True):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/{}/opendaylight-inventory:nodes"
         inv_obj = None
-        
+
         inv_type = "operational" if operational else "config"
         url = templateUrl.format(self.ipAddr, self.portNum, inv_type)
         resp = self.http_get_request(url, data=None, headers=None)
@@ -1350,19 +1342,19 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, inv_obj)
-    
+
     def build_openflow_node_inventory_object(self, node_id, operational=True):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/{}/" + \
                       "opendaylight-inventory:nodes/node/{}"
         inv_obj = None
-        
+
         inv_type = "operational" if operational else "config"
         url = templateUrl.format(self.ipAddr, self.portNum, inv_type, node_id)
         resp = self.http_get_request(url, data=None, headers=None)
-        
+
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -1383,15 +1375,15 @@ class Controller():
             status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, inv_obj)
-    
+
     def build_netconf_node_inventory_object(self, node_id, operational=True):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/{}/" + \
                       "opendaylight-inventory:nodes/node/{}"
         inv_obj = None
-        
+
         inv_type = "operational" if operational else "config"
         url = templateUrl.format(self.ipAddr, self.portNum, inv_type, node_id)
         resp = self.http_get_request(url, data=None, headers=None)
@@ -1412,9 +1404,9 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, inv_obj)
-    
+
     def build_netconf_config_objects(self):
         status = OperStatus()
         objs = []
@@ -1445,9 +1437,9 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, objs)
-    
+
     def build_netconf_config_object(self, netconf_id):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
@@ -1456,7 +1448,7 @@ class Controller():
                       "odl-sal-netconf-connector-cfg:sal-netconf-connector/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, netconf_id)
         cfg_obj = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -1475,9 +1467,9 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, cfg_obj)
-    
+
     def create_data_change_event_subscription(self, datastore, scope, path):
         status = OperStatus()
         stream_name = None
@@ -1486,9 +1478,9 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum)
         headers = {'content-type': 'application/yang.data+json',
                    'accept': 'text/json, text/html, application/xml, */*'}
-        payload = {'input': {'path' : path,
-                             'datastore' : datastore,
-                             'scope' : scope}}
+        payload = {'input': {'path': path,
+                             'datastore': datastore,
+                             'scope': scope}}
         resp = self.http_post_request(url, json.dumps(payload), headers)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -1508,15 +1500,15 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, stream_name)
-    
+
     def subscribe_to_stream(self, stream_name):
         status = OperStatus()
         stream_location = None
         templateUrl = "http://{}:{}/restconf/streams/stream/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, stream_name)
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -1534,18 +1526,18 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, stream_location)
-    
+
     def get_network_topology_yang_schema_path(self, topo_id=None):
         base_path = "/network-topology:network-topology"
         ext = "/network-topology:topology[network-topology:topology-id=\"{}\"]"
         path = base_path
         if topo_id:
             path += ext.format(topo_id)
-        
+
         return path
-    
+
     def get_inventory_nodes_yang_schema_path(self):
         base_path = "opendaylight-inventory:nodes"
         return base_path
