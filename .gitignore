@@ -62,3 +62,6 @@ target/
 *.swp
 
 *.bak
+
+*.sublime-project
+*.sublime-workspace
