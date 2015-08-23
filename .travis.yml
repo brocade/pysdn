@@ -8,4 +8,4 @@ install:
   -  pip install flake8
 # command to run tests
 script:
- - flake8 --ignore=E501,E265 --count --show-source
+ - flake8 --ignore=E501,E265 --count --show-source pybvc
