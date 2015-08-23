@@ -130,22 +130,19 @@ class NOS(NetconfNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, cfg)
 
- def get_interfaces_list(self):
+
+def get_interfaces_list(self):
         """ Get the list of interfaces on the VRouter5600.
-        
         :return: A tuple: Status, list of interface names.
         :rtype: instance of the `Result` class
-        
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                       provide any status.
         - STATUS.OK:  Success. Result is valid.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
         """
         ifList = []
-        
         result = self.get_interfaces_cfg()
         status = result.get_status()
         if(status.eq(STATUS.OK)):
@@ -161,22 +158,19 @@ class NOS(NetconfNode):
                         for item in v:
                             if p2 in item:
                                 ifList.append(item[p2])
-        
         return Result(status, ifList)
-    
-    def get_interfaces_cfg(self):
+
+
+def get_interfaces_cfg(self):
         """ Return the configuration for the interfaces on the VRouter5600
-        
         :return: A tuple: Status, configuration of the interfaces
         :rtype: instance of the `Result` class (containing configuration data)
-        
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                       provide any status.
         - STATUS.OK:  Success. Result is valid.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
         """
         status = OperStatus()
         cfg = None
@@ -185,16 +179,14 @@ class NOS(NetconfNode):
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(self.name)
         url += modelref
-        
         resp = ctrl.http_get_request(url, data=None, headers=None)
-        if(resp == None):
+        if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content == None):
+        elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif (resp.status_code == 200):
             cfg = resp.content
             status.set_status(STATUS.OK)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
         return Result(status, cfg)

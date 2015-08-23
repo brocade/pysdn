@@ -183,6 +183,17 @@ def dict_keys_dashed_to_underscored(d):
     return new_dict
 
 
+def dict_unicode_to_string(d):
+    if isinstance(d, dict):
+        return {dict_unicode_to_string(key): dict_unicode_to_string(value) for key, value in d.iteritems()}
+    elif isinstance(d, list):
+        return [dict_unicode_to_string(element) for element in d]
+    elif isinstance(d, unicode):
+        return str(d)
+    else:
+        return d
+
+
 def progress_wait_secs(msg=None, waitTime=None, sym="."):
     if (waitTime is not None):
         # sys.stdout.write ("(waiting for %s seconds) " % waitTime)
@@ -191,8 +202,8 @@ def progress_wait_secs(msg=None, waitTime=None, sym="."):
         if (msg is not None):
             sys.stdout.write("%s" % msg)
         for i in range(0, waitTime, 1):
-            print "%s" % sym, # <- no newline
-            sys.stdout.flush() #<- makes python print it anyway
+            print "%s" % sym,  # <- no newline
+            sys.stdout.flush()  # <- makes python print it anyway
             time.sleep(1)
         sys.stdout.write("\n")
 
