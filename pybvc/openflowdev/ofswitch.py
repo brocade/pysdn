@@ -2697,7 +2697,7 @@ class IpMatch(Match):
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            for k,v in d.items():
+            for k, v in d.items():
                 setattr(self, k, v)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
