@@ -677,7 +677,7 @@ class FlowEntry(object):
         assert_msg = "[FlowEntry] either '%s' or '%s' should be used, " \
                      "not both" % ('flow_json', 'flow_dict')
         # TODO check this
-        assert(((flow_json is not None) and (flow_dict is not None)) is False), assert_msg # noqa
+        assert(((flow_json is not None) and (flow_dict is not None)) is False), assert_msg
         if (flow_dict is not None):
             self.__init_from_dict__(flow_dict)
             return
