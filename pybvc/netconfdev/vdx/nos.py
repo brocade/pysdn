@@ -37,7 +37,6 @@ import json
 from pybvc.controller.netconfnode import NetconfNode
 from pybvc.common.result import Result
 from pybvc.common.status import OperStatus, STATUS
-from pybvc.netconfdev.vrouter.protocols import StaticRoute
 
 
 class NOS(NetconfNode):

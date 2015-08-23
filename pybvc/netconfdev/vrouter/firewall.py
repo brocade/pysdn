@@ -152,6 +152,7 @@ class Rule():
         :return: No return value
         """
         self.source.address = srcAddr
+
     def add_icmp_typename(self, typeName):
         """Add typename for ICMP to Rule.  If the packet matches this then the action is taken.
         :param string typeName: The ICMP type name to test packet against.

@@ -85,7 +85,7 @@ class Inventory():
                     if p3 in d:
                         # Netconf
                         capabilities = d.get(p3)
-                        nodes = [[d, dev['clazz']] for c in capabilities for dev in devices if dev['filter'] in c ]
+                        nodes = [[d, dev['clazz']] for c in capabilities for dev in devices if dev['filter'] in c]
                         for node in nodes:
                             if node is not None:
                                 node = NetconfCapableNode(clazz=node[1], inv_dict=node[0])

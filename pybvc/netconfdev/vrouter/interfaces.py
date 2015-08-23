@@ -237,7 +237,7 @@ class OpenVpnInterface():
         obj1 = strip_none(obj)
         obj2 = remove_empty_from_dict(obj1)
         obj3 = dict_keys_underscored_to_dashed(obj2)
-        payload = {self._mn1: {self._mn2:[obj3]}}
+        payload = {self._mn1: {self._mn2: [obj3]}}
         return json.dumps(payload, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def set_description(self, description):
@@ -363,6 +363,6 @@ class VirtualTunnelInterface():
             self.disable = ""
         else:
             self.disable = None
+
     def set_address(self, address):
         self.address.append(address)
-

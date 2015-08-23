@@ -677,7 +677,7 @@ class FlowEntry(object):
         assert_msg = "[FlowEntry] either '%s' or '%s' should be used, " \
                      "not both" % ('flow_json', 'flow_dict')
         # TODO check this
-        assert(((flow_json is not None) and (flow_dict is not None)) is False), assert_msg
+        assert(((flow_json is not None) and (flow_dict is not None)) is False), assert_msg # noqa
         if (flow_dict is not None):
             self.__init_from_dict__(flow_dict)
             return
@@ -1417,7 +1417,7 @@ class SetVlanIdAction(Action):
    
     def __init__(self, order=None, vid=None):
         super(SetVlanIdAction, self).__init__(order)
-        self.set_vlan_id_action = {'vlan_id' : vid}
+        self.set_vlan_id_action = {'vlan_id': vid}
 
     def set_vid(self, vid):
         self.set_vlan_id_action['vlan_id'] = vid
@@ -1428,7 +1428,7 @@ class SetVlanPCPAction(Action):
 
     def __init__(self, order=None, vlan_pcp=None):
         super(SetVlanPCPAction, self).__init__(order)
-        self.set_vlan_pcp_action = {'vlan_pcp' : vlan_pcp}
+        self.set_vlan_pcp_action = {'vlan_pcp': vlan_pcp}
 
     def set_vlan_pcp(self, vlan_pcp):
         self.set_vlan_pcp_action['vlan_pcp'] = vlan_pcp
@@ -1447,7 +1447,7 @@ class SetVlanCfiAction(Action):
 
     def __init__(self, order=None, vlan_cfi=None):
         super(SetVlanCfiAction, self).__init__(order)
-        self.set_vlan_cfi_action = {'vlan_cfi' : vlan_cfi}
+        self.set_vlan_cfi_action = {'vlan_cfi': vlan_cfi}
 
     def set_vlan_cfi(self, vlan_cfi):
         self.set_vlan_cfi_action['vlan_cfi'] = vlan_cfi
@@ -1466,7 +1466,7 @@ class SetDlSrcAction(Action):
 
     def __init__(self, order=None, mac_addr=None):
         super(SetDlSrcAction, self).__init__(order)
-        self.set_dl_src_action = {'address' : mac_addr}
+        self.set_dl_src_action = {'address': mac_addr}
 
     def set_dl_src(self, mac_addr):
         self.set_dl_src_action['address'] = mac_addr
@@ -1477,7 +1477,7 @@ class SetDlDstAction(Action):
 
     def __init__(self, order=None, mac_addr=None):
         super(SetDlDstAction, self).__init__(order)
-        self.set_dl_dst_action = {'address' : mac_addr}
+        self.set_dl_dst_action = {'address': mac_addr}
 
     def set_dl_dst(self, mac_addr):
         self.set_dl_dst_action['address'] = mac_addr
@@ -1488,7 +1488,7 @@ class SetNwSrcAction(Action):
    
     def __init__(self, order=None, ip_addr=None):
         super(SetNwSrcAction, self).__init__(order)
-        self.set_nw_src_action = {'address' : ip_addr}
+        self.set_nw_src_action = {'address': ip_addr}
 
     def set_nw_src(self, ip_addr):
         self.set_nw_src_action['address'] = ip_addr
@@ -1499,7 +1499,7 @@ class SetNwDstAction(Action):
    
     def __init__(self, order=None, ip_addr=None):
         super(SetNwDstAction, self).__init__(order)
-        self.set_nw_dst_action = {'address' : ip_addr}
+        self.set_nw_dst_action = {'address': ip_addr}
 
     def set_nw_dst(self, ip_addr):
         self.set_nw_dst_action['address'] = ip_addr
@@ -1510,7 +1510,7 @@ class SetTpSrcAction(Action):
    
     def __init__(self, order=None, port=None):
         super(SetTpSrcAction, self).__init__(order)
-        self.set_tp_src_action = {'port' : port}
+        self.set_tp_src_action = {'port': port}
 
     def set_tp_src_port(self, port):
         self.set_tp_src_action['port'] = port
@@ -1521,7 +1521,7 @@ class SetTpDstAction(Action):
    
     def __init__(self, order=None, port=None):
         super(SetTpDstAction, self).__init__(order)
-        self.set_tp_dst_action = {'port' : port}
+        self.set_tp_dst_action = {'port': port}
 
     def set_tp_dst_port(self, port):
         self.set_tp_dst_action['port'] = port
@@ -1539,12 +1539,12 @@ class PushVlanHeaderAction(Action):
             self.__init_from_dict__(d)
             return
         self.push_vlan_action = {'ethernet_type': eth_type, 'tag': tag,
-                                 'pcp': pcp, 'cfi': cfi, 'vlan_id': vid }
+                                 'pcp': pcp, 'cfi': cfi, 'vlan_id': vid}
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
             self.push_vlan_action = {'ethernet_type': None, 'tag': None,
-                                     'pcp': None, 'cfi': None, 'vlan_id': None }
+                                     'pcp': None, 'cfi': None, 'vlan_id': None}
             for k, v in d.items():
                 if ('ethernet_type' == k):
                     self.set_eth_type(v)
@@ -1603,7 +1603,7 @@ class PushMplsHeaderAction(Action):
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
             self.push_mpls_action = {'ethernet_type': None}
-            for k,v in d.items():
+            for k, v in d.items():
                 if ('ethernet_type' == k):
                     self.set_eth_type(v)
             else:
@@ -1747,15 +1747,15 @@ class SetFieldAction(Action):
             self.__init_from_dict__(d)
             return
         self.set_field = {'vlan_match': None,
-                          'protocol_match_fields' : None,
+                          'protocol_match_fields': None,
                           'ip_match': None}
 
-    def __init_from_dict__(self,d):
+    def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
             self.set_field = {'vlan_match': None,
-                              'protocol_match_fields' : None,
+                              'protocol_match_fields': None,
                               'ip_match': None}
-            for k,v in d.items():
+            for k, v in d.items():
                 if ('vlan_match' == k):
                     self.set_field[k] = VlanMatch(v)
                 elif ('protocol_match_fields' == k):
@@ -1885,7 +1885,7 @@ class SetNwTosAction(Action):
                   Differentiated Services Code Point (DSCP) field (the
                   6 upper bits of the original TOS field) and a 2 bit
                   Explicit Congestion Notification (ECN) field. '''
-        self.set_nw_tos_action = {'tos' : tos }
+        self.set_nw_tos_action = {'tos': tos}
 
     def set_tos(self, tos):
         self.set_nw_tos_action['tos'] = tos
@@ -2038,7 +2038,7 @@ class Match(object):
     def set_eth_dst(self, eth_dst):
         if(self.ethernet_match is None):
             self.ethernet_match = EthernetMatch()
-        self.ethernet_match.set_dst(eth_dst )    
+        self.ethernet_match.set_dst(eth_dst) 
    
     def get_eth_dst(self):
         res = None
@@ -2581,7 +2581,7 @@ class VlanId(VlanMatch):
 
     def __init_from_dict__(self, d):
         if d is not None and isinstance(d, dict):
-            for k,v in d.items():
+            for k, v in d.items():
                 setattr(self, k, v)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -2654,7 +2654,7 @@ class IcmpV6Match(Match):
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            for k,v in d.items():
+            for k, v in d.items():
                 setattr(self, k, v)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -2900,7 +2900,6 @@ class Metadata(Match):
         self.metadata = None
         self.metadata_mask = None
 
-   
     def set_metadata(self, metadata):
         self.metadata = metadata
 
@@ -2970,7 +2969,7 @@ class GroupEntry():
         s = s.replace('watch-port', 'watch_port')
         d1 = json.loads(s)
         d2 = strip_none(d1)
-        payload = {self._mn : d2}
+        payload = {self._mn: d2}
         return json.dumps(payload, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 

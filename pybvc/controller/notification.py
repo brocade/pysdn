@@ -46,22 +46,24 @@ import xmltodict
 from pybvc.common.utils import dbg_print
 
 yang_namespace_to_prefix_map = {
-    'urn:opendaylight:inventory' : 'inv',
-    'urn:opendaylight:netconf-node-inventory' : 'netinv"',
-    'urn:opendaylight:flow:inventory' : 'flownode',
-    'urn:opendaylight:flow:statistics' : 'fstat',
-    'urn:opendaylight:flow:table:statistics' : 'flowstat',
-    'urn:opendaylight:port:statistics' : 'portstat',
-    'urn:TBD:params:xml:ns:yang:network-topology' : 'nt',
-    'urn:opendaylight:model:topology:inventory' : 'nt1',
-    'urn:opendaylight:host-tracker' : 'host-track',
+    'urn:opendaylight:inventory': 'inv',
+    'urn:opendaylight:netconf-node-inventory': 'netinv"',
+    'urn:opendaylight:flow:inventory': 'flownode',
+    'urn:opendaylight:flow:statistics': 'fstat',
+    'urn:opendaylight:flow:table:statistics': 'flowstat',
+    'urn:opendaylight:port:statistics': 'portstat',
+    'urn:TBD:params:xml:ns:yang:network-topology': 'nt',
+    'urn:opendaylight:model:topology:inventory': 'nt1',
+    'urn:opendaylight:host-tracker': 'host-track',
 }
+
 
 def yang_nsname_to_prefix(nsname):
     if nsname in yang_namespace_to_prefix_map:
         return yang_namespace_to_prefix_map[nsname]
     else:
         return nsname
+
 
 def yang_prefix_to_nsname(prefix):
     for k, v in yang_namespace_to_prefix_map:
@@ -276,7 +278,7 @@ class TopoChangeEvent():
                 for s in chunks:
                     idx = s.find(p)
                     if(idx >= 0):
-                        link_id = s[idx + len(p):].translate(None , "[]'\"")
+                        link_id = s[idx + len(p):].translate(None, "[]'\"")
                         break
         return link_id
 

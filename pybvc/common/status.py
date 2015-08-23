@@ -90,7 +90,7 @@ class OperStatus(object):
 
     def detailed(self):
         s = self.brief()
-        if(self.http_resp != None and self.http_resp.content != None):
+        if(self.http_resp is not None and self.http_resp.content is not None):
             s += "\n" + self.http_resp.content
         return s
 

@@ -771,7 +771,7 @@ class Controller():
             try:
                 p1 = 'modules'
                 p2 = 'module'
-                mlist = json.loads(resp.content.replace('\\\n',''))[p1][p2]
+                mlist = json.loads(resp.content.replace('\\\n', ''))[p1][p2]
                 status.set_status(STATUS.OK)
             except(Exception):
                 dbg_print("DEBUG: data not found in the received reply")
@@ -1430,7 +1430,7 @@ class Controller():
                 p2 = 'module'
                 p3 = 'type'
                 p4 = 'odl-sal-netconf-connector-cfg:sal-netconf-connector'
-                mlist = json.loads(resp.content.replace('\\\n',''))[p1][p2]
+                mlist = json.loads(resp.content.replace('\\\n', ''))[p1][p2]
                 for item in mlist:
                     if(item[p3] == p4):
                         objs.append(NetconfConfigModule(item))
