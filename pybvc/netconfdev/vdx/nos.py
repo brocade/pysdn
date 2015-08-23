@@ -13,7 +13,7 @@ modification, are permitted provided that the following conditions are met:
    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -43,9 +43,9 @@ class NOS(NetconfNode):
     """ Class that represents an instance of NOS
         (NETCONF capable server device).
         :param ctrl: :class:`pybvc.controller.controller.Controller`
-        :param string name: The name 
-        :param string ipAddr: The ip address 
-        :param int portNum: The port number to communicate NETCONF 
+        :param string name: The name
+        :param string ipAddr: The ip address
+        :param int portNum: The port number to communicate NETCONF
         :param string adminName:  The username to authenticate setup
                                   of the NETCONF communication
         :param string adminPassword:  The password to authenticate setup
@@ -57,7 +57,8 @@ class NOS(NetconfNode):
 
     def __init__(self, ctrl, name, ip_address, port_number, admin_name,
                  admin_password, tcp_only=False):
-        NetconfNode.__init__(self, ctrl. name, ip_address, port_number, admin_name, admin_name, tcp_only)
+        NetconfNode.__init__(self, ctrl. name, ip_address, port_number,
+                             admin_name, admin_name, tcp_only)
 
     def to_string(self):
         """ Returns string representation of this object. """
@@ -65,7 +66,8 @@ class NOS(NetconfNode):
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_schemas(self):
         """ Return a list of YANG model schemas implemented
@@ -89,9 +91,10 @@ class NOS(NetconfNode):
         :param string schema_version: version of the schema
         :return: A tuple: Status, YANG model schema.
         :rtype: instance of the `Result` class (containing YANG schema)
-        - STATUS.CONN_ERROR: If the controller did not respond. Schema is empty.
+        - STATUS.CONN_ERROR: If the controller did not respond. Schema is
+        . empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
-                                      provide any status. Schema is empty.
+        .                             provide any status. Schema is empty.
         - STATUS.OK: Success. Result is valid.
         - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error

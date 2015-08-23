@@ -42,7 +42,8 @@ interfaces.py: Interface specific properties and access methods
 
 import json
 
-from pybvc.common.utils import strip_none, remove_empty_from_dict, dict_keys_underscored_to_dashed
+from pybvc.common.utils import strip_none, remove_empty_from_dict
+from pybvc.common.utils import dict_keys_underscored_to_dashed
 
 
 class DataPlaneInterface():
@@ -94,7 +95,8 @@ class DataPlaneInterface():
 
     def to_json(self):
         """ Return this object as JSON """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def set_description(self, description):
         self.description = description
@@ -178,7 +180,8 @@ class OpenVpnInterface():
         self.shared_secret_key_file = None
 
         ''' Data encryption algorithm option
-            enumeration: 'des', '3des', 'bf128', 'bf256', 'aes128', 'aes192', 'aes256'  '''
+            enumeration: 'des', '3des', 'bf128', 'bf256', 'aes128', 'aes192',
+                         'aes256'  '''
         self.encryption = None
 
         ''' Additional OpenVPN options (list) '''
@@ -228,7 +231,8 @@ class OpenVpnInterface():
 
     def to_json(self):
         """ Return this object as JSON """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_payload(self):
         """ Return this object as a payload for HTTP request """
@@ -238,7 +242,8 @@ class OpenVpnInterface():
         obj2 = remove_empty_from_dict(obj1)
         obj3 = dict_keys_underscored_to_dashed(obj2)
         payload = {self._mn1: {self._mn2: [obj3]}}
-        return json.dumps(payload, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(payload, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def set_description(self, description):
         self.description = description
@@ -278,7 +283,7 @@ class OpenVpnInterface():
 
 
 class TlsOptions():
-    ''' Transport Layer Security (TLS) options 
+    ''' Transport Layer Security (TLS) options
         Helper class of the 'OpenVpnInterface' class '''
 
     def __init__(self):
@@ -350,7 +355,8 @@ class VirtualTunnelInterface():
 
     def to_json(self):
         """ Return this object as JSON """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def set_description(self, description):
         self.description = description

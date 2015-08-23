@@ -42,7 +42,8 @@ protocols.py: Protocols specific properties and access methods
 
 import json
 
-from pybvc.common.utils import strip_none, remove_empty_from_dict, dict_keys_underscored_to_dashed
+from pybvc.common.utils import strip_none, remove_empty_from_dict
+from pybvc.common.utils import dict_keys_underscored_to_dashed
 
 
 class StaticRoute():
@@ -75,7 +76,8 @@ class StaticRoute():
 
     def to_json(self):
         """ Return this object as JSON """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_payload(self):
         s = self.to_json()
@@ -84,7 +86,8 @@ class StaticRoute():
         obj2 = remove_empty_from_dict(obj1)
         obj3 = dict_keys_underscored_to_dashed(obj2)
         payload = {self._mn1: {self._mn2: [obj3]}}
-        return json.dumps(payload, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(payload, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def set_interface_route(self, ip_prefix):
         route = self._find_create_interface_route(ip_prefix)

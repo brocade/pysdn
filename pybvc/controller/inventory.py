@@ -73,8 +73,10 @@ class Inventory():
             p2 = 'openflow'
             p3 = 'netconf_node_inventory:initial_capability'
             devices = [{'clazz': 'NOS', 'filter': 'brocade-interface'},
-                       {'clazz': 'VRouter5600', 'filter': 'vyatta-interfaces?revision=2014-12-02'},
-                       {'clazz': 'controller', 'filter': 'controller:netty:eventexecutor?revision=2013-11-12'}]
+                       {'clazz': 'VRouter5600', 'filter': 'vyatta-\
+                           interfaces?revision=2014-12-02'},
+                       {'clazz': 'controller', 'filter': '\
+                        controller:netty:eventexecutor?revision=2013-11-12'}]
             for item in l:
                 if isinstance(item, dict):
                     d = dict_keys_dashed_to_underscored(item)
@@ -85,15 +87,18 @@ class Inventory():
                     if p3 in d:
                         # Netconf
                         capabilities = d.get(p3)
-                        nodes = [[d, dev['clazz']] for c in capabilities for dev in devices if dev['filter'] in c]
+                        nodes = [[d, dev['clazz']] for c in capabilities for
+                                 dev in devices if dev['filter'] in c]
                         for node in nodes:
                             if node is not None:
-                                node = NetconfCapableNode(clazz=node[1], inv_dict=node[0])
+                                node = NetconfCapableNode(clazz=node[1],
+                                                          inv_dict=node[0])
                                 self.add_netconf_node(node)
                                 break
                             else:
                                 node = NetconfCapableNode(inv_dict=d)
-                                node = NetconfCapableNode(clazz='unknown', inv_dict=d)
+                                node = NetconfCapableNode(clazz='unknown',
+                                                          inv_dict=d)
         else:
             raise TypeError("[Inventory] wrong argument type '%s'"
                             " (JSON 'string' is expected)" % type(s))
@@ -187,7 +192,8 @@ class OpenFlowCapableNode():
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_id(self):
         return self.id
@@ -371,7 +377,8 @@ class OpenFlowPort():
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_port_id(self):
         pid = ""
@@ -429,7 +436,8 @@ class OpenFlowPort():
 
     def get_packets_received(self):
         pkts_cnt = 0
-        p1 = 'opendaylight_port_statistics:flow_capable_node_connector_statistics'
+        p1 = 'opendaylight_port_statistics:\
+              flow_capable_node_connector_statistics'
         p2 = 'packets'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
@@ -440,7 +448,8 @@ class OpenFlowPort():
 
     def get_packets_transmitted(self):
         pkts_cnt = 0
-        p1 = 'opendaylight_port_statistics:flow_capable_node_connector_statistics'
+        p1 = 'opendaylight_port_statistics:\
+             flow_capable_node_connector_statistics'
         p2 = 'packets'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
@@ -451,7 +460,8 @@ class OpenFlowPort():
 
     def get_bytes_received(self):
         bytes_cnt = 0
-        p1 = 'opendaylight_port_statistics:flow_capable_node_connector_statistics'
+        p1 = 'opendaylight_port_statistics:\
+              flow_capable_node_connector_statistics'
         p2 = 'bytes'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
@@ -463,7 +473,8 @@ class OpenFlowPort():
 
     def get_bytes_transmitted(self):
         bytes_cnt = 0
-        p1 = 'opendaylight_port_statistics:flow_capable_node_connector_statistics'
+        p1 = 'opendaylight_port_statistics:\
+              flow_capable_node_connector_statistics'
         p2 = 'bytes'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
@@ -557,7 +568,8 @@ class GroupFeatures():
         if hasattr(self, p1):
             l = self.group_capabilities_supported
             p2 = 'opendaylight-group-types:'
-            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper() for i in l]
+            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper()
+                  for i in l]
             res = sorted(l1, key=self._sort_key_capabilities)
         return res
 
@@ -570,7 +582,8 @@ class GroupFeatures():
         if hasattr(self, p1):
             l = self.group_types_supported
             p2 = 'opendaylight-group-types:'
-            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper() for i in l]
+            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper()
+                  for i in l]
             res = sorted(l1, key=self._sort_key_types)
         return res
 
@@ -619,7 +632,8 @@ class NetconfCapableNode():
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_id(self):
         myid = ""
@@ -690,7 +704,8 @@ class NetconfConfigModule():
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_name(self):
         name = ""

@@ -201,9 +201,11 @@ class OFSwitch(OpenflowNode):
                     for item in vlist[0]:
                         port = {}
                         port['id'] = item['id']
-                        port['number'] = item['flow-node-inventory:port-number']
+                        port['number'] = \
+                            item['flow-node-inventory:port-number']
                         port['name'] = item['flow-node-inventory:name']
-                        port['MAC address'] = item['flow-node-inventory:hardware-address']
+                        port['MAC address'] = \
+                            item['flow-node-inventory:hardware-address']
                         s = item['flow-node-inventory:current-feature']
                         port['current feature'] = s.upper()
                         info.append(port)
@@ -471,7 +473,8 @@ class OFSwitch(OpenflowNode):
                         gid = item.get(p3, None)
                         if gid:
                             group_ids.append(gid)
-                status.set_status(STATUS.OK if group_ids else STATUS.DATA_NOT_FOUND)
+                status.set_status(STATUS.OK if group_ids
+                                  else STATUS.DATA_NOT_FOUND)
         elif (resp.status_code == 404):
             status.set_status(STATUS.DATA_NOT_FOUND)
         else:
@@ -564,7 +567,8 @@ class OFSwitch(OpenflowNode):
             l = json.loads(resp.content).get(p, None)
             if (isinstance(l, list) and l):
                 group = l[0]
-                status.set_status(STATUS.OK if group else STATUS.DATA_NOT_FOUND)
+                status.set_status(STATUS.OK if group
+                                  else STATUS.DATA_NOT_FOUND)
         elif (resp.status_code == 404):
             status.set_status(STATUS.DATA_NOT_FOUND)
         else:
@@ -660,7 +664,8 @@ class OFSwitch(OpenflowNode):
             d = json.loads(resp.content).get(p, None)
             if d:
                 group_features = GroupFeatures(d)
-                status.set_status(STATUS.OK if group_features else STATUS.DATA_NOT_FOUND)
+                status.set_status(STATUS.OK if group_features
+                                  else STATUS.DATA_NOT_FOUND)
         elif (resp.status_code == 404):
             status.set_status(STATUS.DATA_NOT_FOUND)
         else:
@@ -677,19 +682,22 @@ class FlowEntry(object):
         assert_msg = "[FlowEntry] either '%s' or '%s' should be used, " \
                      "not both" % ('flow_json', 'flow_dict')
         # TODO check this
-        assert(((flow_json is not None) and (flow_dict is not None)) is False), assert_msg
+        assert(((flow_json is not None) and (flow_dict is not None)) is False),\
+            assert_msg
         if (flow_dict is not None):
             self.__init_from_dict__(flow_dict)
             return
         if (flow_json is not None):
             self.__init_from_json__(flow_json)
             return
-        ''' Unique identifier of this FlowEntry in the Controller's data store '''
+        ''' Unique identifier of this FlowEntry in the Controller's
+            data store '''
         self.id = None
         ''' Opaque Controller-issued identifier '''
         self.cookie = None
-        ''' Mask used to restrict the cookie bits that must match when the command is
-            OFPFC_MODIFY* or OFPFC_DELETE*. A value of 0 indicates no restriction '''
+        ''' Mask used to restrict the cookie bits that must match
+            when the command is OFPFC_MODIFY* or OFPFC_DELETE*. A
+            value of 0 indicates no restriction '''
         self.cookie_mask = None
         ''' ID of the table to put the flow in '''
         self.table_id = None
@@ -709,32 +717,40 @@ class FlowEntry(object):
         self.out_group = None
         ''' Bitmap of OFPFF_* flags '''
         self.flags = None
-        ''' This FlowEntry name in the FlowTable (internal Controller's inventory attribute) '''
+        ''' This FlowEntry name in the FlowTable (internal Controller's
+            inventory attribute) '''
         self.flow_name = None
-        ''' This FlowEntry identifier in the FlowTable (internal Controller's inventory attribute) '''
+        ''' This FlowEntry identifier in the FlowTable (internal Controller's
+            inventory attribute) '''
         self.id = None
         ''' ??? (internal Controller's inventory attribute) '''
         self.installHw = None
-        ''' Boolean flag used to enforce OpenFlow switch to do ordered message processing.
-            Barrier request/reply messages are used by the controller to ensure message dependencies
-            have been met or to receive notifications for completed operations. When the controller
-            wants to ensure message dependencies have been met or wants to receive notifications for
-            completed operations, it may use an OFPT_BARRIER_REQUEST message. This message has no body.
-            Upon receipt, the switch must finish processing all previously-received messages, including
-            sending corresponding reply or error messages, before executing any messages beyond the
-            Barrier Request. '''
+        ''' Boolean flag used to enforce OpenFlow switch to do ordered
+            message processing. Barrier request/reply messages are used
+            by the controller to ensure message dependencies
+            have been met or to receive notifications for completed
+            operations. When the controller wants to ensure message
+            dependencies have been met or wants to receive notifications for
+            completed operations, it may use an OFPT_BARRIER_REQUEST message.
+            This message has no body. Upon receipt, the switch must finish
+            processing all previously-received messages, including
+            sending corresponding reply or error messages, before
+            executing any messages beyond the Barrier Request. '''
         self.barrier = None
-        ''' Buffered packet to apply to, or OFP_NO_BUFFER. Not meaningful for OFPFC_DELETE* '''
+        ''' Buffered packet to apply to, or OFP_NO_BUFFER. Not meaningful
+            for OFPFC_DELETE* '''
         self.buffer_id = None
         '''  Flow match fields '''
         self.match = None
-        ''' Instructions to be executed when a flow matches this flow entry match fields '''
+        ''' Instructions to be executed when a flow matches this flow entry
+            match fields '''
         self.instructions = {'instruction': []}
 
     def __init_from_json__(self, s):
         if (s is not None and isinstance(s, basestring)):
             self.instructions = {'instruction': []}
-            js = s.replace('opendaylight_flow_statistics:flow_statistics', 'flow_statistics')
+            js = s.replace('opendaylight_flow_statistics:flow_statistics',
+                           'flow_statistics')
             obj = json.loads(js)
             d = dict_keys_dashed_to_underscored(obj)
             for k, v in d.items():
@@ -993,7 +1009,9 @@ class FlowEntry(object):
                     elif (isinstance(action, DropAction)):
                         s = "drop"
                         drop_list.append(s)
-                        apply_actions_list = pop_mpls_list + push_mpls_list + pop_vlan_list + push_vlan_list + set_field_list + drop_list + output_list
+                        apply_actions_list = pop_mpls_list + push_mpls_list\
+                            + pop_vlan_list + push_vlan_list + set_field_list\
+                            + drop_list + output_list
         sa = "actions={"
         actions_list = apply_actions_list
         if(actions_list):
@@ -1126,7 +1144,8 @@ class FlowEntry(object):
             self.instructions['instruction'].append(instruction)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
-                            "('Instruction' instance is expected)" % instruction)
+                            "('Instruction' instance is expected)"
+                            % instruction)
 
     def get_instructions(self):
         res = None
@@ -1145,7 +1164,8 @@ class FlowEntry(object):
                 self.add_instruction(instruction)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
-                            "('Instructions' instance is expected)" % instructions)
+                            "('Instructions' instance is expected)"
+                            % instructions)
 
     def add_match(self, match):
         if isinstance(match, Match):
@@ -1414,7 +1434,7 @@ class GroupAction(Action):
 
 class SetVlanIdAction(Action):
     ''' Set the 802.1q VLAN id '''
-   
+
     def __init__(self, order=None, vid=None):
         super(SetVlanIdAction, self).__init__(order)
         self.set_vlan_id_action = {'vlan_id': vid}
@@ -1442,7 +1462,8 @@ class SetVlanCfiAction(Action):
         Ethernet and Token Ring networks. If a frame received at an Ethernet
         port had a CFI set to 1, then that frame would not be bridged to an
         untagged port.
-        Currently renamed as Drop eligible indicator (DEI).         May be used separately or in conjunction with PCP to indicate
+        Currently renamed as Drop eligible indicator (DEI).
+        May be used separately or in conjunction with PCP to indicate
         frames eligible to be dropped in the presence of congestion. '''
 
     def __init__(self, order=None, vlan_cfi=None):
@@ -1485,7 +1506,7 @@ class SetDlDstAction(Action):
 
 class SetNwSrcAction(Action):
     ''' Set IP source address '''
-   
+
     def __init__(self, order=None, ip_addr=None):
         super(SetNwSrcAction, self).__init__(order)
         self.set_nw_src_action = {'address': ip_addr}
@@ -1496,7 +1517,7 @@ class SetNwSrcAction(Action):
 
 class SetNwDstAction(Action):
     ''' Set IP destination address '''
-   
+
     def __init__(self, order=None, ip_addr=None):
         super(SetNwDstAction, self).__init__(order)
         self.set_nw_dst_action = {'address': ip_addr}
@@ -1507,7 +1528,7 @@ class SetNwDstAction(Action):
 
 class SetTpSrcAction(Action):
     ''' Set TCP/UDP source port '''
-   
+
     def __init__(self, order=None, port=None):
         super(SetTpSrcAction, self).__init__(order)
         self.set_tp_src_action = {'port': port}
@@ -1518,7 +1539,7 @@ class SetTpSrcAction(Action):
 
 class SetTpDstAction(Action):
     ''' Set TCP/UDP destination port '''
-   
+
     def __init__(self, order=None, port=None):
         super(SetTpDstAction, self).__init__(order)
         self.set_tp_dst_action = {'port': port}
@@ -1531,7 +1552,7 @@ class PushVlanHeaderAction(Action):
     ''' Push a new VLAN header onto the packet. The 'ethernet_type' is used as
         the Ethernet Type for the tag, only 0x8100 or 0x88a8 values should be
         used.  '''
-   
+
     def __init__(self, order=None, eth_type=None, tag=None, pcp=None,
                  cfi=None, vid=None, d=None):
         super(PushVlanHeaderAction, self).__init__(order)
@@ -1582,17 +1603,17 @@ class PushVlanHeaderAction(Action):
 
 class PopVlanHeaderAction(Action):
     ''' Pop the outer-most VLAN header from the packet '''
-   
+
     def __init__(self, order=None):
         super(PopVlanHeaderAction, self).__init__(order)
         self.pop_vlan_action = {}
 
 
 class PushMplsHeaderAction(Action):
-    ''' Push a new MPLS shim header onto the packet. The 'ethernet_type' is used
-        as the Ethernet Type for the tag, only 0x8847 or 0x8848 values should be
-        used. '''
-   
+    ''' Push a new MPLS shim header onto the packet. The 'ethernet_type' is
+        used as the Ethernet Type for the tag, only 0x8847 or 0x8848 values
+        should be used. '''
+
     def __init__(self, order=None, ethernet_type=None, d=None):
         super(PushMplsHeaderAction, self).__init__(order)
         if (d is not None):
@@ -1625,9 +1646,9 @@ class PushMplsHeaderAction(Action):
 
 class PopMplsHeaderAction(Action):
     ''' Pop the outer-most MPLS tag or shim header from the packet.
-        The 'ethernet_type' is used as the Ethernet Type for the resulting packet
-        (Ethernet Type for the MPLS payload). '''
-   
+        The 'ethernet_type' is used as the Ethernet Type for the
+        resulting packet (Ethernet Type for the MPLS payload). '''
+
     def __init__(self, order=0, ethernet_type=None):
         super(PopMplsHeaderAction, self).__init__(order)
         self.pop_mpls_action = {'ethernet_type': ethernet_type}
@@ -1639,12 +1660,12 @@ class PopMplsHeaderAction(Action):
 class PushPBBHeaderAction(Action):
     ''' Push a new PBB service instance header (I-TAG TCI) onto the packet.
         The 'ethernet_type' is used as the Ethernet Type for the tag. Only
-        Ethernet Type  0x88E7 should be used 
+        Ethernet Type  0x88E7 should be used
         PBB - Provider Backbone Bridges is an Ethernet data-plane technology
         .     (also known as MAC-in-MAC) that involves encapsulating an
         .     Ethernet datagram inside another one with new source and
         .     destination addresses. '''
-   
+
     def __init__(self, order=0, ethernet_type=None):
         super(PushPBBHeaderAction, self).__init__(order)
         self.push_pbb_action = {'ethernet_type': ethernet_type}
@@ -1660,7 +1681,7 @@ class PopPBBHeaderAction(Action):
         .     (also known as MAC-in-MAC) that involves encapsulating an
         .     Ethernet datagram inside another one with new source and
         .     destination addresses. '''
-   
+
     def __init__(self, order=0):
         super(PopPBBHeaderAction, self).__init__(order)
         self.pop_pbb_action = {}
@@ -1669,7 +1690,7 @@ class PopPBBHeaderAction(Action):
 class SetMplsTTLAction(Action):
     ''' Replace the existing MPLS TTL. Only applies to packets with an existing
         MPLS shim header. '''
-   
+
     def __init__(self, order=0, mpls_ttl=None):
         super(SetMplsTTLAction, self).__init__(order)
         self.set_mpls_ttl_action = {'mpls_ttl': mpls_ttl}
@@ -1681,7 +1702,7 @@ class SetMplsTTLAction(Action):
 class DecMplsTTLAction(Action):
     ''' Decrement the MPLS TTL. Only applies to packets with an existing MPLS
         shim header '''
-   
+
     def __init__(self, order=0):
         super(DecMplsTTLAction, self).__init__(order)
         self.dec_mpls_ttl = {}
@@ -1690,7 +1711,7 @@ class DecMplsTTLAction(Action):
 class SetNwTTLAction(Action):
     ''' Replace the existing IPv4 TTL or IPv6 Hop Limit and update the IP
         checksum. Only applies to IPv4 and IPv6 packets. '''
-   
+
     def __init__(self, order=0, ip_ttl=None):
         super(SetNwTTLAction, self).__init__(order)
         self.set_nw_ttl_action = {'nw_ttl': ip_ttl}
@@ -1702,7 +1723,7 @@ class SetNwTTLAction(Action):
 class DecNwTTLAction(Action):
     ''' Decrement the IPv4 TTL or IPv6 Hop Limit field and update the IP
         checksum. Only applies to IPv4 and IPv6 packets. '''
-   
+
     def __init__(self, order=0):
         super(DecNwTTLAction, self).__init__(order)
         self.dec_nw_ttl = {}
@@ -1711,7 +1732,7 @@ class DecNwTTLAction(Action):
 class CopyTTLOutwardsAction(Action):
     ''' Copy the TTL from next-to-outermost to outermost header with TTL.
         Copy can be IP-to-IP, MPLS-to-MPLS, or IP-to-MPLS. '''
-   
+
     def __init__(self, order=0):
         super(CopyTTLOutwardsAction, self).__init__(order)
         self.copy_ttl_out = {}
@@ -1720,7 +1741,7 @@ class CopyTTLOutwardsAction(Action):
 class CopyTTLInwardsAction(Action):
     ''' Copy the TTL from outermost to next-to-outermost header with TTL.
         Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP. '''
-   
+
     def __init__(self, order=0):
         super(CopyTTLInwardsAction, self).__init__(order)
         self.copy_ttl_in = {}
@@ -1732,15 +1753,15 @@ class SetFieldAction(Action):
         This allows any new match field, including experimenter fields, to be
         available for rewrite.
         The various Set-Field actions are identified by their field type and
-        modify the values of respective header fields in the packet. While 
+        modify the values of respective header fields in the packet. While
         not strictly required, the support of rewriting various header fields
         using Set-Field actions greatly increase the usefulness of an OpenFlow
         implementation. To aid integration with existing networks, we suggest
         that VLAN modification actions be supported. Set-Field actions should
-        always be applied to the outermost-possible header (e.g. a 'Set VLAN ID'
-        action always sets the ID of the outermost VLAN tag), unless the field
-        type specifies otherwise. '''
-   
+        always be applied to the outermost-possible header (e.g.
+        a 'Set VLAN ID' action always sets the ID of the outermost VLAN tag),
+        unless the field type specifies otherwise. '''
+
     def __init__(self, order=None, d=None):
         super(SetFieldAction, self).__init__(order)
         if (d is not None):
@@ -1831,9 +1852,10 @@ class SetFieldAction(Action):
 class FloodAction(Action):
     ''' Flood the packet along the minimum spanning tree, not including the
         incoming interface.
-        The sentence 'along the minimum spanning tree' implies: flood the packet
-        on all the ports that are not disabled by Spanning Tree Protocol. '''
-   
+        The sentence 'along the minimum spanning tree' implies: flood the
+        packet on all the ports that are not disabled by Spanning Tree
+        Protocol. '''
+
     def __init__(self, order=0):
         super(FloodAction, self).__init__(order)
         self.flood_action = {}
@@ -1842,7 +1864,7 @@ class FloodAction(Action):
 class FloodAllAction(Action):
     ''' Send the packet out all interfaces, not including the incoming
         interface '''
-   
+
     def __init__(self, order=0):
         super(FloodAllAction, self).__init__(order)
         self.flood_all_action = {}
@@ -1850,7 +1872,7 @@ class FloodAllAction(Action):
 
 class HwPathAction(Action):
     ''' Seems to be ODL proprietary action type ??? '''
-   
+
     def __init__(self, order=0):
         super(HwPathAction, self).__init__(order)
         self.hw_path_action = {}
@@ -1858,7 +1880,7 @@ class HwPathAction(Action):
 
 class SwPathAction(Action):
     ''' Seems to be ODL proprietary action type ??? '''
-   
+
     def __init__(self, order=0):
         super(SwPathAction, self).__init__(order)
         self.sw_path_action = {}
@@ -1866,7 +1888,7 @@ class SwPathAction(Action):
 
 class LoopbackAction(Action):
     ''' Seems to be ODL proprietary action type ???'''
-   
+
     def __init__(self, order=0):
         super(LoopbackAction, self).__init__(order)
         self.loopback_action = {}
@@ -1877,7 +1899,7 @@ class SetNwTosAction(Action):
         Replace the existing IP ToS field. This action is only applied
         to IPv4 packets.
         NOTE: This is OpenFlow version 1.0 specific action type '''
-   
+
     def __init__(self, order=None, d=None, tos=None):
         super(SetNwTosAction, self).__init__(order)
         ''' Value with which to replace existing IPv4 ToS field
@@ -1900,7 +1922,7 @@ class SetNwTosAction(Action):
 
 class Match(object):
     """Class that represents OpenFlow flow matching attributes """
-   
+
     def __init__(self, d=None):
         if (d is not None):
             self.__init_from_dict__(d)
@@ -1911,20 +1933,21 @@ class Match(object):
         ''' Physical port (in 'ofp_packet_in messages'), underlying physical port when
             packet received on a logical port) '''
         self.in_phy_port = None
-        ''' Ethernet match fields: 
+        ''' Ethernet match fields:
             - ethernet destination MAC address
             - ethernet source MAC address
-            - ethernet type of the OpenFlow packet payload (after VLAN tags) '''
+            - ethernet type of the OpenFlow packet payload (after
+            .    VLAN tags) '''
         self.ethernet_match = None
         ''' IPv4 source address (can use subnet mask) '''
         self.ipv4_source = None
         ''' IPv4 destination address (can use subnet mask) '''
         self.ipv4_destination = None
         ''' IP match fields:
-            - Differentiated Service Code Point (DSCP). Part of the IPv4 ToS field or
-            . the IPv6 Traffic Class field.
+            - Differentiated Service Code Point (DSCP). Part of the IPv4
+            . ToS field or the IPv6 Traffic Class field.
             - ECN bits of the IP header. Part of the IPv4 ToS field or
-            . the IPv6 Traffic Class field 
+            . the IPv6 Traffic Class field
             - IPv4 or IPv6 protocol number '''
         self.ip_match = None
         ''' IPv6 source address (can use subnet mask) '''
@@ -1933,9 +1956,11 @@ class Match(object):
         self.ipv6_destination = None
         ''' The target address in an IPv6 Neighbor Discovery message '''
         self.ipv6_nd_target = None
-        ''' The source link-layer address option in an IPv6 Neighbor Discovery message '''
+        ''' The source link-layer address option in an IPv6 Neighbor Discovery
+            message '''
         self.ipv6_nd_sll = None
-        ''' The target link-layer address option in an IPv6 Neighbor Discovery message '''
+        ''' The target link-layer address option in an IPv6 Neighbor Discovery
+            message '''
         self.ipv6_nd_tll = None
         ''' IPv6 flow label '''
         self.ipv6_label = None
@@ -1960,15 +1985,16 @@ class Match(object):
         ''' SCTP destination port '''
         self.sctp_destination_port = None
         ''' ICMPv4 match fields:
-            - ICMP type 
+            - ICMP type
             - ICMP code '''
         self.icmpv4_match = None
         ''' ICMPv6 match fields
-            - ICMPv6 type 
+            - ICMPv6 type
             - ICMPv6 code '''
         self.icmpv6_match = None
         ''' VLAN match fields:
-            - VLAN-ID from 802.1Q header (the CFI bit indicate the presence of a valid VLAN-ID)
+            - VLAN-ID from 802.1Q header (the CFI bit indicate the presence of
+            .  a valid VLAN-ID)
             - VLAN-PCP from 802.1Q header '''
         self.vlan_match = None
         ''' ARP opcode '''
@@ -2038,8 +2064,8 @@ class Match(object):
     def set_eth_dst(self, eth_dst):
         if(self.ethernet_match is None):
             self.ethernet_match = EthernetMatch()
-        self.ethernet_match.set_dst(eth_dst) 
-   
+        self.ethernet_match.set_dst(eth_dst)
+
     def get_eth_dst(self):
         res = None
         p = 'ethernet_match'
@@ -2107,8 +2133,8 @@ class Match(object):
         return res
 
     def set_ipv6_dst(self, ipv6_dst):
-        self.ipv6_destination = ipv6_dst 
-   
+        self.ipv6_destination = ipv6_dst
+
     def get_ipv6_dst(self):
         res = None
         p = 'ipv6_destination'
@@ -2199,7 +2225,7 @@ class Match(object):
         p = 'udp_destination_port'
         if hasattr(self, p):
             res = getattr(self, p)
- 
+
         return res
 
     def set_tcp_src_port(self, tcp_src_port):
@@ -2213,8 +2239,8 @@ class Match(object):
         return res
 
     def set_tcp_dst_port(self, tcp_dst_port):
-        self.tcp_destination_port = tcp_dst_port     
-   
+        self.tcp_destination_port = tcp_dst_port
+
     def get_tcp_dst_port(self):
         res = None
         p = 'tcp_destination_port'
@@ -2364,8 +2390,8 @@ class Match(object):
     def set_arp_tgt_hw_address(self, arp_tgt_hw_addr):
         if(self.arp_target_hardware_address is None):
             self.arp_target_hardware_address = {}
-        self.arp_target_hardware_address['address'] = arp_tgt_hw_addr 
-   
+        self.arp_target_hardware_address['address'] = arp_tgt_hw_addr
+
     def get_arp_tgt_hw_address(self):
         res = None
         p = 'arp_target_hardware_address'
@@ -2383,7 +2409,8 @@ class Match(object):
     def get_mpls_label(self):
         res = None
         p = 'protocol_match_fields'
-        if (hasattr(self, p) and isinstance(getattr(self, p), ProtocolMatchFields)):
+        if (hasattr(self, p) and isinstance(getattr(self, p),
+                                            ProtocolMatchFields)):
             pm = getattr(self, p)
             res = pm.get_mpls_label()
         return res
@@ -2396,7 +2423,8 @@ class Match(object):
     def get_mpls_tc(self):
         res = None
         p = 'protocol_match_fields'
-        if (hasattr(self, p) and isinstance(getattr(self, p), ProtocolMatchFields)):
+        if (hasattr(self, p) and isinstance(getattr(self, p),
+                                            ProtocolMatchFields)):
             pm = getattr(self, p)
             res = pm.get_mpls_tc()
         return res
@@ -2409,7 +2437,8 @@ class Match(object):
     def get_mpls_bos(self):
         res = None
         p = 'protocol_match_fields'
-        if (hasattr(self, p) and isinstance(getattr(self, p), ProtocolMatchFields)):
+        if (hasattr(self, p) and isinstance(getattr(self, p),
+                                            ProtocolMatchFields)):
             pm = getattr(self, p)
             res = pm.get_mpls_bos()
         return res
@@ -2569,7 +2598,7 @@ class VlanMatch(Match):
 class VlanId(VlanMatch):
     ''' Helper subclass of VlanMatch class to help in serialization
         of VLAN ID information encoded in match rules of a flow entry '''
-   
+
     def __init__(self, d=None):
         if (d is not None):
             self.__init_from_dict__(d)
@@ -2601,7 +2630,7 @@ class VlanId(VlanMatch):
 
 class IcmpMatch(Match):
     ''' ICMPv4 specific match fields '''
-   
+
     def __init__(self, d=None):
         if (d is not None):
             self.__init_from_dict__(d)
@@ -2642,7 +2671,7 @@ class IcmpMatch(Match):
 
 class IcmpV6Match(Match):
     ''' ICMPv6 specific match fields '''
-   
+
     def __init__(self, d=None):
         if (d is not None):
             self.__init_from_dict__(d)
@@ -2683,7 +2712,7 @@ class IcmpV6Match(Match):
 
 class IpMatch(Match):
     ''' IPv4 protocol specific match fields '''
-   
+
     def __init__(self, d=None):
         if (d is not None):
             self.__init_from_dict__(d)
@@ -2794,7 +2823,7 @@ class Ipv6ExtHdr(Match):
 
 class ProtocolMatchFields(Match):
     ''' Protocol match fields '''
-   
+
     def __init__(self, d=None):
         if (d is not None):
             self.__init_from_dict__(d)
@@ -2849,7 +2878,7 @@ class ProtocolMatchFields(Match):
 
 class Pbb(ProtocolMatchFields):
     ''' The I-SID in the first PBB service instance tag '''
-   
+
     def __init__(self):
         self.pbb_isid = None
         self.pbb_mask = None
@@ -2863,21 +2892,21 @@ class Pbb(ProtocolMatchFields):
 
 class ArpSrcHwAddrMatch(Match):
     ''' ARP source hardware address '''
-   
+
     def __init__(self):
         self.address = None
 
 
 class ArpTgtHwAddrMatch(Match):
     ''' ARP target hardware address '''
-   
+
     def __init__(self):
         self.address = None
 
 
 class Tunnel(Match):
     ''' Metadata associated with a logical port'''
-   
+
     def __init__(self):
         ''' Metadata associated with a logical port'''
         self.tunnel_id = None
@@ -2891,11 +2920,11 @@ class Tunnel(Match):
         if (hasattr(self, p)):
             res = getattr(self, p)
         return res
-    
+
 
 class Metadata(Match):
     ''' Table metadata. Used to pass information between tables '''
-   
+
     def __init__(self):
         self.metadata = None
         self.metadata_mask = None

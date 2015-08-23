@@ -42,7 +42,8 @@ vpn.py: Virtual Private Network (VPN) specific properties and access methods
 
 import json
 
-from pybvc.common.utils import strip_none, remove_empty_from_dict, dict_keys_underscored_to_dashed
+from pybvc.common.utils import strip_none, remove_empty_from_dict
+from pybvc.common.utils import dict_keys_underscored_to_dashed
 
 
 class Vpn():
@@ -56,7 +57,8 @@ class Vpn():
         self.rsa_keys = RsaKeys()
 
     def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_payload(self):
         s = self.to_json()
@@ -65,7 +67,8 @@ class Vpn():
         obj2 = remove_empty_from_dict(obj1)
         obj3 = dict_keys_underscored_to_dashed(obj2)
         payload = {self._mn1: {self._mn2: obj3}}
-        return json.dumps(payload, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(payload, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def set_ipsec(self, ipsec):
         if ipsec is not None and isinstance(ipsec, Ipsec):
@@ -119,19 +122,24 @@ class Vpn():
             self.l2tp.remote_access.set_ipsec_pre_shared_secret(secret)
 
     def set_l2tp_remote_access_ipsec_auth_ca_cert_file(self, path):
-        self.l2tp.remote_access.ipsec_settings.authentication.set_ca_cert_file(path)
+        self.l2tp.remote_access.ipsec_settings.authentication\
+            .set_ca_cert_file(path)
 
     def set_l2tp_remote_access_ipsec_auth_crl_file(self, path):
-        self.l2tp.remote_access.ipsec_settings.authentication.set_crl_file(path)
+        self.l2tp.remote_access.ipsec_settings.authentication\
+            .set_crl_file(path)
 
     def set_l2tp_remote_access_ipsec_auth_srv_cert_file(self, path):
-        self.l2tp.remote_access.ipsec_settings.authentication.set_srv_cert_file(path)
+        self.l2tp.remote_access.ipsec_settings.authentication\
+            .set_srv_cert_file(path)
 
     def set_l2tp_remote_access_ipsec_auth_srv_key_file(self, path):
-        self.l2tp.remote_access.ipsec_settings.authentication.set_srv_key_file(path)
+        self.l2tp.remote_access.ipsec_settings.authentication\
+            .set_srv_key_file(path)
 
     def set_l2tp_remote_access_ipsec_auth_srv_key_pswd(self, pswd):
-        self.l2tp.remote_access.ipsec_settings.authentication.set_srv_key_pswd(pswd)
+        self.l2tp.remote_access.ipsec_settings.authentication\
+            .set_srv_key_pswd(pswd)
 
     def set_l2tp_remote_access_client_ip_pool(self, start, end):
         self.l2tp.remote_access.set_client_ip_pool(start, end)
@@ -239,11 +247,15 @@ class Vpn():
     def set_ipsec_site_to_site_peer_auth_mode(self, peer_node, auth_mode):
         self.ipsec.site_to_site.set_peer_auth_mode(peer_node, auth_mode)
 
-    def set_ipsec_site_to_site_peer_auth_preshared_secret(self, peer_node, secret):
-        self.ipsec.site_to_site.set_peer_auth_preshared_secret(peer_node, secret)
+    def set_ipsec_site_to_site_peer_auth_preshared_secret(self, peer_node,
+                                                          secret):
+        self.ipsec.site_to_site.set_peer_auth_preshared_secret(peer_node,
+                                                               secret)
 
-    def set_ipsec_site_to_site_peer_auth_rsa_key_name(self, peer_node, rsa_key_name):
-        self.ipsec.site_to_site.set_peer_auth_rsa_key_name(peer_node, rsa_key_name)
+    def set_ipsec_site_to_site_peer_auth_rsa_key_name(self, peer_node,
+                                                      rsa_key_name):
+        self.ipsec.site_to_site.set_peer_auth_rsa_key_name(peer_node,
+                                                           rsa_key_name)
 
     def set_ipsec_site_to_site_peer_auth_remote_id(self, peer_node, remote_id):
         self.ipsec.site_to_site.set_peer_auth_remote_id(peer_node, remote_id)
@@ -260,22 +272,32 @@ class Vpn():
     def set_ipsec_site_to_site_peer_auth_srv_key_pswd(self, peer_node, pswd):
         self.ipsec.site_to_site.set_peer_auth_srv_key_pswd(peer_node, pswd)
 
-    def set_ipsec_site_to_site_peer_local_address(self, peer_node, local_address):
-        self.ipsec.site_to_site.set_peer_local_address(peer_node, local_address)
+    def set_ipsec_site_to_site_peer_local_address(self, peer_node,
+                                                  local_address):
+        self.ipsec.site_to_site.set_peer_local_address(peer_node,
+                                                       local_address)
 
-    def set_ipsec_site_to_site_peer_default_esp_group(self, peer_node, esp_group):
-        self.ipsec.site_to_site.set_peer_default_esp_group(peer_node, esp_group)
+    def set_ipsec_site_to_site_peer_default_esp_group(self, peer_node,
+                                                      esp_group):
+        self.ipsec.site_to_site.set_peer_default_esp_group(peer_node,
+                                                           esp_group)
 
     def set_ipsec_site_to_site_peer_ike_group(self, peer_node, ike_group):
         self.ipsec.site_to_site.set_peer_ike_group(peer_node, ike_group)
 
-    def set_ipsec_site_to_site_peer_tunnel_local_prefix(self, peer_node, tunnel,
+    def set_ipsec_site_to_site_peer_tunnel_local_prefix(self, peer_node,
+                                                        tunnel,
                                                         local_prefix):
-        self.ipsec.site_to_site.set_peer_tunnel_local_prefix(peer_node, tunnel, local_prefix)
+        self.ipsec.site_to_site.set_peer_tunnel_local_prefix(peer_node,
+                                                             tunnel,
+                                                             local_prefix)
 
-    def set_ipsec_site_to_site_peer_tunnel_remote_prefix(self, peer_node, tunnel,
+    def set_ipsec_site_to_site_peer_tunnel_remote_prefix(self, peer_node,
+                                                         tunnel,
                                                          remote_prefix):
-        self.ipsec.site_to_site.set_peer_tunnel_remote_prefix(peer_node, tunnel, remote_prefix)
+        self.ipsec.site_to_site.set_peer_tunnel_remote_prefix(peer_node,
+                                                              tunnel,
+                                                              remote_prefix)
 
 
 class Ipsec(Vpn):
@@ -283,18 +305,21 @@ class Ipsec(Vpn):
         Helper sub-class of the 'Vpn' class '''
 
     def __init__(self):
-        ''' Auto update interval for IPsec daemon (must be between 30 and 65535) '''
+        ''' Auto update interval for IPsec daemon (must be between 30 and
+            65535) '''
         self.auto_update = None
-        ''' Option to disable requirement for unique IDs in the Security Database '''
+        ''' Option to disable requirement for unique IDs in the Security
+            Database '''
         self.disable_uniqreqids = None
         ''' Encapsulating Security Payload (ESP) groups
             (list of 'EspGroup' class instances) '''
         self.esp_group = []
-        ''' Internet Key Exchange (IKE) groups 
+        ''' Internet Key Exchange (IKE) groups
             (list of 'IkeGroup' class instances) '''
         self.ike_group = []
         ''' IPsec logging
-           'enumeration: raw', 'crypt', 'parsing', 'emitting', 'control', 'private', 'all' '''
+           'enumeration: raw', 'crypt', 'parsing', 'emitting', 'control',
+           'private', 'all' '''
         self.logging = None
         ''' Network Address Translation (NAT) networks '''
         self.nat_networks = None
@@ -501,7 +526,8 @@ class SiteToSite(Ipsec):
         assert (isinstance(peer, Peer))
         peer.set_tunnel_local_prefix(tunnel_id, local_prefix)
 
-    def set_peer_tunnel_remote_prefix(self, peer_node, tunnel_id, remote_prefix):
+    def set_peer_tunnel_remote_prefix(self, peer_node, tunnel_id,
+                                      remote_prefix):
         peer = self._find_create_peer(peer_node)
         assert (isinstance(peer, Peer))
         peer.set_tunnel_remote_prefix(tunnel_id, remote_prefix)
@@ -627,7 +653,8 @@ class PeerCertificate(PeerAuthentication):
     ''' Helper sub-class of the 'PeerAuthentication' class '''
 
     def __init__(self):
-        ''' File containing the X.509 certificate for the Certificate Authority (CA) '''
+        ''' File containing the X.509 certificate for the Certificate
+            Authority (CA) '''
         self.ca_cert_file = None
         ''' Server key file and password to open it '''
         self.key = {'file': None, 'password': None}
@@ -814,13 +841,16 @@ class IpSecCertificate(IpSecAuthentication):
     ''' Helper sub-class of the 'IpSecAuthentication' class '''
 
     def __init__(self):
-        ''' File containing the X.509 certificate for the Certificate Authority (CA) '''
+        ''' File containing the X.509 certificate for the Certificate
+            Authority (CA) '''
         self.ca_cert_file = None
         ''' File containing the X.509 Certificate Revocation List (CRL) '''
         self.crl_file = None
-        ''' File containing the X.509 certificate for the remote access VPN server '''
+        ''' File containing the X.509 certificate for the remote access VPN
+            server '''
         self.server_cert_file = None
-        ''' File containing the private key for the X.509 certificate for the remote access VPN server '''
+        ''' File containing the private key for the X.509 certificate for the
+            remote access VPN server '''
         self.server_key_file = None
         ''' Password that protects the private key '''
         self.server_key_password = None

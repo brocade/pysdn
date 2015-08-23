@@ -59,7 +59,8 @@ class Firewall():
 
     def to_json(self):
         """ Return Firewall as JSON """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_payload(self):
         s = self.to_json()
@@ -67,14 +68,16 @@ class Firewall():
         d1 = json.loads(s)
         d2 = remove_empty_from_dict(d1)
         payload = {self._mn1: {self._mn2: d2}}
-        return json.dumps(payload, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(payload, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def get_url_extension(self):
         return (self._mn1 + "/" + self._mn2)
 
     def add_rules(self, rules):
         """Add rules to Firewall.
-        :param rules: Rules to be added to Firewall.  :class:`pybvc.netconfdev.vrouter.vrouter5600.Rules`
+        :param rules: Rules to be added to Firewall.  :class:`pybvc.netconfdev.
+               vrouter.vrouter5600.Rules`
         """
         self.name.append(rules)
 
@@ -104,11 +107,13 @@ class Rules():
 
     def to_json(self):
         """ Return the firewall Rules as JSON """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def add_rule(self, rule):
         """Add a single firewall rule to Rules.
-        :param rule: The rule to add to this Rules instance.  :class:`pybvc.netconfdev.vrouter.vrouter5600.Rule`
+        :param rule: The rule to add to this Rules instance.  :class:`pybvc.
+               netconfdev.vrouter.vrouter5600.Rule`
         :return: None
         """
         self.rule.append(rule)
@@ -137,24 +142,29 @@ class Rule():
 
     def to_json(self):
         """ Return Rule as JSON """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def add_action(self, action):
         """Add an action to the Rule.
-        :param string action: The action to be taken for the Rule:  accept, drop
+        :param string action: The action to be taken for the Rule:  accept,
+               drop
         :return: No return value
         """
         self.action = action
 
     def add_source_address(self, srcAddr):
-        """Add source address to Rule. If the packet matches this then the action is taken.
-        :param string srcAddr: The IP address to match against the source IP of packet.
+        """Add source address to Rule. If the packet matches this then the
+           action is taken.
+        :param string srcAddr: The IP address to match against the source IP
+           of packet.
         :return: No return value
         """
         self.source.address = srcAddr
 
     def add_icmp_typename(self, typeName):
-        """Add typename for ICMP to Rule.  If the packet matches this then the action is taken.
+        """Add typename for ICMP to Rule.  If the packet matches this then the
+           action is taken.
         :param string typeName: The ICMP type name to test packet against.
         :return: No return value.
         """

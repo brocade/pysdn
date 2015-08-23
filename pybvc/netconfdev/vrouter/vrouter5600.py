@@ -52,12 +52,12 @@ from pybvc.netconfdev.vrouter.firewall import DataplaneInterfaceFirewall
 
 
 class VRouter5600(NetconfNode):
-    """ Class that represents an instance of vRouter5600 
+    """ Class that represents an instance of vRouter5600
         (NETCONF capable server device).
          :param ctrl: :class:`pybvc.controller.controller.Controller`
         :param string name: The name of the vrouter5600
         :param string ipAddr: The ip address for the vrouter5600
-        :param int portNum: The port number to communicate NETCONF 
+        :param int portNum: The port number to communicate NETCONF
                             to the vrouter5600
         :param string adminName:  The username to authenticate setup
                                   of the NETCONF communication
@@ -79,12 +79,14 @@ class VRouter5600(NetconfNode):
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def get_schemas(self):
         """ Return a list of YANG model schemas implemented on this VRouter5600
-         :return: A tuple: Status, list of YANG model schemas for the VRouter5600.
-        :rtype: instance of the `Result` class (containing JSON listing 
+         :return: A tuple: Status, list of YANG model schemas for the
+                  VRouter5600.
+        :rtype: instance of the `Result` class (containing JSON listing
                 information about the YANG schemas for the node)
          - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
@@ -103,13 +105,14 @@ class VRouter5600(NetconfNode):
         :param string schemaVersion: version of the schema
         :return: A tuple: Status, YANG model schema.
         :rtype: instance of the `Result` class (containing YANG schema)
-         - STATUS.CONN_ERROR: If the controller did not respond. Schema is empty.
+        - STATUS.CONN_ERROR: If the controller did not respond. Schema is
+        .  empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
-                                      provide any status. Schema is empty.
+        .                             provide any status. Schema is empty.
         - STATUS.OK: Success. Result is valid.
         - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error
-                             status code.
+        .                    status code.
          """
         ctrl = self.ctrl
         myname = self.name
@@ -119,12 +122,12 @@ class VRouter5600(NetconfNode):
         """Return configuration of the VRouter5600.
          :return: A tuple: Status, JSON for configuration.
         :rtype: instance of the `Result` class (containing configuration data)
-         - STATUS.CONN_ERROR: If the controller did not respond.
+        - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
-                                      provide any status.
+        .                             provide any status.
         - STATUS.OK: Success. Result is valid.
         - STATUS.HTTP_ERROR: If the controller responded with an error
-                             status code.
+        .                    status code.
          """
         status = OperStatus()
         cfg = None
@@ -186,11 +189,12 @@ class VRouter5600(NetconfNode):
                                       provide any status.
         - STATUS.OK:  Success. Result is valid.
         - STATUS.HTTP_ERROR: If the controller responded with an error
-                             status code. 
+                             status code.
         """
         status = OperStatus()
         cfg = None
-        templateModelRef = "vyatta-security:security/vyatta-security-firewall:firewall/name/{}"
+        templateModelRef = "vyatta-security:\
+                            security/vyatta-security-firewall:firewall/name/{}"
         modelref = templateModelRef.format(instance)
         ctrl = self.ctrl
         myname = self.name
@@ -258,7 +262,8 @@ class VRouter5600(NetconfNode):
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                      provide any status.
         - STATUS.OK: Success. Result is valid.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.HTTP_ERROR:  if the controller responded with an error status
+        .  code.
          """
         status = OperStatus()
         ctrl = self.ctrl
@@ -271,7 +276,8 @@ class VRouter5600(NetconfNode):
         url += p1
         for item in rules:
             name = item.get_name()
-            resp = ctrl.http_delete_request(url + name, data=None, headers=None)
+            resp = ctrl.http_delete_request(url + name, data=None,
+                                            headers=None)
             if(resp is None):
                 status.set_status(STATUS.CONN_ERROR)
                 break
@@ -287,7 +293,7 @@ class VRouter5600(NetconfNode):
 
     def set_dataplane_interface_firewall(self, ifName,
                                          inboundFwName, outboundFwName):
-        """ Set a firewall for inbound, outbound or both for a 
+        """ Set a firewall for inbound, outbound or both for a
             dataplane interface on the VRouter5600.
          :param string ifName: The dataplane interface to attache a firewall.
         :param string inboundFwName: None or name of firewall on VRouter5600
@@ -296,10 +302,13 @@ class VRouter5600(NetconfNode):
                                      to use for traffic outbound from router.
         :return: A tuple:  Status, None.
         :rtype: instance of the `Result` class
-         - STATUS.CONN_ERROR:  if the controller did not respond. schema is empty.
-        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not provide any status. schema is empty.
+         - STATUS.CONN_ERROR:  if the controller did not respond. schema is
+           empty.
+        - STATUS.CTRL_INTERNAL_ERROR:  if the controller responded but did not
+           provide any status. schema is empty.
         - STATUS.OK:  Success. result is valid.
-        - STATUS.HTTP_ERROR:  if the controller responded with an error status code.
+        - STATUS.HTTP_ERROR:  if the controller responded with an error status
+          code.
          """
         status = OperStatus()
         ctrl = self.ctrl
@@ -337,12 +346,15 @@ class VRouter5600(NetconfNode):
                              status code.
          """
         status = OperStatus()
-        templateModelRef = "vyatta-interfaces:interfaces/vyatta-interfaces-dataplane:dataplane/{}/vyatta-security-firewall:firewall/"
+        templateModelRef = "vyatta-interfaces:\
+                            interfaces/vyatta-interfaces-dataplane:\
+                            dataplane/{}/vyatta-security-firewall:firewall/"
         modelref = templateModelRef.format(ifName)
         myname = self.name
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(myname)
-        resp = ctrl.http_delete_request(url + modelref, data=None, headers=None)
+        resp = ctrl.http_delete_request(url + modelref, data=None,
+                                        headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -444,7 +456,8 @@ class VRouter5600(NetconfNode):
          :return: A tuple: Status, configuration of dataplane interfaces
         :rtype: instance of the `Result` class (containing configuration data)
          - STATUS.CONN_ERROR: If the controller did not respond.
-        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not provide
+        - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
+           provide
                                       any status.
         - STATUS.OK: Success. Result is valid.
         - STATUS.HTTP_ERROR: If the controller responded with an error
@@ -461,7 +474,7 @@ class VRouter5600(NetconfNode):
                 dpIfCfg = json.loads(cfg).get(p1).get(p2)
         return Result(status, dpIfCfg)
 
-    def get_dataplane_interface_cfg(self, ifName): 
+    def get_dataplane_interface_cfg(self, ifName):
         """ Return the configuration for a dataplane interface
             on the VRouter5600
          :param string ifName: The interface name of the interface for which
@@ -477,7 +490,9 @@ class VRouter5600(NetconfNode):
          """
         status = OperStatus()
         cfg = None
-        templateModelRef = "vyatta-interfaces:interfaces/vyatta-interfaces-dataplane:dataplane/{}"
+        templateModelRef = "vyatta-interfaces:\
+                            interfaces/vyatta-interfaces-dataplane:\
+                            dataplane/{}"
         modelref = templateModelRef.format(ifName)
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(self.name)
@@ -518,10 +533,10 @@ class VRouter5600(NetconfNode):
                 for item in items:
                     if p3 in item:
                         lbInterfaces.append(item[p3])
-        return Result(status, lbInterfaces)     
-   
+        return Result(status, lbInterfaces)
+
     def get_loopback_interfaces_cfg(self):
-        """ Return the configuration for the loopback interfaces 
+        """ Return the configuration for the loopback interfaces
             on the VRouter5600
          :return: A tuple: Status, configuration of loopback interfaces
         :rtype: instance of the `Result` class (containing configuration data)
@@ -558,7 +573,9 @@ class VRouter5600(NetconfNode):
                              status code.
          """
         status = OperStatus()
-        templateModelRef = "vyatta-interfaces:interfaces/vyatta-interfaces-loopback:loopback/{}"
+        templateModelRef = "vyatta-interfaces:\
+                            interfaces/vyatta-interfaces-loopback:\
+                            loopback/{}"
         modelref = templateModelRef.format(ifName)
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(self.name)
@@ -691,7 +708,9 @@ class VRouter5600(NetconfNode):
 
     def get_openvpn_interface_cfg(self, ifName):
         status = OperStatus()
-        templateModelRef = "vyatta-interfaces:interfaces/vyatta-interfaces-openvpn:openvpn/{}"
+        templateModelRef = "vyatta-interfaces:\
+                            interfaces/vyatta-interfaces-openvpn:\
+                            openvpn/{}"
         cfg = None
         modelref = templateModelRef.format(ifName)
         ctrl = self.ctrl
@@ -713,7 +732,9 @@ class VRouter5600(NetconfNode):
 
     def delete_openvpn_interface_cfg(self, ifName):
         status = OperStatus()
-        templateModelRef = "vyatta-interfaces:interfaces/vyatta-interfaces-openvpn:openvpn/{}"
+        templateModelRef = "vyatta-interfaces:\
+                            interfaces/vyatta-interfaces-openvpn:\
+                            openvpn/{}"
         modelref = templateModelRef.format(ifName)
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(self.name)
@@ -809,4 +830,3 @@ class VRouter5600(NetconfNode):
         templateModelRef = "vyatta-protocols-static:static/interface-route/{}"
         model_ref = templateModelRef.format(ip_prefix.replace("/", "%2F"))
         return self.delete_protocols_cfg(model_ref)
-    

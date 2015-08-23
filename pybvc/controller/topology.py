@@ -57,7 +57,8 @@ class Topology():
 
         assert_msg = "[Topology] either '%s' or '%s' should be used, " \
                      "not both" % ('topo_json', 'topo_dict')
-        assert(((topo_json is not None) and (topo_dict is not None)) is False), assert_msg  # noqa
+        assert(((topo_json is not None) and
+                (topo_dict is not None)) is False), assert_msg
         if (topo_dict is not None):
             self.__init_from_dict__(topo_dict)
             return
@@ -65,7 +66,7 @@ class Topology():
         if (topo_json is not None):
             self.__init_from_json__(topo_json)
             return
-   
+
     def __init_from_json__(self, s):
         if (isinstance(s, basestring)):
             obj = json.loads(s)
@@ -193,14 +194,15 @@ class Node():
         assert(isinstance(d, dict))
         for k, v in d.items():
             setattr(self, k, v)
-    
+
     def to_string(self):
         """ Returns string representation of this object. """
         return str(vars(self))
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def is_switch(self):
         p1 = 'openflow'
@@ -284,7 +286,8 @@ class Link():
         res = False
         src_node = self.source['source_node']
         dst_node = self.destination['dest_node']
-        if(src_node.startswith('openflow') and dst_node.startswith('openflow') and src_node != dst_node):
+        if(src_node.startswith('openflow')and dst_node.startswith('openflow')
+                and src_node != dst_node):
             res = True
         return res
 
@@ -292,7 +295,8 @@ class Link():
         res = False
         src_node = self.source['source_node']
         dst_node = self.destination['dest_node']
-        if(src_node.startswith('openflow') and dst_node.startswith('openflow') and src_node == dst_node):
+        if(src_node.startswith('openflow') and dst_node.startswith('openflow')
+                and src_node == dst_node):
             res = True
         return res
 

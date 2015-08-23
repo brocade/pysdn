@@ -71,7 +71,8 @@ class Controller():
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def brief_json(self):
         """ Returns JSON representation of this object (brief info). """
@@ -79,7 +80,8 @@ class Controller():
              'portNum': self.portNum,
              'adminName': self.adminName,
              'adminPassword': self.adminPassword}
-        return json.dumps(d, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return json.dumps(d, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)
 
     def http_get_request(self, url, data, headers, timeout=None):
         """ Sends HTTP GET request to a remote server and returns the response.
@@ -102,16 +104,17 @@ class Controller():
 
         try:
             resp = requests.get(url,
-                                auth=HTTPBasicAuth(self.adminName, self.adminPassword),
+                                auth=HTTPBasicAuth(self.adminName,
+                                                   self.adminPassword),
                                 data=data, headers=headers, timeout=timeout)
         except (ConnectionError, Timeout) as e:
             print "Error: " + repr(e)
-        
+
         return (resp)
-        
+
     def http_post_request(self, url, data, headers):
         """Sends HTTP POST request to a remote server and returns the response.
-        
+
         :param string url: The complete url including protocol:
                            http://www.example.com/path/to/resource
         :param string data: The data to include in the body of the request.
@@ -120,23 +123,25 @@ class Controller():
         :return: The response from the http request.
         :rtype: None or `requests.response`
                 <http://docs.python-requests.org/en/latest/api/#requests.Response>
-        
+
         """
-        
+
         resp = None
-        
+
         try:
             resp = requests.post(url,
-                                 auth=HTTPBasicAuth(self.adminName, self.adminPassword),
-                                 data=data, headers=headers, timeout=self.timeout)
+                                 auth=HTTPBasicAuth(self.adminName,
+                                                    self.adminPassword),
+                                 data=data, headers=headers,
+                                 timeout=self.timeout)
         except (ConnectionError, Timeout) as e:
             print "Error: " + repr(e)
-        
+
         return (resp)
 
     def http_put_request(self, url, data, headers):
         """Sends HTTP PUT request to a remote server and returns the response.
-        
+
         :param string url: The complete url including protocol:
                            http://www.example.com/path/to/resource
         :param string data: The data to include in the body of the request.
@@ -145,23 +150,25 @@ class Controller():
         :return: The response from the http request.
         :rtype: None or `requests.response`
                 <http://docs.python-requests.org/en/latest/api/#requests.Response>
-        
+
         """
-        
+
         resp = None
-        
+
         try:
             resp = requests.put(url,
-                                auth=HTTPBasicAuth(self.adminName, self.adminPassword),
-                                data=data, headers=headers, timeout=self.timeout)
+                                auth=HTTPBasicAuth(self.adminName,
+                                                   self.adminPassword),
+                                data=data, headers=headers,
+                                timeout=self.timeout)
         except (ConnectionError, Timeout) as e:
             print "Error: " + repr(e)
-        
+
         return (resp)
-    
+
     def http_delete_request(self, url, data, headers):
         """Sends HTTP DELETE request to a remote server and returns the response.
-        
+
         :param string url: The complete url including protocol:
                            http://www.example.com/path/to/resource
         :param string data: The data to include in the body of the request.
@@ -170,26 +177,28 @@ class Controller():
         :return: The response from the http request.
         :rtype: None or `requests.response`
                 <http://docs.python-requests.org/en/latest/api/#requests.Response>
-        
+
         """
         resp = None
-        
+
         try:
             resp = requests.delete(url,
-                                   auth=HTTPBasicAuth(self.adminName, self.adminPassword),
-                                   data=data, headers=headers, timeout=self.timeout)
+                                   auth=HTTPBasicAuth(self.adminName,
+                                                      self.adminPassword),
+                                   data=data, headers=headers,
+                                   timeout=self.timeout)
         except (ConnectionError, Timeout) as e:
             print "Error: " + repr(e)
-        
+
         return (resp)
-    
+
     def get_nodes_operational_list(self):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
-        nlist = [] 
-        
+        nlist = []
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -212,16 +221,16 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, nlist)
-    
+
     def get_node_info(self, nodeId):
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeId)
         info = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -240,30 +249,30 @@ class Controller():
                                   resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, info)
-    
+
     def check_node_config_status(self, nodeId):
-        """Return the configuration status of the node:  
-        
+        """Return the configuration status of the node:
+
         :param string nodeId: Identifier for the node for which to get
                               the config status
         :return: Configuration status of the node.
         :rtype: None or :class:`pybvc.common.status.OperStatus`
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded
                                       but did not provide any status.
         - STATUS.NODE_CONFIGURED: If the node is configured.
         - STATUS.DATA_NOT_FOUND: If node is not configured.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes/node/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeId)
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -273,17 +282,17 @@ class Controller():
             status.set_status(STATUS.NODE_CONFIGURED)
         else:
             status.set_status(STATUS.DATA_NOT_FOUND, resp)
-        
+
         return Result(status, None)
-    
+
     def check_node_conn_status(self, nodeId):
         """Return the connection status of the node to the controller:
-        
+
         :param string nodeId: Identifier for the node for which to get
                               the config status
         :return: Status of the node's connection to the controller.
         :rtype: None or :class:`pybvc.common.status.OperStatus`
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded
                                       but did not provide any status.
@@ -292,13 +301,13 @@ class Controller():
         - STATUS.DATA_NOT_FOUND: If node is not configured.
         - STATUS.HTTP_ERROR: If the controller responded with
                              an error status code.
-        
+
         """
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -334,7 +343,7 @@ class Controller():
                             if(p4 in item and item[p4]):
                                 connected = True
                             break
-                
+
                 if(connected):
                     status.set_status(STATUS.NODE_CONNECTED)
                 elif(found):
@@ -346,16 +355,16 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, None)
-    
+
     def get_all_nodes_in_config(self):
         """Return a list of nodes in the controller's configuration data store
-        
+
         :return: Status, list of nodes in the config data store
                  of the controller
         :rtype: :class:`pybvc.common.status.OperStatus`, list
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                       provide any status. List is empty.
@@ -363,14 +372,14 @@ class Controller():
         - STATUS.DATA_NOT_FOUND: Success. List is empty.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
-        nlist = [] 
-        
+        nlist = []
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -393,18 +402,18 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, nlist)
-    
+
     def get_all_nodes_conn_status(self):
         """Return a list of nodes and the status of their connection
            to the controller.
-        
+
         :return: Status, list of nodes the status of their
                  connection to the controller
         :rtype: :class:`pybvc.common.status.OperStatus`,
                  list of dict [{node:<node id>, connected:<boolean>},...]
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                       provide any status. List is empty.
@@ -412,15 +421,15 @@ class Controller():
         - STATUS.DATA_NOT_FOUND:  Success.  List is empty.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
-        nlist = [] 
-        
+        nlist = []
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -462,17 +471,17 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, nlist)
-    
+
     def get_netconf_nodes_in_config(self):
         """Return a list of NETCONF nodes in the controller's configuration
            data store
-        
+
         :return: Status, list of nodes in the config data store
                  of the controller
         :rtype: :class:`pybvc.common.status.OperStatus`, list
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                       provide any status. List is empty.
@@ -480,15 +489,15 @@ class Controller():
         - STATUS.DATA_NOT_FOUND:  Success. List is empty.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -517,18 +526,18 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, nlist)
-    
+
     def get_netconf_nodes_conn_status(self):
         """Return a list of NETCONF nodes and the status of their connection
            to the controller.
-        
+
         :return: Status, list of nodes the status of their connection
                  to the controller
         :rtype: :class:`pybvc.common.status.OperStatus`,
                  list of dict [{node:<node id>, connected:<boolean>},...]
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                       provide any status. List is empty.
@@ -536,15 +545,15 @@ class Controller():
         - STATUS.DATA_NOT_FOUND:  Success.  List is empty.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes"
         url = templateUrl.format(self.ipAddr, self.portNum)
-        nlist = [] 
-        
+        nlist = []
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -584,26 +593,26 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, nlist)
-    
+
     def get_schemas(self, nodeName):
         """Return a list of YANG model schemas for the node.
-        
+
         :param string nodeName: Name of the node
         :return: Status, list of YANG schemas for the node.
         :rtype: :class:`pybvc.common.status.OperStatus`,
                 JSON listing information about the YANG schemas for the node
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                       provide any status. List is empty.
         - STATUS.OK:  Success. List is valid.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes/node/{}/" + \
@@ -611,7 +620,7 @@ class Controller():
                       "ietf-netconf-monitoring:netconf-state/schemas"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         slist = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -630,28 +639,29 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, slist)
-    
+
     def get_schema(self, nodeName, schemaId, schemaVersion):
         """Return a YANG schema for the indicated schema on the indicated node.
-        
-        :param string nodeName: Name of the node 
+
+        :param string nodeName: Name of the node
         :param string schemaId: Id of the schema
         :param string schemaVersion: Version of the schema
         :return: Status, YANG schema.
-        :rtype: :class:`pybvc.common.status.OperStatus`, YANG schema 
-        
-        - STATUS.CONN_ERROR: If the controller did not respond. schema is empty.
+        :rtype: :class:`pybvc.common.status.OperStatus`, YANG schema
+
+        - STATUS.CONN_ERROR: If the controller did not respond. schema is
+          empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
                                       provide any status. schema is empty.
         - STATUS.OK: Success. Result is valid.
         - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operations/" + \
                       "opendaylight-inventory:nodes/node/{}/" + \
@@ -659,10 +669,10 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         headers = {'content-type': 'application/yang.data+json',
                    'accept': 'text/json, text/html, application/xml, */*'}
-        payload = {'input': {'identifier': schemaId, 
+        payload = {'input': {'identifier': schemaId,
                              'version': schemaVersion, 'format': 'yang'}}
         schema = None
-        
+
         resp = self.http_post_request(url, json.dumps(payload), headers)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -687,17 +697,17 @@ class Controller():
                 print "DEBUG: TBD (not implemented content type parser)"
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, schema)
-    
+
     def get_netconf_operations(self, nodeName):
         """Return a list of operations supported by the indicated node.
-        
+
         :param string nodeName: Name of the node
         :return: A tuple:  Status, operations supported by indicated node.
         :rtype: :class:`pybvc.common.status.OperStatus`,
-                JSON listing the operations 
-        
+                JSON listing the operations
+
         - STATUS.CONN_ERROR: If the controller did not respond.
                              Operations info is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did
@@ -707,15 +717,15 @@ class Controller():
         - STATUS.DATA_NOT_FOUND:  Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operations/" + \
                       "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         olist = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -733,16 +743,16 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, olist)
-    
+
     def get_config_modules(self):
         """Return a list of configuration modules.
-        
+
         :return: Status, configuration modules.
         :rtype: :class:`pybvc.common.status.OperStatus`,
-                JSON listing modules and their operational state 
-        
+                JSON listing modules and their operational state
+
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did
                                       not provide any status.
@@ -750,16 +760,16 @@ class Controller():
         - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes/node/controller-config/" + \
                       "yang-ext:mount/config:modules"
         url = templateUrl.format(self.ipAddr, self.portNum)
         mlist = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -778,18 +788,18 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, mlist)
-    
+
     def get_module_operational_state(self, moduleType, moduleName):
         """Return operational state for specified module.
-        
+
         :param string moduleType: module type
         :param string moduleName: module name
         :return: Status, operational state for specified module.
         :rtype: :class:`pybvc.common.status.OperStatus`,
                 JSON providing operational state
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did
                                       not provide any status.
@@ -798,16 +808,17 @@ class Controller():
         - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes/node/controller-config/" + \
                       "yang-ext:mount/config:modules/module/{}/{}"
-        url = templateUrl.format(self.ipAddr, self.portNum, moduleType, moduleName)
+        url = templateUrl.format(self.ipAddr, self.portNum, moduleType,
+                                 moduleName)
         module = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -825,28 +836,29 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, module)
-    
+
     def get_sessions_info(self, nodeName):
         """Return sessions for indicated node.
-        
+
         :param string nodeName: Name of the node
-        :return: Status, list of sessions for indicated node 
+        :return: Status, list of sessions for indicated node
         :rtype: :class:`pybvc.common.status.OperStatus`,
                 JSON providing sessions
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond.
-                             Session info is empty.
+        .                     Session info is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
-                                      provide any status. Session info is empty.
+        .                             provide any status. Session info is
+        .                             empty.
         - STATUS.OK: Success. Session info is valid.
         - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error
-                             status code.
-        
+        .                    status code.
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/operational/" + \
                       "opendaylight-inventory:nodes/node/{}/" + \
@@ -854,7 +866,7 @@ class Controller():
                       "ietf-netconf-monitoring:netconf-state/sessions"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         slist = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -872,16 +884,16 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, slist)
-    
+
     def get_streams_info(self):
         """Return streams available for subscription.
-        
-        :return: Status, list of streams 
+
+        :return: Status, list of streams
         :rtype: :class:`pybvc.common.status.OperStatus`,
                  JSON providing list of streams
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond.
                              Stream info is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
@@ -890,14 +902,14 @@ class Controller():
         - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
-        
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/streams"
         url = templateUrl.format(self.ipAddr, self.portNum)
         slist = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -915,27 +927,28 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, slist)
-    
+
     def get_service_providers_info(self):
         """Return a list of service providers available.
-        
-        :return: Status, list of service providers 
-        :rtype: :class:`pybvc.common.status.OperStatus`, 
+
+        :return: Status, list of service providers
+        :rtype: :class:`pybvc.common.status.OperStatus`,
                  JSON providing list of service providers
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond.
-                             Provider info is empty.
+        .                    Provider info is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
-                                      provide any status. provider info is empty.
+        .                             provide any status. provider info is
+        .                             empty.
         - STATUS.OK: Success. Provider info is valid.
         - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error
-                             status code.
-        
+        .                    status code.
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes/node/" + \
@@ -943,7 +956,7 @@ class Controller():
                       "yang-ext:mount/config:services"
         url = templateUrl.format(self.ipAddr, self.portNum)
         slist = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -962,28 +975,29 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, slist)
-    
+
     def get_service_provider_info(self, name):
         """Return info about a single service provider.
-        
+
         :param string name: Name of the provider
-        :return: Status, info about the service provider 
+        :return: Status, info about the service provider
         :rtype: :class:`pybvc.common.status.OperStatus`,
                  JSON providing info about the service provider
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond.
-                             Provider info is empty.
+        .                    Provider info is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
-                                      provide any status. provider info is empty.
+        .                             provide any status. provider info is
+        .                             empty.
         - STATUS.OK: Success. Provider info is valid.
         - STATUS.DATA_NOT_FOUND: Data missing or in unexpected format.
         - STATUS.HTTP_ERROR: If the controller responded with an error
-                             status code.
-        
+        .                    status code.
+
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes/node/" + \
@@ -991,7 +1005,7 @@ class Controller():
                       "yang-ext:mount/config:services/service/{}"
         url = templateUrl.format(self.ipAddr, self.portNum, name)
         service = None
-        
+
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -1009,68 +1023,84 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-        
+
         return Result(status, service)
-    
+
     def add_netconf_node(self, node):
         """ Connect a netconf device to the controller
             (for example connect vrouter to controller via NETCONF)
-        
+
         :param node: :class:`pybvc.controller.netconfnode.NetconfNode`
         :return: Status, JSON response from controller.
         :rtype: :class:`pybvc.common.status.OperStatus`,
                  JSON providing response from adding netconf noed.
-        
+
         - STATUS.CONN_ERROR: If the controller did not respond.
-                             Provider info is empty.
+        .                    Provider info is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
-                                      provide any status. Provider info is empty.
+        .                             provide any status. Provider info is
+        .                             empty.
         - STATUS.OK: Success. Provider info is valid.
         - STATUS.HTTP_ERROR: If the controller responded with an error
-                             status code.
-        
+        .                    status code.
         """
-        
+
         status = OperStatus()
         templateUrl = "http://{}:{}/restconf/config/" + \
                       "opendaylight-inventory:nodes/node/" + \
                       "controller-config/yang-ext:mount/config:modules"
         xmlPayloadTemplate = '''
         <module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
-          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">prefix:sal-netconf-connector</type>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md
+          :sal:connector:netconf">prefix:sal-netconf-connector</type>
           <name>{}</name>
-          <address xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">{}</address>
-          <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">{}</port>
-          <username xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">{}</username>
-          <password xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">{}</password>
-          <tcp-only xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">{}</tcp-only>
-          <event-executor xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">
-            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:netty">prefix:netty-event-executor</type>
+          <address xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal
+          :connector:netconf">{}</address>
+          <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:co
+          nnector:netconf">{}</port>
+          <username xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sa
+          l:connector:netconf">{}</username>
+          <password xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sa
+          l:connector:netconf">{}</password>
+          <tcp-only xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sa
+          l:connector:netconf">{}</tcp-only>
+          <event-executor xmlns="urn:opendaylight:params:xml:ns:yang:controller
+          :md:sal:connector:netconf">
+            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:
+            netty">prefix:netty-event-executor</type>
             <name>global-event-executor</name>
           </event-executor>
-          <binding-registry xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">
-            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-broker-osgi-registry</type>
+          <binding-registry xmlns="urn:opendaylight:params:xml:ns:yang:controll
+          er:md:sal:connector:netconf">
+            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:
+            md:sal:binding">prefix:binding-broker-osgi-registry</type>
             <name>binding-osgi-broker</name>
           </binding-registry>
-          <dom-registry xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">
-            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">prefix:dom-broker-osgi-registry</type>
+          <dom-registry xmlns="urn:opendaylight:params:xml:ns:yang:controller:m
+          d:sal:connector:netconf">
+            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:
+            md:sal:dom">prefix:dom-broker-osgi-registry</type>
             <name>dom-broker</name>
           </dom-registry>
-          <client-dispatcher xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">
-            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:config:netconf">prefix:netconf-client-dispatcher</type>
+          <client-dispatcher xmlns="urn:opendaylight:params:xml:ns:yang:control
+          ler:md:sal:connector:netconf">
+            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:
+            config:netconf">prefix:netconf-client-dispatcher</type>
             <name>global-netconf-dispatcher</name>
           </client-dispatcher>
-          <processing-executor xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">
-            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:threadpool">prefix:threadpool</type>
+          <processing-executor xmlns="urn:opendaylight:params:xml:ns:yang:contr
+          oller:md:sal:connector:netconf">
+            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:
+            threadpool">prefix:threadpool</type>
             <name>global-netconf-processing-executor</name>
           </processing-executor>
         </module>
         '''
-        payload = xmlPayloadTemplate.format(node.name, node.ipAddr, 
-                                            node.portNum, node.adminName, 
+        payload = xmlPayloadTemplate.format(node.name, node.ipAddr,
+                                            node.portNum, node.adminName,
                                             node.adminPassword, node.tcpOnly)
         url = templateUrl.format(self.ipAddr, self.portNum)
-        headers = {'content-type': 'application/xml', 
+        headers = {'content-type': 'application/xml',
                    'accept': 'application/xml'}
 
         resp = self.http_post_request(url, payload, headers)
@@ -1145,14 +1175,20 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum)
         xmlPayloadTemplate = '''
         <module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
-          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">prefix:sal-netconf-connector</type>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md
+          :sal:connector:netconf">prefix:sal-netconf-connector</type>
           <name>{}</name>
-          <username xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">{}</username>
-          <password xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:connector:netconf">{}</password>
+          <username xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sa
+          l:connector:netconf">{}</username>
+          <password xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sa
+          l:connector:netconf">{}</password>
         </module>
         '''
-        payload = xmlPayloadTemplate.format(netconfdev.devName, netconfdev.adminName, netconfdev.adminPassword)
-        headers = {'content-type': 'application/xml', 'accept': 'application/xml'}
+        payload = xmlPayloadTemplate.format(netconfdev.devName,
+                                            netconfdev.adminName,
+                                            netconfdev.adminPassword)
+        headers = {'content-type': 'application/xml',
+                   'accept': 'application/xml'}
 
         resp = self.http_post_request(url, payload, headers)
         if(resp is None):

@@ -69,7 +69,7 @@ def yang_prefix_to_nsname(prefix):
     for k, v in yang_namespace_to_prefix_map:
         if v == prefix:
             return k
-    
+
     return prefix
 
 
@@ -283,10 +283,12 @@ class TopoChangeEvent():
         return link_id
 
     def do_print(self):
-        print " <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+        print "\
+           <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
         print " operation: %s" % self.operation
         self.path_info.do_print()
-        print " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+        print "\
+           >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
 
 class InventoryChangeNotification():
@@ -474,10 +476,12 @@ class InventoryChangeEvent():
         return flow_id
 
     def do_print(self):
-        print " <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+        print "\
+             <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
         print " operation: %s" % self.operation
         self.path_info.do_print()
-        print " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+        print "\
+             >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
 
 class FlowInfo():
@@ -516,7 +520,7 @@ class FlowInfo():
 class PathInfo():
     """ Represents the path to the node in the Controller's internal data tree
         where the change has been detected.
-        Helper subclass for the 'NetworkTopologyChangeNotification' and 
+        Helper subclass for the 'NetworkTopologyChangeNotification' and
         'InventoryChangeNotification' classes """
     def __init__(self, info):
         self.namespaces = None
@@ -550,4 +554,3 @@ class PathInfo():
         for ns in self.namespaces:
             print " namespace: %s (prefix: %s)" % (ns['ns'], ns['pfx'])
         print " path: %s" % self.path
-

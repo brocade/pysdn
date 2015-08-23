@@ -49,17 +49,21 @@ class NetconfNode(object):
         :param controller: :class:`pybvc.controller.controller.Controller`
         :param string nodeName: The name of the node
         :param string ipAddr:  The ip address for the netconf device
-        :param int portNum:  The port number to communicate NETCONF to the device
-        :param string adminName:  The username to authenticate setup of the NETCONF communication 
-        :param string adminPassword:  The password to authenticate setup of the NETCONF communication
+        :param int portNum:  The port number to communicate NETCONF to the
+           device
+        :param string adminName:  The username to authenticate setup of the
+         NETCONF communication
+        :param string adminPassword:  The password to authenticate setup of
+         the NETCONF communication
         :param boolean tcpOnly:  Use TCP only or not.
         :return: The newly created NetconfNode instance.
         :rtype: :class:`pybvc.controller.netconfnode.NetconfNode`
     """
 
-    def __init__(self, controller=None, nodeName=None, ipAddr=None, portNum=None,
+    def __init__(self, controller=None, nodeName=None, ipAddr=None,
+                 portNum=None,
                  adminName=None, adminPassword=None, tcpOnly=False):
-        """ Initializes this object properties. """        
+        """ Initializes this object properties. """
         self.ctrl = controller
         self.name = nodeName
         self.ipAddr = ipAddr
@@ -74,5 +78,5 @@ class NetconfNode(object):
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+                          indent=4)

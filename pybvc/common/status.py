@@ -126,7 +126,8 @@ class OperStatus(object):
             if(self.http_resp is not None and
                self.http_resp.status_code and
                self.http_resp.reason is not None):
-                errMsg += " %d - '%s'" % (self.http_resp.status_code, self.http_resp.reason)
+                errMsg += " %d - '%s'" % (self.http_resp.status_code,
+                                          self.http_resp.reason)
             return errMsg
         elif(self.status_code == STATUS.MALFORM_DATA):
             return "Malformed data"
