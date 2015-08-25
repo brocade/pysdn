@@ -1,4 +1,4 @@
-# pybvc [![Build Status](https://travis-ci.org/BRCDcomm/pybvc.svg?branch=master)](https://travis-ci.org//pybvc)
+# pybvc [![Build Status](https://travis-ci.org/BRCDcomm/pybvc.svg?branch=master)](https://travis-ci.org/BRCDcomm/pybvc)
 Python library to program your network via the Brocade SDN Controller
 
 
