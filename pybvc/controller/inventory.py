@@ -72,11 +72,9 @@ class Inventory():
             p1 = 'id'
             p2 = 'openflow'
             p3 = 'netconf_node_inventory:initial_capability'
-            devices = [{'clazz': 'NOS', 'filter': 'brocade-interface'},
-                       {'clazz': 'VRouter5600', 'filter': 'vyatta-\
-                           interfaces?revision=2014-12-02'},
-                       {'clazz': 'controller', 'filter': '\
-                        controller:netty:eventexecutor?revision=2013-11-12'}]
+            devices = [{'clazz': 'NOS', 'filter': 'brocade-interface@2012-04-24.yang'},
+                       {'clazz': 'VRouter5600', 'filter': 'vyatta-interfaces?revision=2014-12-02'},
+                       {'clazz': 'controller', 'filter': 'controller:netty:eventexecutor?revision=2013-11-12'}]
             for item in l:
                 if isinstance(item, dict):
                     d = dict_keys_dashed_to_underscored(item)
@@ -96,9 +94,10 @@ class Inventory():
                                 self.add_netconf_node(node)
                                 break
                             else:
-                                node = NetconfCapableNode(inv_dict=d)
                                 node = NetconfCapableNode(clazz='unknown',
                                                           inv_dict=d)
+                                self.add_netconf_node(node)
+
         else:
             raise TypeError("[Inventory] wrong argument type '%s'"
                             " (JSON 'string' is expected)" % type(s))
