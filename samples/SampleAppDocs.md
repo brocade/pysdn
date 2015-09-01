@@ -1,27 +1,26 @@
-# pybvcsamples
+# Sample Applications for PyBVC
 Sample applications demonstrating use of [pybvc](https://github.com/BRCDcomm/pybvc) (a python support library for Brocade Vyatta Controller) to monitor/configure network via Brocade Vyatta Controller (BVC).
-
-## Documentation:
-* [Introduction Video](http://brcdcomm.github.io/BVC/jekyll/update/devops/netdev/appdev/2015/03/01/restconf-app-2.html)
 
 ## Pre-requisites:
 * [pybvc](https://github.com/BRCDcomm/pybvc)
 
 ## Installation
 ```bash
-git clone https://github.com/BRCDcomm/pybvcsamples.git
+git clone https://github.com/BRCDcomm/pybvc.git
+cd pybvc
+cd samples
 ```
 
 ## BVC Version Support:
 * 1.1.1 folder has been tested with BVC 1.1.1
 * 1.2.0 folder has been tested with BVC 1.2.0
-* 1.3.0 folder is being tested with BVC 1.3.0 and pybvc 1.3.2
+* 1.3.0 folder is being tested with BVC 1.3.0 
 
 ## Sample Apps
 
-* 1.3.0/sampleopenflow/apps/
+* samples/sampleopenflow/apps/
     * _oftool/oftool_*: A command line tool for obtaining topology, inventory info as well as flow info.  Also provides ability to delete flows.
-* 1.3.0/sampleopenflow/demos/
+* samples/sampleopenflow/demos/
     * _demo1_: Get list of OpenFlow nodes and provide generic info for each.
     * _demo2_: Get detailed info about node with specific name (default node name is openflow:1).
     * _demo3_: Get detailed info about ports on a node with specific name (default node name is openflow:1).
@@ -58,7 +57,7 @@ use mininet.
     * _demo34_: Creates/Removes an example of load balancing group table.  The switch must support OpenFlow's GroupTable to work otherwise the demo will show that the group table is not in the operational table (but is in config table).  Mininet 2.2.0 does not support GroupTable.
     * _demo35_: Creates/Removes an example of 'set of common actions' group table.  The switch must support OpenFlow's GroupTable to work otherwise the demo will show that the group table is not in the operational table (but is in config table).  Mininet 2.2.0 does not support GroupTable.
     * _demo36_: Creates/Removes an example of 'link fast failover' group table.  The switch must support OpenFlow's GroupTable to work otherwise the demo will show that the group table is not in the operational table (but is in config table).  Mininet 2.2.0 does not support GroupTable.
-* 1.3.0/samplenetconf/demos
+* samples/samplenetconf/demos
     * _ctrl_demo1_: List of YANG models supported by the Controller.
     * _ctrl_demo2_: Retrieve specific YANG model definition from the Controller.
     * _ctrl_demo3_: List of service provider applications on the controller.
@@ -86,7 +85,7 @@ use mininet.
     * _vr_demo12_: adds and removes a VPN configuration for Site-to-Site VPN Configuration - X.509 Certificate Authentication
     * _vr_demo13_: adds and removes a vtun0 OpenVPN tunnel for Site-to-Site Mode with Preshared Secret
     * _vr_demo14_: adds and removes a vtun0 OpenVPN tunnel for Site-to-Site Mode with TLS
-* 1.3.0/samplenetconf/cmds
+* samples/samplenetconf/cmds
     * _mount_: Mount the vRouter onto Controller.
     * _show_cfg_: Show config of vRouter.
     * _show_ctrl_yangmodel_: Return a specified YANG model.
