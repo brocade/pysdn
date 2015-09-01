@@ -1,13 +1,13 @@
 # pybvc [![Build Status](https://travis-ci.org/BRCDcomm/pybvc.svg?branch=master)](https://travis-ci.org/BRCDcomm/pybvc)
-Python library to program your network via the Brocade SDN Controller
+Python library and samples to program your network via the Brocade SDN Controller (OpenDaylight)
 
 
 ## Other Brocade SDN Controller Libraries
-* rubybvc - Ruby gem for Brocade SDN Controller:  https://github.com/BRCDcomm/rubybvc
-* perlbsc - Perl library for Brocade SDN Controller:  https://github.com/BRCDcomm/perlbsc
+* rubybvc - Ruby gem for Brocade SDN Controller (OpenDaylight):  https://github.com/BRCDcomm/rubybvc
+* perlbsc - Perl library for Brocade SDN Controller (OpenDaylight):  https://github.com/BRCDcomm/perlbsc
 
 ## Current Version:
-1.3.2
+1.3.3
 
 ## Prerequisites
    - Python 2.7.x: 
@@ -50,21 +50,22 @@ sudo pip install pybvc --upgrade
 pip show pybvc
 ```
 
-## Contribute:
-If you want to contribute to this project, fantastic!  Please check out our CONTRIBUTE.md file for how to do this:
-   - [Contribute](https://github.com/BRCDcomm/pybvc/blob/master/CONTRIBUTE.md)
-
-## Documentation:
-   - [Introduction Video](http://brcdcomm.github.io/BVC/jekyll/update/devops/netdev/appdev/2015/03/01/restconf-app-2.html)
-   - [Programmer's Reference](http://brcdcomm.github.io/pybvc/)
-
 ## Sample Applications:
-   - [pybvcsamples](https://github.com/brcdcomm/pybvcsamples)
+There are many sample applications demonstrating the use of the pybvc library with controller and netconf devices.  See below for a list of the samples.  You do need to install pybvc for the samples to work.
    - To install samples:
 
      ```bash
      git clone https://github.com/brcdcomm/pybvcsamples.git
      ```
+
+## Documentation:
+   - [Introduction Video](http://brcdcomm.github.io/BVC/jekyll/update/devops/netdev/appdev/2015/03/01/restconf-app-2.html)
+   - [Programmer's Reference](http://brcdcomm.github.io/pybvc/)
+   - [Sample Applications](https://github.com/BRCDcomm/pybvc/samples/blob/master/SampleAppDocs.md)
+
+## Contribute:
+If you want to contribute to this project, fantastic!  Any contribution is welcome: bug fix, new samples, additions to pybvc library, documentation, etc.  Please check out our CONTRIBUTE.md file for how to do this:
+   - [Contribute](https://github.com/BRCDcomm/pybvc/blob/master/CONTRIBUTE.md)
 
 ## Twitter:
 If you use twitter, then follow [@jebpublic](http://twitter.com/intent/user?screen_name=jebpublic).  This is where announcements about updates are sent.
