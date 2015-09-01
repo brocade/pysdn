@@ -532,16 +532,16 @@ class GroupFeatures():
     # mapping of bit positions for OFPAT_* action types to
     # the corresponding action names
     actions_bitmap = {
-        0:  'OUTPUT',        # Output to switch port
-        1:  'SET_VLAN_VID',  # Set the 802.1q VLAN id
-        2:  'SET_VLAN_PCP',  # Set the 802.1q priority
-        3:  'STRIP_VLAN',    # Strip the 802.1q header
-        4:  'SET_DL_SRC',    # Ethernet source address
-        5:  'SET_DL_DST',    # Ethernet destination address
-        6:  'SET_NW_SRC',    # IP source address
-        7:  'SET_NW_DST',    # IP destination address/
-        8:  'SET_NW_TOS',    # IP ToS (DSCP field, 6 bits)
-        9:  'SET_TP_SRC',    # TCP/UDP source port
+        0: 'OUTPUT',        # Output to switch port
+        1: 'SET_VLAN_VID',  # Set the 802.1q VLAN id
+        2: 'SET_VLAN_PCP',  # Set the 802.1q priority
+        3: 'STRIP_VLAN',    # Strip the 802.1q header
+        4: 'SET_DL_SRC',    # Ethernet source address
+        5: 'SET_DL_DST',    # Ethernet destination address
+        6: 'SET_NW_SRC',    # IP source address
+        7: 'SET_NW_DST',    # IP destination address/
+        8: 'SET_NW_TOS',    # IP ToS (DSCP field, 6 bits)
+        9: 'SET_TP_SRC',    # TCP/UDP source port
         10: 'SET_TP_DST',    # TCP/UDP destination port
         11: 'COPY-TTL-OUT',  # Copy TTL "outwards"
         12: 'COPY-TTL-IN',   # Copy TTL "inwards"

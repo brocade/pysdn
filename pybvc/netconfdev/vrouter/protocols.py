@@ -44,8 +44,8 @@ import json
 
 # Following import style conforms to PEP 0328
 from pybvc.common.utils import (strip_none,
-                                    remove_empty_from_dict,
-                                    dict_keys_underscored_to_dashed)
+                                remove_empty_from_dict,
+                                dict_keys_underscored_to_dashed)
 
 
 class StaticRoute():

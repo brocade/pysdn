@@ -52,9 +52,9 @@ from pybvc.common.utils import find_key_values_in_dict, dbg_print
 from pybvc.controller.topology import Topology
 # Following import style conforms to PEP 0328
 from pybvc.controller.inventory import (Inventory,
-                                            OpenFlowCapableNode,
-                                            NetconfCapableNode,
-                                            NetconfConfigModule)
+                                        OpenFlowCapableNode,
+                                        NetconfCapableNode,
+                                        NetconfConfigModule)
 
 
 class Controller():
@@ -103,7 +103,6 @@ class Controller():
         resp = None
         if timeout is None:
             timeout = self.timeout
-
 
         try:
             resp = requests.get(url,

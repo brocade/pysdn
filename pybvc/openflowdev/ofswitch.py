@@ -50,15 +50,15 @@ from pybvc.common.result import Result
 from pybvc.common.status import OperStatus, STATUS
 # Following import style conforms to PEP 0328
 from pybvc.common.utils import (find_key_values_in_dict,
-                                    replace_str_value_in_dict,
-                                    find_key_value_in_dict,
-                                    find_dict_in_list,
-                                    strip_none,
-                                    dict_keys_dashed_to_underscored,
-                                    dbg_print)
+                                replace_str_value_in_dict,
+                                find_key_value_in_dict,
+                                find_dict_in_list,
+                                strip_none,
+                                dict_keys_dashed_to_underscored,
+                                dbg_print)
 from pybvc.controller.inventory import (GroupFeatures,
-                                            GroupDescription,
-                                            GroupStatistics)
+                                        GroupDescription,
+                                        GroupStatistics)
 
 
 class OFSwitch(OpenflowNode):
