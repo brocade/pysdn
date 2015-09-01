@@ -1,7 +1,6 @@
 # pybvc [![Build Status](https://travis-ci.org/BRCDcomm/pybvc.svg?branch=master)](https://travis-ci.org/BRCDcomm/pybvc)
 Python library and samples to program your network via the Brocade SDN Controller (OpenDaylight)
 
-
 ## Other Brocade SDN Controller Libraries
 * rubybvc - Ruby gem for Brocade SDN Controller (OpenDaylight):  https://github.com/BRCDcomm/rubybvc
 * perlbsc - Perl library for Brocade SDN Controller (OpenDaylight):  https://github.com/BRCDcomm/perlbsc
@@ -51,17 +50,18 @@ pip show pybvc
 ```
 
 ## Sample Applications:
-There are many sample applications demonstrating the use of the pybvc library with controller and netconf devices.  See below for a list of the samples.  You do need to install pybvc for the samples to work.
+There are many sample applications demonstrating the use of the pybvc library with controller and netconf devices.  You do need to install pybvc for the samples to work.
    - To install samples:
 
      ```bash
      git clone https://github.com/brcdcomm/pybvcsamples.git
      ```
+   - List of samples:
+   	- [Sample Applications](https://github.com/BRCDcomm/pybvc/blob/master/samples/SampleAppDocs.md)
 
 ## Documentation:
    - [Introduction Video](http://brcdcomm.github.io/BVC/jekyll/update/devops/netdev/appdev/2015/03/01/restconf-app-2.html)
    - [Programmer's Reference](http://brcdcomm.github.io/pybvc/)
-   - [Sample Applications](https://github.com/BRCDcomm/pybvc/blob/master/samples/SampleAppDocs.md)
 
 ## Contribute:
 If you want to contribute to this project, fantastic!  Any contribution is welcome: bug fix, new samples, additions to pybvc library, documentation, etc.  Please check out our CONTRIBUTE.md file for how to do this:
