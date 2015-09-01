@@ -1,0 +1,5 @@
+1. cd into tests
+2. edit the cfg.yml, cfg1.yml, cfg2.yml files to have valid values for your environment
+3. run this command:  
+       python test_pybvc.py  > test_results.txt
+4. all tests should complete with success, if not, something has to be fixed.
