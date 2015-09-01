@@ -66,3 +66,4 @@ target/
 *.sublime-project
 *.sublime-workspace
 
+tests/test_results.txt
