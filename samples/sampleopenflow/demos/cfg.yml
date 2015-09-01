@@ -1,0 +1,27 @@
+# Controller specification
+ctrlIpAddr: "52.2.57.210"
+#ctrlIpAddr: "172.22.18.186"
+#ctrlIpAddr: "172.22.18.245"
+#ctrlIpAddr: "172.16.1.11"
+#ctrlIpAddr: "10.254.2.13"
+ctrlPortNum: "8101"
+ctrlUname: 'admin'
+ctrlPswd:  'admin'
+
+# OpenflowNode specification
+# mininet switch 's1'
+#nodeName: "openflow:1"
+nodeName: "openflow:215450652086876"
+
+# CES1-A switch in the InCNTRE lab
+#nodeName: "openflow:8398923456392986624"
+
+# CES2-A switch in the InCNTRE lab
+#nodeName: "openflow:8398923456426541056"
+
+# MLX1-A switch in the InCNTRE lab
+#nodeName: "openflow:10195342062518272"
+
+
+# rundelay
+rundelay: 5

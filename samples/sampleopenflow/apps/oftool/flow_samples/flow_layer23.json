@@ -1,0 +1,128 @@
+/*****************************************************************************
+    
+    Example of a JSON encoded OpenFlow flow entry
+    
+    NOTE1: For each JSON encoded flow entry the 'id' and 'table_id'
+           are the must fields
+    NOTE2: All numerical data should be encoded in decimal (e.g. 0x0806
+           Ethernet Type for ARP protocol should be encoded as 2054)
+    NOTE3: This JSON document can be annotated with comments that will be
+           stripped off by the 'oftool' preprocessor when this file is used
+           for setting flows on a target device.
+           o Multi-line comments:
+            - start with '/*' and end with '*/'
+            - can be split over multiple lines
+            - any symbols written between '/*' and '*/' are ignored
+            - comments cannot be nested
+           o Single line comments:
+            - start with '//' and span to the end of the line
+            - can show up on lines by themselves or to the right of JSON
+              statement on a line
+            - the text after '//' is ignored
+            - cannot be used inside JSON statements
+    
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+ * Flow Entry
+ *---------------------------------------------------------------------------*/
+{
+    /*
+     * Generic attributes of the flow entry
+     */
+     
+    "flow-name": "layers 2-3 flow match sample", // this flow entry name
+                                                 // (optional, default is 'none')
+    "id": "300",                                 // unique identifier of this
+                                                 // flow entry on the Controller
+                                                 // (mandatory)
+    "table_id": "0",                             // identifier of the table to
+                                                 // put the flow entry in
+                                                 // (mandatory)
+    "priority": "3000",                          // priority level for this flow
+                                                 // entry in the table (optional,
+                                                 // default is 32768)
+    "cookie": "300",                             // an opaque identifier to be
+                                                 // associated with this flow entry
+                                                 // (optional, default is 0)
+    "hard-timeout": "0",                         // max time for this flow entry
+                                                 // to exist in the table (seconds)
+                                                 // zero value means infinity
+                                                 // (optional, default is 0)
+    "idle-timeout": "0",                         // idle time before discarding
+                                                 // this flow entry due to lack
+                                                 // of match (seconds)
+                                                 // zero value means infinity
+                                                 // (optional, default is 0)
+     
+    /*
+     * Packet matching criteria
+     */
+     
+    "match": {
+        "in-port": "1",                          // Ingress port
+        "ethernet-match": {
+            "ethernet-destination": {            // MAC destination
+                "address": "ff:ff:29:01:19:61"
+            }, 
+            "ethernet-source": {                 // MAC source
+                "address": "00:1c:42:60:7c:9f"
+            },
+            "ethernet-type": {                   // Ethernet type
+                "type": "2048"
+            }
+        },
+        "vlan-match": {
+            "vlan-id": {                         // VLAN ID
+                "vlan-id": "101",
+                "vlan-id-present": "true"
+            },
+            "vlan-pcp": "7"                      // VLAN PCP
+        },
+        "ip-match": {
+            "ip-dscp": "40",                     // IPv4 DSCP
+            "ip-protocol": "17"                  // IPv4 protocol
+        }, 
+        "ipv4-source": "192.168.1.11/32",        // IPv4 source
+        "ipv4-destination": "172.168.5.6/18",    // IPv4 destination
+        "udp-source-port": "25364",              // UDP source port
+        "udp-destination-port": "514"            // UDP destination port
+    },
+   
+    /*
+     * Instructions to be executed for the matching packet
+     */
+     
+    "instructions": {
+        "instruction": {
+            "order": "0",
+            "apply-actions": {                     // Apply-Actions
+                "action": [                        // list
+                    {
+                        "order": 0,                // Push VLAN header
+                        "push-vlan-action": {      // with 0x8100 Ethernet
+                            "ethernet-type": 33024 // type (802.1q tag)
+                        }
+                    },
+                    {
+                        "order": 1,                // Set VLAN header
+                        "set-field": {             // with given
+                            "vlan-match": {        // VLAN ID
+                                "vlan-id": {
+                                    "vlan-id": 998,
+                                    "vlan-id-present": true
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "order": 2,                // Output packet
+                        "output-action": {         // to the given port
+                            "output-node-connector": 7
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

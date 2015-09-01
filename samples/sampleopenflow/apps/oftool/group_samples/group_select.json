@@ -1,0 +1,92 @@
+/*****************************************************************************
+    
+    Example of a JSON encoded OpenFlow group table entry
+    
+    NOTE1: For each JSON encoded group entry the 'group-id' and 'group-type'
+           are the must fields
+    NOTE2: All numerical data should be encoded in decimal
+    NOTE3: This JSON document can be annotated with comments that will be
+           stripped off by the 'oftool' preprocessor when this file is used
+           for configuring groups on a target device.
+           o Multi-line comments:
+            - start with '/*' and end with '*/'
+            - can be split over multiple lines
+            - any symbols written between '/*' and '*/' are ignored
+            - comments cannot be nested
+           o Single line comments:
+            - start with '//' and span to the end of the line
+            - can show up on lines by themselves or to the right of JSON
+              statement on a line
+            - the text after '//' is ignored
+            - cannot be used inside JSON statements
+    
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+ * Group Entry
+ *---------------------------------------------------------------------------*/
+{
+    /*
+     * Group definition per OpenFlow specification:
+     *  o Execute one bucket in the group. Packets are processed
+     *    by a single bucket in the group, based on a switch-computed
+     *    selection algorithm (e.g. hash on some user-configured
+     *    tuple or simple round robin). All configuration and state
+     *    for the selection algorithm is external to OpenFlow.
+     *    The selection algorithm should implement equal load sharing
+     *    and can optionally be based on bucket weights.
+     */
+     
+    "group-id": 14,                         // unique identifier of the group
+                                            // on the OpenFlow switch
+                                            // (mandatory)
+    "group-type": "group-select",           // Determines this group semantic
+                                            // (mandatory)
+    "group-name": "SELECT group example",   // this group name
+                                            // (optional, default is 'none')
+    
+    /*
+     * Action buckets associated with the group
+     * (each bucket contains one or more actions to execute)
+     */
+    "buckets": {
+        "bucket": [
+            { // First bucket
+                "bucket-id": 0,
+                "weight": 60,
+                "action": [ // Actions to execute
+                    { // First action
+                        "order": 0,
+                        "output-action": {
+                            "output-node-connector": 110
+                        }
+                    }
+                ]
+            },
+            { // Second bucket
+                "bucket-id": 1,
+                "weight": 30,
+                "action": [ // Actions to execute
+                    { // First action
+                        "order": 0,
+                        "output-action": {
+                            "output-node-connector": 111
+                        }
+                    }
+                ]
+            },
+            { // Third bucket
+                "bucket-id": 2,
+                "weight": 10,
+                "action": [ // Actions to execute
+                    { // First action
+                        "order": 0,
+                        "output-action": {
+                            "output-node-connector": 112
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

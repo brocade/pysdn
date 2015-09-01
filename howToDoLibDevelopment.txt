@@ -1,0 +1,22 @@
+This document is for contributors who will be modifying the pybvc library (rather than samples).
+This document walks you through setting up your environment so that you can modify
+the python files in pybvc and then run the samples without having to deploy a new version
+of pybvc to pypi and then installing it again.  Instead your environment will use your
+local pybvc (rather than installed library) so that your changes are used immediately.
+
+1. cd to pybvc
+2. python setup.py develop
+
+If you want to 'undo' this you can:
+1. cd to pybvc
+2. python setup.py develop --uninstall
+
+To check current pybvc being used:
+1. pip list | grep pybvc
+
+Sources of further info:
+1. https://packaging.python.org/en/latest/distributing.html#working-in-development-mode
+2. http://pythonhosted.org/setuptools/setuptools.html#development-mode
+
+
+

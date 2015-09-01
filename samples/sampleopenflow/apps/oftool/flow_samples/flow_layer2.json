@@ -1,0 +1,103 @@
+/*****************************************************************************
+    
+    Example of a JSON encoded OpenFlow flow entry
+    
+    NOTE1: For each JSON encoded flow entry the 'id' and 'table_id'
+           are the must fields
+    NOTE2: All numerical data should be encoded in decimal (e.g. 0x0806
+           Ethernet Type for ARP protocol should be encoded as 2054)
+    NOTE3: This JSON document can be annotated with comments that will be
+           stripped off by the 'oftool' preprocessor when this file is used
+           for setting flows on a target device.
+           o Multi-line comments:
+            - start with '/*' and end with '*/'
+            - can be split over multiple lines
+            - any symbols written between '/*' and '*/' are ignored
+            - comments cannot be nested
+           o Single line comments:
+            - start with '//' and span to the end of the line
+            - can show up on lines by themselves or to the right of JSON
+              statement on a line
+            - the text after '//' is ignored
+            - cannot be used inside JSON statements
+    
+ *****************************************************************************/
+ 
+/*----------------------------------------------------------------------------
+ * Flow Entry
+ *---------------------------------------------------------------------------*/
+{
+    /*
+     * Generic attributes of the flow entry
+     */
+     
+    "flow-name": "layer 2 flow match sample",    // this flow entry name
+                                                 // (optional, default is 'none)
+    "id": "100",                                 // unique identifier of this
+                                                 // flow entry on the Controller
+                                                 // (mandatory)
+    "table_id": "0",                             // identifier of the table to
+                                                 // put the flow entry in
+                                                 // (mandatory)
+    "priority": "1000",                          // priority level for this flow
+                                                 // entry in the table (optional,
+                                                 // default is 32768)
+    "cookie": "100",                             // an opaque identifier to be
+                                                 // associated with this flow entry
+                                                 // (optional, default is 0)
+    "hard-timeout": "0",                         // max time for this flow entry
+                                                 // to exist in the table (seconds)
+                                                 // zero value means infinity
+                                                 // (optional, default is 0)
+    "idle-timeout": "0",                         // idle time before discarding
+                                                 // this flow entry due to lack
+                                                 // of match (seconds)
+                                                 // zero value means infinity
+                                                 // (optional, default is 0)
+    
+    /*
+     * Packet matching criteria
+     */
+     
+    "match": {
+        "in-port": "112",                        // Ingress port
+        "ethernet-match": {
+            "ethernet-destination": {            // MAC destination
+                "address": "20:14:29:01:19:61"
+            },
+            "ethernet-source": {                 // MAC source
+                "address": "00:11:22:33:44:56"
+            },
+            "ethernet-type": {                   // Ethernet type
+                "type": "2048"
+            }
+        },
+        "vlan-match": {
+            "vlan-id": {                         // VLAN ID
+                "vlan-id": "78", 
+                "vlan-id-present": "true"
+            },
+            "vlan-pcp": "6"                      // VLAN PCP
+        }
+    },
+    
+    /*
+     * Instructions to be executed for the matching packet
+     */
+     
+    "instructions": {
+        "instruction": [
+            {
+                "order": "0",
+                "apply-actions": {               // Apply actions
+                    "action": [                  // list
+                        {
+                            "order": "0",        // Drop packet
+                            "drop-action": {}
+                        }
+                    ]
+                }
+             }
+        ]
+    }
+}

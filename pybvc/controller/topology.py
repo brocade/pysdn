@@ -57,8 +57,8 @@ class Topology():
 
         assert_msg = "[Topology] either '%s' or '%s' should be used, " \
                      "not both" % ('topo_json', 'topo_dict')
-        assert(((topo_json is not None) and
-                (topo_dict is not None)) is False), assert_msg
+        assert(not ((topo_json is not None) and
+                    (topo_dict is not None))), assert_msg
         if (topo_dict is not None):
             self.__init_from_dict__(topo_dict)
             return

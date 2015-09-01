@@ -1,0 +1,396 @@
+/*****************************************************************************
+ 
+    Example of multiple JSON encoded OpenFlow flow entries
+    
+    NOTE1: For each JSON encoded flow entry the 'id' and 'table_id'
+           are the must fields
+    NOTE2: All numerical data should be encoded in decimal (e.g. 0x0806
+           Ethernet Type for ARP protocol should be encoded as 2054)
+    NOTE3: This JSON document can be annotated with comments that will be
+           stripped off by the 'oftool' preprocessor when this file is used
+           for setting flows on a target device.
+           o Multi-line comments:
+            - start with '/*' and end with '*/'
+            - can be split over multiple lines
+            - any symbols written between '/*' and '*/' are ignored
+            - comments cannot be nested
+           o Single line comments:
+            - start with '//' and span to the end of the line
+            - can show up on lines by themselves or to the right of JSON
+              statement on a line
+            - the text after '//' is ignored
+            - cannot be used inside JSON statements
+ 
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+ * Flow Entry: 1
+ *---------------------------------------------------------------------------*/
+{
+    /*
+     * Generic attributes of the flow entry
+     */
+     
+    "flow-name": "sample flow 1",        // this flow entry name
+                                         // (optional, default is 'none')
+    "id": "31",                          // unique identifier of this
+                                         // flow entry on the Controller
+                                         // (mandatory)
+    "table_id": 0,                       // identifier of the table to
+                                         // put the flow entry in
+                                         // (mandatory)
+    "priority": 500,                     // priority level for this flow
+                                         // entry in the table (optional,
+                                         // default is 32768)
+    "cookie": 1000,                      // an opaque identifier to be
+                                         // associated with this flow entry
+                                         // (optional, default is 0)
+    "hard-timeout": 0,                   // max time for this flow entry
+                                         // to exist in the table (seconds)
+                                         // zero value means infinity
+                                         // (optional, default is 0)
+    "idle-timeout": 0,                   // idle time before discarding
+                                         // this flow entry if no matches
+                                         // hit this entry (seconds)
+                                         // zero value means infinity
+                                         // (optional, default is 0)
+    
+    /*
+     * Packet matching criteria
+     */
+     
+    "match": {
+        "in-port": "109",                // Ingress port
+        "ethernet-match": {
+            "ethernet-type": {           // Ethernet type
+                "type": 2054             // ARP (0x0806)
+            }
+        },
+        "vlan-match": {
+            "vlan-id": {                 // VLAN ID
+                "vlan-id": 998,
+                "vlan-id-present": true
+            }
+        }
+    },
+
+    /*
+     * Instructions to be executed for the matching packet
+     */
+     
+    "instructions": {
+        "instruction": [
+            {
+                "order": 0,
+                "apply-actions": {                     // Apply-Actions
+                    "action": [                        // list
+                        {
+                            "order": 0,                // Push outer VLAN header
+                            "push-vlan-action": {      // with 0x88A8 (S-TAG)
+                                "ethernet-type": 34984 // Ethernet type
+                            }                          // (provider VLAN)
+                        },
+                        {
+                            "order": 1,                // Set outer VLAN header
+                            "set-field": {             // with given VLAN ID
+                                "vlan-match": {        // (provider VLAN)
+                                    "vlan-id": {
+                                        "vlan-id": 100,
+                                        "vlan-id-present": true
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "order": 2,                // Push inner VLAN header
+                            "push-vlan-action": {      // with 0x8100 (C-TAG)
+                                "ethernet-type": 33024 // Ethernet type
+                            }                          // (customer VLAN)
+                        },
+                        {
+                            "order": 3,                // Set inner VLAN header
+                            "set-field": {             // with given VLAN ID
+                                "vlan-match": {        // (customer VLAN)
+                                    "vlan-id": {
+                                        "vlan-id": 998,
+                                        "vlan-id-present": true
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "order": 4,                // Output packet
+                            "output-action": {         // to the given port
+                                "output-node-connector": "112"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+
+/*----------------------------------------------------------------------------
+ * Flow Entry: 2
+ *---------------------------------------------------------------------------*/
+{
+    /*
+     * Generic attributes of the flow entry
+     */
+     
+    "flow-name": "sample flow 2",        // this flow entry name
+                                         // (optional)
+    "id": "32",                          // unique identifier of this
+                                         // flow entry on the Controller
+                                         // (mandatory)
+    "table_id": 0,                       // identifier of the table to
+                                         // put the flow entry in
+                                         // (mandatory)
+    "priority": 500,                     // priority level for this flow
+                                         // entry in the table
+                                         // (optional)
+    "cookie": 1000,                      // an opaque identifier to be
+                                         // associated with this flow entry
+                                         // (optional)
+    "hard-timeout": 0,                   // max time for this flow entry
+                                         // to exist in the table (seconds)
+                                         // zero value means infinity
+                                         // (optional)
+    "idle-timeout": 0,                   // idle time before discarding
+                                         // this flow entry if no matches
+                                         // hit this entry (seconds)
+                                         // zero value means infinity
+                                         // (optional)
+    
+    /*
+     * Packet matching criteria
+     */
+     
+    "match": {
+        "in-port": "109",                // Ingress port
+        "ethernet-match": {
+            "ethernet-type": {           // Ethernet type
+                "type": 2048             // IPv4 (0x0800)
+            }
+        },
+        "vlan-match": {
+            "vlan-id": {                 // VLAN ID
+                "vlan-id": 998,
+                "vlan-id-present": true
+            }
+        }
+    },
+    
+    /*
+     * Instructions to be executed for the matching packet
+     */
+     
+    "instructions": {
+        "instruction": [
+            {
+                "order": 0,
+                "apply-actions": {                     // Apply Actions list
+                    "action": [
+                        {
+                            "order": 0,                // Push outer VLAN header
+                            "push-vlan-action": {      // with 0x88A8 (S-TAG)
+                                "ethernet-type": 34984 // Ethernet type
+                            }                          // (provider VLAN)
+                        },
+                        {
+                            "order": 1,                // Set outer VLAN header
+                            "set-field": {             // with given VLAN ID
+                                "vlan-match": {        // (provider VLAN)
+                                    "vlan-id": {
+                                        "vlan-id": 100,
+                                        "vlan-id-present": true
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "order": 2,                // Push inner VLAN header
+                            "push-vlan-action": {      // with 0x8100 (C-TAG)
+                                "ethernet-type": 33024 // Ethernet type
+                            }                          // (customer VLAN)
+                        },
+                        {
+                            "order": 3,                // Set inner VLAN header
+                            "set-field": {             // with given VLAN ID
+                                "vlan-match": {        // (customer VLAN)
+                                    "vlan-id": {
+                                        "vlan-id": 998,
+                                        "vlan-id-present": true
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "order": 4,                // Output packet
+                            "output-action": {         // to the given port
+                                "output-node-connector": "112"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+
+/*----------------------------------------------------------------------------
+ * Flow Entry: 3
+ *---------------------------------------------------------------------------*/
+{
+    /*
+     * Generic attributes of the flow entry
+     */
+     
+    "flow-name": "sample flow 3",        // this flow entry name
+                                         // (optional)
+    "id": "33",                          // unique identifier of this
+                                         // flow entry on the Controller
+                                         // (mandatory)
+    "table_id": 0,                       // identifier of the table to
+                                         // put the flow entry in
+                                         // (mandatory)
+    "priority": 500,                     // priority level for this flow
+                                         // entry in the table
+                                         // (optional)
+    "cookie": 1000,                      // an opaque identifier to be
+                                         // associated with this flow entry
+                                         // (optional)
+    "hard-timeout": 0,                   // max time for this flow entry
+                                         // to exist in the table (seconds)
+                                         // zero value means infinity
+                                         // (optional)
+    "idle-timeout": 0,                   // idle time before discarding
+                                         // this flow entry if no matches
+                                         // hit this entry (seconds)
+                                         // zero value means infinity
+                                         // (optional)
+    
+    /*
+     * Packet matching criteria
+     */
+     
+    "match": {
+        "in-port": "112",                // Ingress port
+        "ethernet-match": {
+            "ethernet-type": {           // Ethernet type
+                "type": 2054             // ARP (0x0806)
+            }
+        },
+        "vlan-match": {
+            "vlan-id": {                 // VLAN ID
+                "vlan-id": 100,
+                "vlan-id-present": true
+            }
+        }
+    },
+    
+    /*
+     * Instructions to be executed for the matching packet
+     */
+     
+    "instructions": {
+        "instruction": [
+            {
+                "order": 0,
+                "apply-actions": {                // Apply Actions
+                    "action": [                   // list
+                        {
+                            "order": 0,           // Pop outer-most
+                            "pop-vlan-action": {} // VLAN header
+                        },
+                        {
+                            "order": 1,           // Output packet
+                            "output-action": {    // to the given port
+                                "output-node-connector": "109"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+
+/*----------------------------------------------------------------------------
+ * Flow Entry: 4
+ *---------------------------------------------------------------------------*/
+{
+    /*
+     * Generic attributes of the flow entry
+     */
+     
+    "flow-name": "sample flow 4",        // this flow entry name
+                                         // (optional)
+    "id": "34",                          // unique identifier of this
+                                         // flow entry on the Controller
+                                         // (mandatory)
+    "table_id": 0,                       // identifier of the table to
+                                         // put the flow entry in
+                                         // (mandatory)
+    "priority": 500,                     // priority level for this flow
+                                         // entry in the table
+                                         // (optional)
+    "cookie": 1000,                      // an opaque identifier to be
+                                         // associated with this flow entry
+                                         // (optional)
+    "hard-timeout": 600,                 // max time for this flow entry
+                                         // to exist in the table (seconds)
+                                         // zero value means infinity
+                                         // (optional)
+    "idle-timeout": 300,                 // idle time before discarding
+                                         // this flow entry if no matches
+                                         // hit this entry (seconds)
+                                         // zero value means infinity
+                                         // (optional)
+    
+    /*
+     * Packet matching criteria
+     */
+     
+    "match": {
+        "in-port": "112",                // Ingress port
+        "ethernet-match": {
+            "ethernet-type": {           // Ethernet type
+                "type": 2048             // IPv4 (0x0800)
+            }
+        },
+        "vlan-match": {
+            "vlan-id": {                 // VLAN ID
+                "vlan-id": 100,
+                "vlan-id-present": true
+            }
+        }
+    },
+    
+    /*
+     * Instructions to be executed for the matching packet
+     */
+     
+    "instructions": {
+        "instruction": [
+            {
+                "order": 0,
+                "apply-actions": {                // Apply-Actions
+                    "action": [                   // list
+                        {
+                            "order": 0,           // Pop outer-most
+                            "pop-vlan-action": {} // VLAN header
+                        },
+                        {
+                            "order": 1,           // Output packet
+                            "output-action": {    // to the given port
+                                "output-node-connector": "109"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

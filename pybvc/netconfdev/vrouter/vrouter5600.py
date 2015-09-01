@@ -193,8 +193,8 @@ class VRouter5600(NetconfNode):
         """
         status = OperStatus()
         cfg = None
-        templateModelRef = "vyatta-security:\
-                            security/vyatta-security-firewall:firewall/name/{}"
+        templateModelRef = "vyatta-security:" + \
+            "security/vyatta-security-firewall:firewall/name/{}"
         modelref = templateModelRef.format(instance)
         ctrl = self.ctrl
         myname = self.name
@@ -346,9 +346,9 @@ class VRouter5600(NetconfNode):
                              status code.
          """
         status = OperStatus()
-        templateModelRef = "vyatta-interfaces:\
-                            interfaces/vyatta-interfaces-dataplane:\
-                            dataplane/{}/vyatta-security-firewall:firewall/"
+        templateModelRef = "vyatta-interfaces:" + \
+            "interfaces/vyatta-interfaces-dataplane:" + \
+            "dataplane/{}/vyatta-security-firewall:firewall/"
         modelref = templateModelRef.format(ifName)
         myname = self.name
         ctrl = self.ctrl
@@ -490,9 +490,9 @@ class VRouter5600(NetconfNode):
          """
         status = OperStatus()
         cfg = None
-        templateModelRef = "vyatta-interfaces:\
-                            interfaces/vyatta-interfaces-dataplane:\
-                            dataplane/{}"
+        templateModelRef = "vyatta-interfaces:" + \
+            "interfaces/vyatta-interfaces-dataplane:" + \
+            "dataplane/{}"
         modelref = templateModelRef.format(ifName)
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(self.name)
@@ -573,9 +573,9 @@ class VRouter5600(NetconfNode):
                              status code.
          """
         status = OperStatus()
-        templateModelRef = "vyatta-interfaces:\
-                            interfaces/vyatta-interfaces-loopback:\
-                            loopback/{}"
+        templateModelRef = "vyatta-interfaces:" + \
+            "interfaces/vyatta-interfaces-loopback:" + \
+            "loopback/{}"
         modelref = templateModelRef.format(ifName)
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(self.name)
@@ -708,9 +708,9 @@ class VRouter5600(NetconfNode):
 
     def get_openvpn_interface_cfg(self, ifName):
         status = OperStatus()
-        templateModelRef = "vyatta-interfaces:\
-                            interfaces/vyatta-interfaces-openvpn:\
-                            openvpn/{}"
+        templateModelRef = "vyatta-interfaces:" + \
+            "interfaces/vyatta-interfaces-openvpn:" + \
+            "openvpn/{}"
         cfg = None
         modelref = templateModelRef.format(ifName)
         ctrl = self.ctrl
@@ -732,9 +732,9 @@ class VRouter5600(NetconfNode):
 
     def delete_openvpn_interface_cfg(self, ifName):
         status = OperStatus()
-        templateModelRef = "vyatta-interfaces:\
-                            interfaces/vyatta-interfaces-openvpn:\
-                            openvpn/{}"
+        templateModelRef = "vyatta-interfaces:" + \
+            "interfaces/vyatta-interfaces-openvpn:" + \
+            "openvpn/{}"
         modelref = templateModelRef.format(ifName)
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(self.name)

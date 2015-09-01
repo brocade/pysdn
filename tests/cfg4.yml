@@ -1,0 +1,20 @@
+# Controller specification
+#ctrlIpAddr: "172.22.17.5"
+ctrlIpAddr: "172.22.18.186"
+ctrlPortNum: "8181"
+ctrlUname: 'admin'
+ctrlPswd:  'admin'
+
+# NetconfNode specification
+nodeName: "vRouter"
+#nodeIpAddr: "172.22.17.109"
+nodeIpAddr: "172.22.17.110"
+nodePortNum: 830
+nodeUname: "vyatta"
+nodePswd: "vyatta"
+
+# Make sure the next Dataplane and loopback interfaces have been configured on device
+#interfaceName: "dp0p224p1"
+interfaceName: "dp0p1p7"
+#loopback: "lo5"
+loopback: "lo4"

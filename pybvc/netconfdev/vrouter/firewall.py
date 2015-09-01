@@ -76,8 +76,8 @@ class Firewall():
 
     def add_rules(self, rules):
         """Add rules to Firewall.
-        :param rules: Rules to be added to Firewall.  :class:`pybvc.netconfdev.
-               vrouter.vrouter5600.Rules`
+        :param rules: Rules to be added to Firewall.
+                    :class:`pybvc.netconfdev.vrouter.vrouter5600.Rules`
         """
         self.name.append(rules)
 
@@ -112,7 +112,7 @@ class Rules():
 
     def add_rule(self, rule):
         """Add a single firewall rule to Rules.
-        :param rule: The rule to add to this Rules instance.  :class:`pybvc.
+        :param rule: The rule to add to this Rules instance. :class:`pybvc.
                netconfdev.vrouter.vrouter5600.Rule`
         :return: None
         """

@@ -50,16 +50,19 @@ import inspect
 
 def remove_empty_from_dict(d):
     if type(d) is dict:
-        return dict((k, remove_empty_from_dict(v)) for k, v in d.iteritems() if v and remove_empty_from_dict(v))
+        return dict((k, remove_empty_from_dict(v)) for k, v in d.iteritems()
+                    if v and remove_empty_from_dict(v))
     elif type(d) is list:
-        return [remove_empty_from_dict(v) for v in d if v and remove_empty_from_dict(v)]
+        return [remove_empty_from_dict(v) for v in d if v
+                and remove_empty_from_dict(v)]
     else:
         return d
 
 
 def strip_none(data):
     if isinstance(data, dict):
-        res = {k: strip_none(v) for k, v in data.items() if k is not None and v is not None} # flake8: noqa
+        res = {k: strip_none(v) for k, v in data.items() if k is not None
+               and v is not None}
         return res
     elif isinstance(data, list):
         res = [strip_none(item) for item in data if item is not None]
@@ -132,16 +135,19 @@ def find_key_value_in_dict(d, key):
 
 def find_dict_in_list(slist, key):
     for item in slist:
-        if (type(item) is dict and item in key):
+        if (type(item) is dict and key in item):
             return item
     return None
 
 
 def replace_str_value_in_dict(d, old, new):
     if type(d) is dict:
-        return dict((k, replace_str_value_in_dict(v, old, new)) for k, v in d.iteritems() if v and replace_str_value_in_dict(v, old, new))
+        return dict((k, replace_str_value_in_dict(v, old, new))
+                    for k, v in d.iteritems() if v
+                    and replace_str_value_in_dict(v, old, new))
     elif type(d) is list:
-        return [replace_str_value_in_dict(v, old, new) for v in d if v and replace_str_value_in_dict(v, old, new)]
+        return [replace_str_value_in_dict(v, old, new) for v in d if v
+                and replace_str_value_in_dict(v, old, new)]
     elif type(d) is unicode:
         d = d.replace(unicode(old), unicode(new))
         return d
@@ -160,7 +166,8 @@ def dict_keys_underscored_to_dashed(d):
             if isinstance(v, dict):
                 v = dict_keys_underscored_to_dashed(v)
             elif isinstance(v, list):
-                v = [dict_keys_underscored_to_dashed(i) for i in v if i and dict_keys_underscored_to_dashed(i)]
+                v = [dict_keys_underscored_to_dashed(i) for i in v if i
+                     and dict_keys_underscored_to_dashed(i)]
             new_dict[k.replace('_', '-')] = v
     else:
         return d
@@ -175,7 +182,8 @@ def dict_keys_dashed_to_underscored(d):
             if isinstance(v, dict):
                 v = dict_keys_dashed_to_underscored(v)
             elif isinstance(v, list):
-                v = [dict_keys_dashed_to_underscored(i) for i in v if i and dict_keys_dashed_to_underscored(i)]
+                v = [dict_keys_dashed_to_underscored(i) for i in v if i
+                     and dict_keys_dashed_to_underscored(i)]
             new_dict[k.replace('-', '_')] = v
     else:
         return d
@@ -185,7 +193,8 @@ def dict_keys_dashed_to_underscored(d):
 
 def dict_unicode_to_string(d):
     if isinstance(d, dict):
-        return {dict_unicode_to_string(key): dict_unicode_to_string(value) for key, value in d.iteritems()}
+        return {dict_unicode_to_string(key): dict_unicode_to_string(value)
+                for key, value in d.iteritems()}
     elif isinstance(d, list):
         return [dict_unicode_to_string(element) for element in d]
     elif isinstance(d, unicode):
@@ -201,8 +210,8 @@ def progress_wait_secs(msg=None, waitTime=None, sym="."):
         # sys.stdout.write ("waiting for %s seconds: " % waitTime)
         if (msg is not None):
             sys.stdout.write("%s" % msg)
-        for i in range(0, waitTime, 1):
-            print "%s" % sym,  # <- no newline
+        for dummy in range(0, waitTime, 1):
+            print "%s" % sym,   # <- no newline
             sys.stdout.flush()  # <- makes python print it anyway
             time.sleep(1)
         sys.stdout.write("\n")

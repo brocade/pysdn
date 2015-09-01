@@ -66,6 +66,6 @@ sub _brocade_files {
                         push @files, $_; },
         no_chdir => 1,
         },
-        './pybvc');
+        '../pybvc');
     return @files;
 }
