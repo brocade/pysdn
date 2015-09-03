@@ -49,8 +49,18 @@ We thought that this StackOverflow answer did a good job describing the reasons 
 	```
 
 #### Do this everytime you begin a new feature
-1. Never, Never, NEVER make changes in this master branch on your laptop.  It will always be your copy of the original project and never have changes you make.  You will make your changes in feature branches.  You may have only one feature branch or you may have multiples, depending on how many changes you are going to request be made to the original project.
-1. Create a feature branch for each github issue that you are writing code to address in the original project (see 'Will my contribution be accepted by the maintainer(s)').    For instance if you have two bug fixes and a new feature then each of those would have an associated github issue and each would be repaired in its own feature branch (so you would have three (3) feature branches).   That way each change has an associated issue to track it and if one of your pull requests takes a long time to resolve and get into the original project the other ones can still get in quickly.
+1. Never, Never, NEVER make changes in this master branch on your laptop.  It will always be your copy of the original project and should never have changes you make.  You will make your changes in feature branches.  You may have only one feature branch or you may have multiples, depending on how many changes you are going to request be made to the original project.
+1. In your console window in the forked project, change to the 'master' branch.
+
+	```bash
+	git checkout master
+	```
+1. Now, 'rebase' your master to the upstream master branch of the original project (not your fork).  This basically will make your local master branch match exactly what is on the remote master of the original project.
+
+	```bash
+	git pull --rebase upstream master
+	```
+1. Create a feature branch for an issue/feature that you are writing code to address.    For instance if you have two bug fixes and a new feature then each of those would have an associated github issue and each would be repaired in its own feature branch (so you would have three (3) feature branches).   That way each change has an associated issue to track it and if one of your pull requests takes a long time to resolve and get into the original project the other ones can still get in quickly.
 
 	```bash
 	git checkout -b <name of your feature branch>
@@ -66,6 +76,11 @@ We thought that this StackOverflow answer did a good job describing the reasons 
 	git push --all -u
 	```
 1. If you are in the correct feature branch, then go ahead and make the changes to the source files that you want to make.
+    1. Before making changes always be sure you are in the correct branch
+
+	```bash
+	git branch
+	```
     1. Feel free to inform git about your changes to your local feature branch
 
     	```bash
@@ -88,7 +103,7 @@ We thought that this StackOverflow answer did a good job describing the reasons 
 1. Once all your changes are pushed you are ready to do a pull request 
 1. Open your browser and go to your fork of the project (not the original), find your feature branch and do a compare and pull request
 1. If the pull request is able to be merged automatically then go ahead and create the pull request
-1. IF the pull request cannot be merged automatically then see 'How do I rebase?' below and then come back here and try again.
+1. If the pull request cannot be merged automatically then see 'How do I rebase?' below and then come back here and try again.
 
 
 ## How do I rebase?
