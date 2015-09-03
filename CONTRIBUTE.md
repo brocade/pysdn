@@ -107,7 +107,7 @@ We thought that this StackOverflow answer did a good job describing the reasons 
 
 
 ## How do I rebase?
-1. Sometimes your pull request will be responded to with 'please rebase and try again'.  Basically this means that other changes (pull requests) have slipped in front of you and your request can no longer be merged automatically.  This section describes how to do this.
+1. Sometimes your pull request cannot be merged automatically or the maintainer responds to your pull request with 'please rebase and try again'.  Basically this means that other changes (pull requests) have slipped in front of you and your request can no longer be merged automatically.  This section describes how to do this.
 1. This works only if you Never, Never, NEVER make changes in your fork's master branch and only make changes in the feature branches.
 1. In your console window in the forked project, change to the 'master' branch.
 
