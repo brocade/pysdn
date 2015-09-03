@@ -56,7 +56,7 @@ There are many sample applications demonstrating the use of the pybvc library wi
      ```bash
      git clone https://github.com/brcdcomm/pybvcsamples.git
      ```
-   - List of samples:
+   - See a list of samples with descriptions:
    	- [Sample Applications](https://github.com/BRCDcomm/pybvc/blob/master/samples/SampleAppDocs.md)
 
 ## Documentation:
