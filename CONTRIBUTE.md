@@ -31,6 +31,8 @@ We thought that this StackOverflow answer did a good job describing the reasons 
 1. First, read the 'Will my contribution be accepted by the maintainer(s)' section above.
 1. We use the Fork & Pull methodology for pull requests as described here:  https://help.github.com/articles/using-pull-requests/
     1. There is a good beginner video (by Ashley Grant) here as well: https://www.youtube.com/watch?v=M7ZYkjOWr6g
+
+#### Do this once
 1. Fork this repository.
     1. Go to this repository's home page in Github and then in the top right corner find the 'Fork' button and click it.
 1. Go to the newly forked repository's home page (in your Github account) and get its clone URL (on right margin)
@@ -45,6 +47,8 @@ We thought that this StackOverflow answer did a good job describing the reasons 
 	```bash
 	git remote add upstream <clone url for the original project>
 	```
+
+#### Do this everytime you begin a new feature
 1. Never, Never, NEVER make changes in this master branch on your laptop.  It will always be your copy of the original project and never have changes you make.  You will make your changes in feature branches.  You may have only one feature branch or you may have multiples, depending on how many changes you are going to request be made to the original project.
 1. Create a feature branch for each github issue that you are writing code to address in the original project (see 'Will my contribution be accepted by the maintainer(s)').    For instance if you have two bug fixes and a new feature then each of those would have an associated github issue and each would be repaired in its own feature branch (so you would have three (3) feature branches).   That way each change has an associated issue to track it and if one of your pull requests takes a long time to resolve and get into the original project the other ones can still get in quickly.
 
@@ -77,6 +81,8 @@ We thought that this StackOverflow answer did a good job describing the reasons 
     	```bash
     	git push
     	```
+
+#### Do this when you are ready to submit your changes
 1. Once you are happy with your changes run the unit tests to validate the system continues to work correctly (unit tests coming soon)
 1. Once the unit tests work add, commit and push all your changes to your remote feature branch (see above)
 1. Once all your changes are pushed you are ready to do a pull request 
