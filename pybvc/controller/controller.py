@@ -1134,7 +1134,7 @@ class Controller():
                       "controller-config/" + \
                       "yang-ext:mount/config:modules/module/" + \
                       "odl-sal-netconf-connector-cfg:sal-netconf-connector/{}"
-        url = templateUrl.format(self.ipAddr, self.portNum, netconfdev.name)
+        url = templateUrl.format(self.ipAddr, self.portNum, netconfdev.id)
 
         resp = self.http_delete_request(url, data=None, headers=None)
         if(resp is None):
