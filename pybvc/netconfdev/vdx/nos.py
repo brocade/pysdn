@@ -66,7 +66,7 @@ class NOS(NetconfNode):
 
     def __init__(self, ctrl, name, ip_address, port_number, admin_name,
                  admin_password, tcp_only=False):
-        NetconfNode.__init__(self, ctrl. name, ip_address, port_number,
+        NetconfNode.__init__(self, ctrl, name, ip_address, port_number,
                              admin_name, admin_name, tcp_only)
 
     def to_string(self):
@@ -141,8 +141,7 @@ class NOS(NetconfNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, cfg)
 
-
-def get_interfaces_list(self):
+    def get_interfaces_list(self):
         """ Get the list of interfaces on the VRouter5600.
         :return: A tuple: Status, list of interface names.
         :rtype: instance of the `Result` class
@@ -171,8 +170,7 @@ def get_interfaces_list(self):
                                 ifList.append(item[p2])
         return Result(status, ifList)
 
-
-def get_interfaces_cfg(self):
+    def get_interfaces_cfg(self):
         """ Return the configuration for the interfaces on the VRouter5600
         :return: A tuple: Status, configuration of the interfaces
         :rtype: instance of the `Result` class (containing configuration data)
@@ -190,7 +188,7 @@ def get_interfaces_cfg(self):
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(self.name)
         url += modelref
-        resp = ctrl.http_get_request(url, data=None, headers=None)
+        resp = ctrl.http_get_request(url, data=None, headers=None, timeout=120)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
