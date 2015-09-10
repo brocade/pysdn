@@ -66,8 +66,6 @@ def of_demo_30():
         print ("Failed to get Controller device attributes")
         exit(0)
 
-
-
     description = (
         "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n"
         " This demo illustrates how to use Controller's notification\n"
@@ -124,7 +122,6 @@ def of_demo_30():
 
     # Create listener on the Controller (if it does already exist Controller
     # just returns the stream name to subscribe to)
-    print path
     result = ctrl.create_data_change_event_subscription(datastore, scope, path)
     status = result.get_status()
     if not status.eq(STATUS.OK):
@@ -183,7 +180,7 @@ def of_demo_30():
                 for i in l:
                     print " [%s] removed flow entry: %s" % (timestamp,
                                                             i.to_string())
-    except(KeyboardInterrupt) as e:
+    except(KeyboardInterrupt):
         print "Interrupted from keyboard, exit\n"
 
     websock.close()
@@ -192,5 +189,6 @@ def of_demo_30():
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     print (">>> Demo End")
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
 if __name__ == "__main__":
     of_demo_30()

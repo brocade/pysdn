@@ -1,9 +1,9 @@
 # Controller specification
 ctrlIpAddr: "172.22.18.186"
 #ctrlIpAddr: "172.22.18.245"
-ctrlPortNum: "8181"     
-ctrlUname: 'admin' 
-ctrlPswd:  'admin'   
+ctrlPortNum: "8181"
+ctrlUname: 'admin'
+ctrlPswd:  'admin'
 
 # NetconfNode specification
 nodeName: "vRouter"

@@ -74,13 +74,27 @@ if __name__ == "__main__":
                        nodeUname, nodePswd)
 
     print (">>> Adding '%s' to the Controller '%s'" % (nodeName, ctrlIpAddr))
-    result = ctrl.add_netconf_node(node)
+    node_configured = False
+    result = ctrl.check_node_config_status(nodeName)
     status = result.get_status()
-    if(status.eq(STATUS.OK)):
-        print ("'%s' was successfully added to the Controller" % nodeName)
+    if(status.eq(STATUS.NODE_CONFIGURED)):
+        node_configured = True
+        print ("<<< '%s' is already configured on the Controller" % nodeName)
+    elif(status.eq(STATUS.DATA_NOT_FOUND)):
+        node_configured = False
     else:
         print ("\n")
         print ("!!!Failed, reason: %s" % status.brief().lower())
         exit(0)
+
+    if node_configured is False:
+        result = ctrl.add_netconf_node(node)
+        status = result.get_status()
+        if(status.eq(STATUS.OK)):
+            print ("'%s' was successfully added to the Controller" % nodeName)
+        else:
+            print ("\n")
+            print ("!!!Failed, reason: %s" % status.brief().lower())
+            exit(0)
 
     print "\n"

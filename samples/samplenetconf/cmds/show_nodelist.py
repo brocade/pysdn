@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     f = "cfg.yml"
     d = {}
-    if(load_dict_from_file(f, d) == False):
+    if(load_dict_from_file(f, d) is False):
         print("Config file '%s' read error: " % f)
         exit()
 
@@ -61,13 +61,12 @@ if __name__ == "__main__":
         print ("Failed to get Controller device attributes")
         exit(0)
 
-
     print "\n"
     print ("<<< Get list of all nodes registered on the Controller")
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     result = ctrl.get_nodes_operational_list()
     status = result.get_status()
-    if(status.eq(STATUS.OK) == True):
+    if(status.eq(STATUS.OK)):
         print "Nodes:"
         nlist = result.get_data()
         for item in nlist:
@@ -76,6 +75,5 @@ if __name__ == "__main__":
         print ("\n")
         print ("!!!Failed, reason: %s" % status.brief().lower())
         exit(0)
-
 
     print "\n"

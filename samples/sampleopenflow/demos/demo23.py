@@ -44,11 +44,11 @@ import json
 
 from pybvc.controller.controller import Controller
 from pybvc.openflowdev.ofswitch import (OFSwitch,
-                                            FlowEntry,
-                                            Instruction,
-                                            OutputAction,
-                                            SetFieldAction,
-                                            Match)
+                                        FlowEntry,
+                                        Instruction,
+                                        OutputAction,
+                                        SetFieldAction,
+                                        Match)
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.constants import (ETH_TYPE_MPLS_UCAST)
@@ -76,8 +76,6 @@ def of_demo_23():
     print ("<<< Demo 23 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     ofswitch = OFSwitch(ctrl, nodeName)
 
@@ -93,18 +91,18 @@ def of_demo_23():
     new_mpls_label = 44
     output_port = 14
 
-    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'"
-           % (ctrlIpAddr, nodeName))
+    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'" %
+           (ctrlIpAddr, nodeName))
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Ethernet Type (%s)\n"
            "                Input Port (%s)\n"
-           "                MPLS Label (%s)"
-           % (hex(eth_type), in_port, mpls_label))
+           "                MPLS Label (%s)" %
+           (hex(eth_type), in_port, mpls_label))
     print ("        Action: Set Field (MPLS Label %s)\n"
-           "                Output (Physical Port number %s)"
-           % (new_mpls_label, output_port))
+           "                Output (Physical Port number %s)" %
+           (new_mpls_label, output_port))
 
     time.sleep(rundelay)
 
@@ -170,8 +168,8 @@ def of_demo_23():
 
     print ("\n")
     print ("<<< Delete flow with id of '%s' from the Controller's cache "
-           "and from the table '%s' on the '%s' node"
-           % (flow_id, table_id, nodeName))
+           "and from the table '%s' on the '%s' node" %
+           (flow_id, table_id, nodeName))
     time.sleep(rundelay)
     result = ofswitch.delete_flow(flow_entry.get_flow_table_id(),
                                   flow_entry.get_flow_id())

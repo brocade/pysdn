@@ -42,7 +42,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 import json
 
 from pybvc.controller.controller import Controller
-from pybvc.netconfdev.vrouter.vrouter5600  import VRouter5600
+from pybvc.netconfdev.vrouter.vrouter5600 import VRouter5600
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     f = "cfg.yml"
     d = {}
-    if(load_dict_from_file(f, d) == False):
+    if(load_dict_from_file(f, d) is False):
         print("Config file '%s' read error: " % f)
         exit()
 
@@ -71,12 +71,14 @@ if __name__ == "__main__":
         exit(0)
 
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
-    vrouter = VRouter5600(ctrl, nodeName, nodeIpAddr, nodePortNum, nodeUname, nodePswd)
-    print ("<<< 'Controller': %s, '%s': %s" % (ctrlIpAddr, nodeName, nodeIpAddr))
+    vrouter = VRouter5600(ctrl, nodeName, nodeIpAddr,
+                          nodePortNum, nodeUname, nodePswd)
+    print ("<<< 'Controller': %s, '%s': %s" %
+           (ctrlIpAddr, nodeName, nodeIpAddr))
 
     result = vrouter.get_dataplane_interfaces_cfg()
     status = result.get_status()
-    if(status.eq(STATUS.OK) == True):
+    if(status.eq(STATUS.OK)):
         print "Dataplane interfaces config:"
         dpIfCfg = result.get_data()
         print json.dumps(dpIfCfg, indent=4)
@@ -85,3 +87,5 @@ if __name__ == "__main__":
         print ("!!!Failed, reason: %s" % status.brief().lower())
         print ("%s" % status.detailed())
         exit(0)
+
+    print "\n"

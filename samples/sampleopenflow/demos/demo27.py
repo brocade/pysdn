@@ -71,8 +71,6 @@ def of_demo_27():
     print ("<<< Demo 27 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
 
     print "\n"
@@ -94,8 +92,8 @@ def of_demo_27():
         assert(isinstance(inventory, Inventory))
     else:
         print ("\n")
-        print ("!!!Error, failed to obtain inventory info, reason: %s"
-               % status.brief().lower())
+        print ("!!!Error, failed to obtain inventory info, reason: %s" %
+               status.brief().lower())
         exit(0)
 
     result = ctrl.get_topology_ids()
@@ -105,16 +103,19 @@ def of_demo_27():
         assert(isinstance(topology_ids, list))
     else:
         print ("\n")
-        print ("!!!Error, failed to obtain topology info, reason: %s"
-               % status.brief().lower())
+        print ("!!!Error, failed to obtain topology info, reason: %s" %
+               status.brief().lower())
         exit(0)
 
     print "\n"
-    print ("<<< OpenFlow network topologies")
+    print ("<<< Network topologies")
     for topo_id in topology_ids:
         print "       '%s'" % topo_id
 
+    of_topo_id = 'flow:1'
     for topo_id in topology_ids:
+        if (topo_id != of_topo_id):
+            continue
         result = ctrl.build_topology_object(topo_id)
         status = result.get_status()
         if(status.eq(STATUS.OK)):
@@ -123,11 +124,13 @@ def of_demo_27():
             assert(isinstance(topo, Topology))
         else:
             print ("\n")
-            print ("!!!Error, failed to parse '%s' topology info, reason: %s"
-                   % (topo_id, status.brief().lower()))
+            print ("!!!Error, failed to parse '%s' topology info, reason: %s" %
+                   (topo_id, status.brief().lower()))
             exit(0)
 
     for topo in topologies:
+        if topo.get_id() != of_topo_id:
+            continue
         time.sleep(rundelay)
         print "\n"
         print ("<<< Information for '%s' network topology:") % topo.get_id()
@@ -138,14 +141,14 @@ def of_demo_27():
         for sid in sids:
             flows_cnt += inventory.get_openflow_node_flows_cnt(sid)
 
-        print ("        Number of flows              : %s"
-               % flows_cnt)
-        print ("        Number of switches           : %s"
-               % topo.get_switches_cnt())
-        print ("        Number of inter-switch links : %s"
-               % topo.get_inter_switch_links_cnt())
-        print ("        Number of hosts              : %s"
-               % topo.get_hosts_cnt())
+        print ("        Number of flows              : %s" %
+               flows_cnt)
+        print ("        Number of switches           : %s" %
+               topo.get_switches_cnt())
+        print ("        Number of inter-switch links : %s" %
+               topo.get_inter_switch_links_cnt())
+        print ("        Number of hosts              : %s" %
+               topo.get_hosts_cnt())
 
         time.sleep(rundelay)
         print "\n"
@@ -168,8 +171,8 @@ def of_demo_27():
             assert(isinstance(switch, Node))
             print "\n".strip()
             time.sleep(rundelay)
-            print ("<<< Neighborhood information for '%s' switch ports"
-                   % switch.get_id())
+            print ("<<< Neighborhood information for '%s' switch ports" %
+                   switch.get_id())
             pnums = switch.get_port_numbers()
             for pnum in pnums:
                 if pnum == 'LOCAL':
@@ -181,19 +184,19 @@ def of_demo_27():
                     for item in peer_list:
                         assert(isinstance(item, Node))
                         if(item.is_switch()):
-                            print ("            Device Type : %s"
-                                   % "switch")
-                            print ("            OpenFlow Id : %s"
-                                   % item.get_openflow_id())
+                            print ("            Device Type : %s" %
+                                   "switch")
+                            print ("            OpenFlow Id : %s" %
+                                   item.get_openflow_id())
                         elif (item.is_host()):
-                            print ("            Device Type : %s"
-                                   % "host")
+                            print ("            Device Type : %s" %
+                                   "host")
                             mac_addr = item.get_mac_address()
-                            print ("            MAC Address : %s"
-                                   % mac_addr)
+                            print ("            MAC Address : %s" %
+                                   mac_addr)
                             ip_addr = item.get_ip_address_for_mac(mac_addr)
-                            print ("            IP Address  : %s"
-                                   % ip_addr)
+                            print ("            IP Address  : %s" %
+                                   ip_addr)
                 else:
                     print "            None"
 

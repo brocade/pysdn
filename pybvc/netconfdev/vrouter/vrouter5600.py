@@ -48,7 +48,8 @@ from pybvc.common.status import OperStatus, STATUS
 from pybvc.netconfdev.vrouter.vpn import Vpn
 from pybvc.netconfdev.vrouter.interfaces import OpenVpnInterface
 from pybvc.netconfdev.vrouter.protocols import StaticRoute
-from pybvc.netconfdev.vrouter.firewall import DataplaneInterfaceFirewall
+from pybvc.netconfdev.vrouter.firewall import (Firewall,
+                                               DataplaneInterfaceFirewall)
 
 
 class VRouter5600(NetconfNode):
@@ -212,7 +213,7 @@ class VRouter5600(NetconfNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, cfg)
 
-    def create_firewall_instance(self, fwInstance):
+    def add_modify_firewall_instance(self, fwInstance):
         """Create a firewall on the VRouter5600.
          :param fwInstance: instance of the 'Firewall' class
         :return: A tuple:  Status, None.
@@ -230,7 +231,9 @@ class VRouter5600(NetconfNode):
         url = ctrl.get_ext_mount_config_url(myname)
         headers = {'content-type': 'application/yang.data+json'}
         payload = fwInstance.get_payload()
-        resp = ctrl.http_post_request(url, payload, headers)
+        url_ext = fwInstance.get_url_extension()
+        url += url_ext
+        resp = ctrl.http_put_request(url, payload, headers)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -240,16 +243,16 @@ class VRouter5600(NetconfNode):
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, None)
-    # ---------------------------------------------------------------------------
-    # TBD
-    # ---------------------------------------------------------------------------
 
+    # -------------------------------------------------------------------------
+    # TBD
+    # -------------------------------------------------------------------------
     def add_firewall_instance_rule(self, fwInstance, fwRule):
         pass
-    # ---------------------------------------------------------------------------
-    # TBD
-    # ---------------------------------------------------------------------------
 
+    # -------------------------------------------------------------------------
+    # TBD
+    # -------------------------------------------------------------------------
     def update_firewall_instance_rule(self, fwInstance, fwRule):
         pass
 
@@ -265,30 +268,23 @@ class VRouter5600(NetconfNode):
         - STATUS.HTTP_ERROR:  if the controller responded with an error status
         .  code.
          """
+        assert isinstance(fwInstance, Firewall)
         status = OperStatus()
         ctrl = self.ctrl
         myname = self.name
         url = ctrl.get_ext_mount_config_url(myname)
         ext = fwInstance.get_url_extension()
         url += ext
-        rules = fwInstance.get_rules()
-        p1 = "/name/"
-        url += p1
-        for item in rules:
-            name = item.get_name()
-            resp = ctrl.http_delete_request(url + name, data=None,
-                                            headers=None)
-            if(resp is None):
-                status.set_status(STATUS.CONN_ERROR)
-                break
-            elif(resp.content is None):
-                status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-                break
-            elif (resp.status_code == 200):
-                status.set_status(STATUS.OK)
-            else:
-                status.set_status(STATUS.HTTP_ERROR, resp)
-                break
+        resp = ctrl.http_delete_request(url, data=None, headers=None)
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            status.set_status(STATUS.OK)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+
         return Result(status, None)
 
     def set_dataplane_interface_firewall(self, ifName,
@@ -608,9 +604,10 @@ class VRouter5600(NetconfNode):
         ctrl = self.ctrl
         headers = {'content-type': 'application/yang.data+json'}
         url = ctrl.get_ext_mount_config_url(self.name)
-        obj = vpn
-        payload = obj.get_payload()
-        resp = ctrl.http_post_request(url, payload, headers)
+        ext = vpn.get_url_extension()
+        url += ext
+        payload = vpn.get_payload()
+        resp = ctrl.http_put_request(url, payload, headers)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -680,7 +677,9 @@ class VRouter5600(NetconfNode):
         url = ctrl.get_ext_mount_config_url(self.name)
         obj = openvpn_interface
         payload = obj.get_payload()
-        resp = ctrl.http_post_request(url, payload, headers)
+        ext = openvpn_interface.get_url_extension()
+        url += ext
+        resp = ctrl.http_put_request(url, payload, headers)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -758,7 +757,9 @@ class VRouter5600(NetconfNode):
         url = ctrl.get_ext_mount_config_url(self.name)
         obj = static_route
         payload = obj.get_payload()
-        resp = ctrl.http_post_request(url, payload, headers)
+        ext = static_route.get_url_extension()
+        url += ext
+        resp = ctrl.http_put_request(url, payload, headers)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):

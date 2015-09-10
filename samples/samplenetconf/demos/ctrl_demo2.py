@@ -68,8 +68,6 @@ def nc_demo_2():
     print ("<<< Demo Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     print ("\n")
     print ("<<< Creating Controller instance")
     time.sleep(rundelay)

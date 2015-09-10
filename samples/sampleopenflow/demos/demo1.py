@@ -48,7 +48,6 @@ from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 
 
-
 def of_demo_1():
     f = "cfg.yml"
     d = {}
@@ -61,7 +60,7 @@ def of_demo_1():
         ctrlPortNum = d['ctrlPortNum']
         ctrlUname = d['ctrlUname']
         ctrlPswd = d['ctrlPswd']
-        nodeName = d['nodeName']
+#        nodeName = d['nodeName']
         rundelay = d['rundelay']
     except:
         print ("Failed to get Controller device attributes")

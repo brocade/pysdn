@@ -44,10 +44,10 @@ import json
 
 from pybvc.controller.controller import Controller
 from pybvc.openflowdev.ofswitch import (OFSwitch,
-                                            FlowEntry,
-                                            Instruction,
-                                            DropAction,
-                                            Match)
+                                        FlowEntry,
+                                        Instruction,
+                                        DropAction,
+                                        Match)
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 
@@ -74,8 +74,6 @@ def of_demo_6():
     print ("<<< Demo 6 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     ofswitch = OFSwitch(ctrl, nodeName)
 
@@ -86,15 +84,15 @@ def of_demo_6():
     eth_src = "00:01:02:03:04:05"
     eth_dst = "aa:bb:cc:dd:ee:ff"
 
-    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'"
-           % (ctrlIpAddr, nodeName))
+    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'" %
+           (ctrlIpAddr, nodeName))
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Ethernet Type (%s)\n"
            "                Ethernet Source Address (%s)\n"
-           "                Ethernet Destination Address (%s)"
-           % (hex(eth_type), eth_src, eth_dst))
+           "                Ethernet Destination Address (%s)" %
+           (hex(eth_type), eth_src, eth_dst))
     print ("        Action: Drop")
 
     time.sleep(rundelay)
@@ -152,8 +150,8 @@ def of_demo_6():
 
     print ("\n")
     print ("<<< Delete flow with id of '%s' from the Controller's cache "
-           "and from the table '%s' on the '%s' node"
-           % (flow_id, table_id, nodeName))
+           "and from the table '%s' on the '%s' node" %
+           (flow_id, table_id, nodeName))
     time.sleep(rundelay)
     result = ofswitch.delete_flow(flow_entry.get_flow_table_id(),
                                   flow_entry.get_flow_id())
