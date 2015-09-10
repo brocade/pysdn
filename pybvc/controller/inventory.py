@@ -73,7 +73,7 @@ class Inventory():
             p1 = 'id'
             p2 = 'openflow'
             p3 = 'netconf_node_inventory:initial_capability'
-            devices = [{'clazz': 'NOS', 'filter': 'brocade-interface@2012-04-24.yang'},
+            devices = [{'clazz': 'NOS', 'filter': 'brocade-interface-ext?revision=2014-04-01'},
                        {'clazz': 'VRouter5600', 'filter': 'vyatta-interfaces?revision=2014-12-02'},
                        {'clazz': 'controller', 'filter': 'controller:netty:eventexecutor?revision=2013-11-12'}]
             for item in l:
@@ -83,6 +83,7 @@ class Inventory():
                         if (d[p1].startswith(p2)):
                             node = OpenFlowCapableNode(inv_dict=d)
                             self.add_openflow_node(node)
+                    # TODO Fix this as nodes that are not connectec can be mounted with no capabilities.
                     if p3 in d:
                         # Netconf
                         capabilities = d.get(p3)

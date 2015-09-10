@@ -56,6 +56,8 @@ from pybvc.controller.inventory import (Inventory,
                                         NetconfCapableNode,
                                         NetconfConfigModule)
 
+from pybvc.controller.netconfnode import NetconfNode
+
 
 class Controller():
     """ Class that represents a Controller device. """
@@ -1134,7 +1136,11 @@ class Controller():
                       "controller-config/" + \
                       "yang-ext:mount/config:modules/module/" + \
                       "odl-sal-netconf-connector-cfg:sal-netconf-connector/{}"
-        url = templateUrl.format(self.ipAddr, self.portNum, netconfdev.name)
+        if isinstance(netconfdev, NetconfNode):
+            nodeid = netconfdev.id
+        else:
+            nodeid = netconfdev
+        url = templateUrl.format(self.ipAddr, self.portNum, nodeid)
 
         resp = self.http_delete_request(url, data=None, headers=None)
         if(resp is None):
