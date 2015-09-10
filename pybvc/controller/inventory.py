@@ -798,7 +798,7 @@ class NetconfCapableNode():
         return "%s@%s.yang" % (schema, revision)
 
 
-class NetconfConfigModule():
+class NetconfConfigModule(object):
     ''' Class that represents NETCONF node configuration module
         on the Controller '''
 
