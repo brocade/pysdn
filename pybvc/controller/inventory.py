@@ -712,7 +712,7 @@ class GroupDescription():
         return self.group_id
 
 
-class NetconfCapableNode():
+class NetconfCapableNode(object):
     ''' Class that represents current state of a NETCONF capable node
         Helper class of the 'Inventory' class '''
 
