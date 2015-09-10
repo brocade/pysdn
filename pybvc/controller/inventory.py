@@ -83,6 +83,7 @@ class Inventory():
                         if (d[p1].startswith(p2)):
                             node = OpenFlowCapableNode(inv_dict=d)
                             self.add_openflow_node(node)
+                    # TODO Fix this as nodes that are not connectec can be mounted with no capabilities.
                     if p3 in d:
                         # Netconf
                         capabilities = d.get(p3)
