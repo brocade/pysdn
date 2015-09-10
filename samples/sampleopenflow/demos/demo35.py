@@ -44,10 +44,10 @@ import time
 
 from pybvc.controller.controller import Controller
 from pybvc.openflowdev.ofswitch import (OFSwitch,
-                                            GroupEntry,
-                                            GroupBucket,
-                                            OutputAction,
-                                            PopVlanHeaderAction)
+                                        GroupEntry,
+                                        GroupBucket,
+                                        OutputAction,
+                                        PopVlanHeaderAction)
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.status import STATUS
 from pybvc.common.constants import (OFPGT_INDIRECT)
@@ -76,6 +76,7 @@ def print_groups(lcfg, loper):
     else:
         print "        %s : %s" % (s, "none")
 
+
 def of_demo_35():
 
     f = "cfg.yml"
@@ -95,21 +96,16 @@ def of_demo_35():
         print ("Failed to get Controller device attributes")
         exit(0)
 
-    openflow_node_ids = []
-    openflow_nodes = []
-
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     print ("<<< Demo 35 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-
 
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     ofswitch = OFSwitch(ctrl, nodeName)
 
     print "\n".strip()
-    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'"
-           % (ctrlIpAddr, nodeName))
+    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'" %
+           (ctrlIpAddr, nodeName))
 
     grp_ids_cfg = []
     grp_ids_oper = []
@@ -154,13 +150,13 @@ def of_demo_35():
     print "\n".strip()
     print ("        Group Type : %s\n"
            "        Group ID   : %s\n"
-           "        Group Name : \"%s\""
-           % (group_type.strip('group-').upper(),
-              group_id, group_name))
+           "        Group Name : \"%s\"" %
+           (group_type.strip('group-').upper(),
+            group_id, group_name))
     print ("        Buckets    :")
     print ("                     [0] actions : Pop VLAN")
-    print ("                                   Output (%s)"
-           % (out_port))
+    print ("                                   Output (%s)" %
+           (out_port))
     time.sleep(rundelay)
 
     # Allocate a placeholder for the group entry
@@ -204,7 +200,6 @@ def of_demo_35():
     result = ofswitch.get_configured_group(group_id)
     status = result.get_status()
     if(status.eq(STATUS.OK)):
-        grp = result.get_data()
         print ("Group configuration info:")
         group = result.get_data()
         print json.dumps(group, indent=4)
@@ -219,7 +214,6 @@ def of_demo_35():
     result = ofswitch.get_group_description(group_id)
     status = result.get_status()
     if(status.eq(STATUS.OK)):
-        grp = result.get_data()
         print ("Group operational info:")
         group = result.get_data()
         print json.dumps(group, indent=4)
@@ -233,7 +227,6 @@ def of_demo_35():
     result = ofswitch.get_group_statistics(group_id)
     status = result.get_status()
     if(status.eq(STATUS.OK)):
-        grp = result.get_data()
         print ("Group statistics info:")
         group = result.get_data()
         print json.dumps(group, indent=4)
@@ -275,12 +268,12 @@ def of_demo_35():
         result = ofswitch.delete_group(group_id)
         status = result.get_status()
         if(status.eq(STATUS.OK)):
-            print ("<<< Group '%s' successfully removed from the Controller"
-                   % group_id)
+            print ("<<< Group '%s' successfully removed from the Controller" %
+                   group_id)
         else:
             print ("\n").strip()
-            print ("!!!Error, failed to remove group '%s', reason: %s"
-                   % (group_id, status.detailed()))
+            print ("!!!Error, failed to remove group '%s', reason: %s" %
+                   (group_id, status.detailed()))
 
     print ("\n").strip()
     print ("<<< Get OpenFlow Groups Information")

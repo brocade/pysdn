@@ -42,7 +42,6 @@ vpn.py: Virtual Private Network (VPN) specific properties and access methods
 
 import json
 
-# Following import style conforms to PEP 0328
 from pybvc.common.utils import (strip_none,
                                 remove_empty_from_dict,
                                 dict_keys_underscored_to_dashed)
@@ -68,9 +67,13 @@ class Vpn():
         obj1 = strip_none(obj)
         obj2 = remove_empty_from_dict(obj1)
         obj3 = dict_keys_underscored_to_dashed(obj2)
-        payload = {self._mn1: {self._mn2: obj3}}
+        payload = {self._mn2: obj3}
         return json.dumps(payload, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
+
+    def get_url_extension(self):
+        s = ("%s/%s") % (self._mn1, self._mn2)
+        return s
 
     def set_ipsec(self, ipsec):
         if ipsec is not None and isinstance(ipsec, Ipsec):

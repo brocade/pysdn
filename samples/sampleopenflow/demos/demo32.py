@@ -43,8 +43,8 @@ import time
 
 from pybvc.controller.controller import Controller
 from pybvc.controller.inventory import (Inventory,
-                                            OpenFlowCapableNode,
-                                            GroupFeatures)
+                                        OpenFlowCapableNode,
+                                        GroupFeatures)
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.status import STATUS
 
@@ -66,14 +66,11 @@ def of_demo_32():
         print ("Failed to get Controller device attributes")
         exit(0)
 
-    openflow_node_ids = []
     openflow_nodes = []
 
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     print ("<<< Demo 32 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-
 
     print "\n"
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
@@ -92,8 +89,8 @@ def of_demo_32():
         assert(isinstance(inv_obj, Inventory))
     else:
         print ("\n")
-        print ("!!!Error, failed to obtain inventory info, reason: %s"
-               % status.brief().lower())
+        print ("!!!Error, failed to obtain inventory info, reason: %s" %
+               status.brief().lower())
         exit(0)
 
     assert(inv_obj)

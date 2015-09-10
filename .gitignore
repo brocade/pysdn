@@ -67,3 +67,19 @@ target/
 *.sublime-workspace
 
 tests/test_results.txt
+
+# IDE (Eclipse/PyDev) settings
+.project
+.pydevproject
+
+# Emacs (backup files)
+*.*~
+
+# Soure code browser
+cscope.out
+
+# Temporary folder
+tmp*
+
+# Logging
+*.log

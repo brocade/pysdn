@@ -75,8 +75,6 @@ def nc_demo_10():
     print ("<<< Demo Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     print ("\n")
     print ("<<< Creating Controller instance")
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)

@@ -61,8 +61,8 @@ def remove_empty_from_dict(d):
 
 def strip_none(data):
     if isinstance(data, dict):
-        res = {k: strip_none(v) for k, v in data.items() if k is not None
-               and v is not None}
+        res = {k: strip_none(v) for k, v in data.items()
+               if k is not None and v is not None}
         return res
     elif isinstance(data, list):
         res = [strip_none(item) for item in data if item is not None]

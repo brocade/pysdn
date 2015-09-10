@@ -44,14 +44,14 @@ import json
 
 from pybvc.controller.controller import Controller
 from pybvc.openflowdev.ofswitch import (OFSwitch,
-                                            FlowEntry,
-                                            Instruction,
-                                            OutputAction,
-                                            Match)
+                                        FlowEntry,
+                                        Instruction,
+                                        OutputAction,
+                                        Match)
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.constants import (ETH_TYPE_ARP,
-                                        ARP_REQUEST)
+                                    ARP_REQUEST)
 
 
 def of_demo_12():
@@ -76,8 +76,6 @@ def of_demo_12():
     print ("<<< Demo 12 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     ofswitch = OFSwitch(ctrl, nodeName)
 
@@ -98,8 +96,8 @@ def of_demo_12():
     arp_src_hw_addr = "12:34:56:78:98:ab"
     arp_tgt_hw_addr = "fe:dc:ba:98:76:54"
 
-    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'"
-           % (ctrlIpAddr, nodeName))
+    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'" %
+           (ctrlIpAddr, nodeName))
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
@@ -110,13 +108,13 @@ def of_demo_12():
            "                ARP Source IPv4 Address (%s)\n"
            "                ARP Target IPv4 Address (%s)\n"
            "                ARP Source Hardware Address (%s)\n"
-           "                ARP Target Hardware Address (%s)"
-           % (hex(eth_type), eth_src,
-              eth_dst, arp_opcode,
-              arp_src_ipv4_addr,
-              arp_tgt_ipv4_addr,
-              arp_src_hw_addr,
-              arp_tgt_hw_addr))
+           "                ARP Target Hardware Address (%s)" %
+           (hex(eth_type), eth_src,
+            eth_dst, arp_opcode,
+            arp_src_ipv4_addr,
+            arp_tgt_ipv4_addr,
+            arp_src_hw_addr,
+            arp_tgt_hw_addr))
     print ("        Action: Output (CONTROLLER)")
 
     time.sleep(rundelay)
@@ -166,7 +164,7 @@ def of_demo_12():
         print ("<<< Flow successfully added to the Controller")
     else:
         print ("\n")
-        print ("!!!Demo terminated, reason: %s" % status.brief().lower())
+        print ("!!!Demo terminated, reason: %s" % status.detailed())
         exit(0)
 
     print ("\n")
@@ -181,13 +179,13 @@ def of_demo_12():
         print json.dumps(flow, indent=4)
     else:
         print ("\n")
-        print ("!!!Demo terminated, reason: %s" % status.brief().lower())
+        print ("!!!Demo terminated, reason: %s" % status.detailed())
         exit(0)
 
     print ("\n")
     print ("<<< Delete flow with id of '%s' from the Controller's cache "
-           "and from the table '%s' on the '%s' node"
-           % (flow_id, table_id, nodeName))
+           "and from the table '%s' on the '%s' node" %
+           (flow_id, table_id, nodeName))
     time.sleep(rundelay)
     result = ofswitch.delete_flow(flow_entry.get_flow_table_id(),
                                   flow_entry.get_flow_id())

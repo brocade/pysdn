@@ -44,19 +44,19 @@ import json
 
 from pybvc.controller.controller import Controller
 from pybvc.openflowdev.ofswitch import (OFSwitch,
-                                            FlowEntry,
-                                            Instruction,
-                                            PushVlanHeaderAction,
-                                            PopVlanHeaderAction,
-                                            SetFieldAction,
-                                            OutputAction,
-                                            Match)
+                                        FlowEntry,
+                                        Instruction,
+                                        PushVlanHeaderAction,
+                                        PopVlanHeaderAction,
+                                        SetFieldAction,
+                                        OutputAction,
+                                        Match)
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.constants import (ETH_TYPE_STAG,
-                                        ETH_TYPE_CTAG,
-                                        ETH_TYPE_ARP,
-                                        ETH_TYPE_IPv4)
+                                    ETH_TYPE_CTAG,
+                                    ETH_TYPE_ARP,
+                                    ETH_TYPE_IPv4)
 
 
 def delete_flows(ofswitch, table_id, flow_ids):
@@ -67,8 +67,9 @@ def delete_flows(ofswitch, table_id, flow_ids):
             print ("<<< Flow with id of '%s' successfully removed "
                    "from the Controller" % flow_id)
         else:
-            print ("!!!Flow '%s' removal error, reason: %s"
-                   % (flow_id, status.brief()))
+            print ("!!!Flow '%s' removal error, reason: %s" %
+                   (flow_id, status.brief()))
+
 
 def of_demo_25():
     f = "cfg.yml"
@@ -92,8 +93,6 @@ def of_demo_25():
     print ("<<< Demo 25 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     ofswitch = OFSwitch(ctrl, nodeName)
 
@@ -111,8 +110,8 @@ def of_demo_25():
     customer_vlan_id = 998          # Customer VLAN
     first_flow_id = 31
 
-    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'"
-           % (ctrlIpAddr, nodeName))
+    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'" %
+           (ctrlIpAddr, nodeName))
 
     # ---------------------------------------------------
     # First flow entry
@@ -121,16 +120,16 @@ def of_demo_25():
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Ethernet Type (%s)\n"
            "                VLAN ID (%s)\n"
-           "                Input Port (%s)"
-           % (hex(arp_eth_type), customer_vlan_id, customer_port))
+           "                Input Port (%s)" %
+           (hex(arp_eth_type), customer_vlan_id, customer_port))
     print ("        Action: Push VLAN (Ethernet Type %s)\n"
            "                Set Field (VLAN ID %s)\n"
            "                Push VLAN (Ethernet Type %s)\n"
            "                Set Field (VLAN ID %s)\n"
-           "                Output (Physical Port number %s)"
-           % (hex(qinq_eth_type), provider_vlan_id,
-              hex(dot1q_eth_type), customer_vlan_id,
-              provider_port))
+           "                Output (Physical Port number %s)" %
+           (hex(qinq_eth_type), provider_vlan_id,
+            hex(dot1q_eth_type), customer_vlan_id,
+            provider_port))
 
     time.sleep(rundelay)
 
@@ -205,16 +204,16 @@ def of_demo_25():
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Ethernet Type (%s)\n"
            "                VLAN ID (%s)\n"
-           "                Input Port (%s)"
-           % (hex(ip_eth_type), customer_vlan_id, customer_port))
+           "                Input Port (%s)" %
+           (hex(ip_eth_type), customer_vlan_id, customer_port))
     print ("        Action: Push VLAN (Ethernet Type %s)\n"
            "                Set Field (VLAN ID %s)\n"
            "                Push VLAN (Ethernet Type %s)\n"
            "                Set Field (VLAN ID %s)\n"
-           "                Output (Physical Port number %s)"
-           % (hex(qinq_eth_type), provider_vlan_id,
-              hex(dot1q_eth_type), customer_vlan_id,
-              provider_port))
+           "                Output (Physical Port number %s)" %
+           (hex(qinq_eth_type), provider_vlan_id,
+            hex(dot1q_eth_type), customer_vlan_id,
+            provider_port))
 
     time.sleep(rundelay)
 
@@ -288,11 +287,11 @@ def of_demo_25():
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Ethernet Type (%s)\n"
            "                VLAN ID (%s)\n"
-           "                Input Port (%s)"
-           % (hex(arp_eth_type), provider_vlan_id, provider_port))
+           "                Input Port (%s)" %
+           (hex(arp_eth_type), provider_vlan_id, provider_port))
     print ("        Action: Pop VLAN\n"
-           "                Output (Physical Port number %s)"
-           % (customer_port))
+           "                Output (Physical Port number %s)" %
+           (customer_port))
 
     time.sleep(rundelay)
 
@@ -349,11 +348,11 @@ def of_demo_25():
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Ethernet Type (%s)\n"
            "                VLAN ID (%s)\n"
-           "                Input Port (%s)"
-           % (hex(ip_eth_type), provider_vlan_id, provider_port))
+           "                Input Port (%s)" %
+           (hex(ip_eth_type), provider_vlan_id, provider_port))
     print ("        Action: Pop VLAN\n"
-           "                Output (Physical Port number %s)"
-           % (customer_port))
+           "                Output (Physical Port number %s)" %
+           (customer_port))
 
     time.sleep(rundelay)
 

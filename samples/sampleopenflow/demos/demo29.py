@@ -65,8 +65,6 @@ def of_demo_29():
         print ("Failed to get Controller device attributes")
         exit(0)
 
-
-
     description = (
         "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n"
         " This demo illustrates how to use Controller's notification \n"
@@ -99,8 +97,8 @@ def of_demo_29():
     # (name used by Controller for default topology instance)
     topo_id = 'flow:1'
     print "\n".strip()
-    print ("<<< 'Controller': %s, Topology Identifier: '%s'"
-           % (ctrlIpAddr, topo_id))
+    print ("<<< 'Controller': %s, Topology Identifier: '%s'" %
+           (ctrlIpAddr, topo_id))
     time.sleep(rundelay)
 
     # Data store for the changes
@@ -128,7 +126,6 @@ def of_demo_29():
 
     # Create listener on the Controller (if it does already exist Controller
     # just returns the stream name to subscribe to)
-    print path
     result = ctrl.create_data_change_event_subscription(datastore, scope, path)
     status = result.get_status()
     if not status.eq(STATUS.OK):
@@ -136,15 +133,10 @@ def of_demo_29():
         print ("!!!Demo terminated, reason: %s" % status.detailed())
         exit(1)
 
-    print "Here1"
-
     stream_name = result.get_data()
-
-    print "here2"
 
     # Subscribe to the stream
     result = ctrl.subscribe_to_stream(stream_name)
-    print "here 3"
     status = result.get_status()
     if not status.eq(STATUS.OK):
         print ("\n")
@@ -201,7 +193,7 @@ def of_demo_29():
                 for i in l:
                     print " [%s] removed link: %s" % (timestamp, i)
 
-    except(KeyboardInterrupt) as e:
+    except(KeyboardInterrupt):
         print "Interrupted from keyboard, exit\n"
 
     websock.close()

@@ -41,6 +41,7 @@ firewall.py: Firewall specific properties and access methods
 """
 
 import json
+import urllib2
 
 from pybvc.common.utils import remove_empty_from_dict
 
@@ -49,9 +50,14 @@ class Firewall():
     """ A class that defines a Firewall. """
     _mn1 = "vyatta-security:security"
     _mn2 = "vyatta-security-firewall:firewall"
+    _mn3 = "vyatta-security-firewall:name"
 
-    def __init__(self):
-        self.name = []
+    def __init__(self, name):
+        self.tagnode = name
+        self.default_action = None
+        self.default_log = None
+        self.description = None
+        self.rule = []
 
     def to_string(self):
         """ Return Firewall as a string """
@@ -67,19 +73,22 @@ class Firewall():
         s = s.replace('typename', 'type-name')
         d1 = json.loads(s)
         d2 = remove_empty_from_dict(d1)
-        payload = {self._mn1: {self._mn2: d2}}
+        payload = {self._mn3: d2}
         return json.dumps(payload, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
     def get_url_extension(self):
-        return (self._mn1 + "/" + self._mn2)
+        s = ("%s/%s/name/%s" %
+             (self._mn1, self._mn2, urllib2.quote(self.tagnode)))
+        return s
 
-    def add_rules(self, rules):
-        """Add rules to Firewall.
-        :param rules: Rules to be added to Firewall.
-                    :class:`pybvc.netconfdev.vrouter.vrouter5600.Rules`
+    def add_rule(self, rule):
+        """ Add a rule to Firewall.
+        :param rule: Rule to be added to Firewall.
+                    :class:`pybvc.netconfdev.vrouter.vrouter5600.Rule`
         """
-        self.name.append(rules)
+        assert isinstance(rule, Rule)
+        self.rule.append(rule)
 
     def get_rules(self):
         """Return the Rules of a Firewall
@@ -87,43 +96,9 @@ class Firewall():
         :rtype: :class:`pybvc.netconfdev.vrouter.vrouter5600.Rules`
         """
         rules = []
-        for item in self.name:
+        for item in self.rule:
             rules.append(item)
         return rules
-
-
-class Rules():
-    """The class that defines the Firewall Rules.
-    :param string name: The name for the Firewall Rule
-    """
-
-    def __init__(self, name):
-        self.tagnode = name
-        self.rule = []
-
-    def to_string(self):
-        """ return the firewall Rules as a string """
-        return str(vars(self))
-
-    def to_json(self):
-        """ Return the firewall Rules as JSON """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
-                          indent=4)
-
-    def add_rule(self, rule):
-        """Add a single firewall rule to Rules.
-        :param rule: The rule to add to this Rules instance. :class:`pybvc.
-               netconfdev.vrouter.vrouter5600.Rule`
-        :return: None
-        """
-        self.rule.append(rule)
-
-    def get_name(self):
-        """Return the name of the Rules instance.
-        :return: The name of the Rules instance.
-        :rtype:  string
-        """
-        return self.tagnode
 
 
 class Rule():

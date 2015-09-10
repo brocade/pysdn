@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     f = "cfg.yml"
     d = {}
-    if(load_dict_from_file(f, d) == False):
+    if(load_dict_from_file(f, d) is False):
         print("Config file '%s' read error: " % f)
         exit()
 
@@ -77,7 +77,9 @@ if __name__ == "__main__":
 
     argv = sys.argv[1:]
     try:
-        opts, args = getopt.getopt(argv,"i:v:h",["identifier=","version=","help"])
+        opts, args = getopt.getopt(argv,
+                                   "i:v:h",
+                                   ["identifier=", "version=", "help"])
     except getopt.GetoptError, e:
         print("   Error: %s" % e.msg)
         usage(sys.argv[0])
@@ -93,15 +95,16 @@ if __name__ == "__main__":
             print("Error: failed to parse option %s" % opt)
             usage(sys.argv[0])
 
-    if(model_identifier == None) or (model_version == None):
+    if(model_identifier is None) or (model_version is None):
         print("Error: incomplete command")
         usage(sys.argv[0])
 
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     print ("<<< 'Controller': %s" % (ctrlIpAddr))
-    result = ctrl.get_schema("controller-config", model_identifier, model_version)
+    result = ctrl.get_schema("controller-config",
+                             model_identifier, model_version)
     status = result.get_status()
-    if(status.eq(STATUS.OK) == True):
+    if(status.eq(STATUS.OK)):
         print "YANG model definition:"
         schema = result.get_data()
         print schema.encode('utf-8', 'replace')

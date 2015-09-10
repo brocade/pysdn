@@ -18,3 +18,5 @@ nodePswd: "vyatta"
 interfaceName: "dp0p1p7"
 #loopback: "lo5"
 loopback: "lo4"
+
+rundelay: 3

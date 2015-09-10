@@ -43,16 +43,16 @@ import time
 
 from pybvc.controller.controller import Controller
 from pybvc.openflowdev.ofswitch import (OFSwitch,
-                                            FlowEntry,
-                                            Match,
-                                            Instruction,
-                                            SetFieldAction,
-                                            SetNwTosAction,
-                                            OutputAction)
+                                        FlowEntry,
+                                        Match,
+                                        Instruction,
+                                        SetFieldAction,
+                                        SetNwTosAction,
+                                        OutputAction)
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.status import STATUS
 from pybvc.common.constants import (ETH_TYPE_IPv4,
-                                        IP_DSCP_CS5)
+                                    IP_DSCP_CS5)
 
 
 def delete_flows(ofswitch, table_id, flow_ids):
@@ -63,8 +63,8 @@ def delete_flows(ofswitch, table_id, flow_ids):
             print ("<<< Flow with id of '%s' successfully removed "
                    "from the Controller" % flow_id)
         else:
-            print ("!!!Flow '%s' removal error, reason: %s"
-                   % (flow_id, status.brief()))
+            print ("!!!Flow '%s' removal error, reason: %s" %
+                   (flow_id, status.brief()))
 
 
 def of_demo_31():
@@ -85,19 +85,15 @@ def of_demo_31():
         print ("Failed to get Controller device attributes")
         exit(0)
 
-
-
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     print ("<<< Demo 31 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     ofswitch = OFSwitch(ctrl, nodeName)
 
-    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'"
-           % (ctrlIpAddr, nodeName))
+    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'" %
+           (ctrlIpAddr, nodeName))
 
     first_flow_id = 110
     # ---------------------------------------------------
@@ -121,13 +117,13 @@ def of_demo_31():
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Input Port (%s)\n"
            "                Ethernet Type (%s)\n"
-           "                IPv4 Destination Address (%s)"
-           % (match_in_port,
-              hex(match_ip_eth_type),
-              match_ipv4_dst))
+           "                IPv4 Destination Address (%s)" %
+           (match_in_port,
+            hex(match_ip_eth_type),
+            match_ipv4_dst))
     print ("        Action: Set IPv4 ToS (tos %s)\n"
-           "                Output (Port number %s)"
-           % (mod_nw_tos, act_out_port))
+           "                Output (Port number %s)" %
+           (mod_nw_tos, act_out_port))
 
     time.sleep(rundelay)
 
@@ -202,13 +198,13 @@ def of_demo_31():
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Input Port (%s)\n"
            "                Ethernet Type (%s)\n"
-           "                IPv4 Destination Address (%s)"
-           % (match_in_port,
-              hex(match_ip_eth_type),
-              match_ipv4_dst))
+           "                IPv4 Destination Address (%s)" %
+           (match_in_port,
+            hex(match_ip_eth_type),
+            match_ipv4_dst))
     print ("        Action: Set Field (IP DSCP %s)\n"
-           "                Output (Port number %s)"
-           % (mod_ip_dscp, act_out_port))
+           "                Output (Port number %s)" %
+           (mod_ip_dscp, act_out_port))
 
     time.sleep(rundelay)
 

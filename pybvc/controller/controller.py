@@ -48,9 +48,10 @@ from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError, Timeout
 from pybvc.common.result import Result
 from pybvc.common.status import OperStatus, STATUS
-from pybvc.common.utils import find_key_values_in_dict, dbg_print
+from pybvc.common.utils import (find_key_values_in_dict,
+                                dbg_print,
+                                find_key_value_in_dict)
 from pybvc.controller.topology import Topology
-# Following import style conforms to PEP 0328
 from pybvc.controller.inventory import (Inventory,
                                         OpenFlowCapableNode,
                                         NetconfCapableNode,
@@ -86,7 +87,8 @@ class Controller():
                           indent=4)
 
     def http_get_request(self, url, data, headers, timeout=None):
-        """ Sends HTTP GET request to a remote server and returns the response.
+        """ Sends HTTP GET request to a remote server
+            and returns the response.
 
         :param string url: The complete url including protocol:
                            http://www.example.com/path/to/resource
@@ -96,7 +98,7 @@ class Controller():
         :param string timeout: Pass a timeout for longlived queries
         :return: The response from the http request.
         :rtype: None or `requests.response`
-                <http://docs.python-requests.org/en/latest/api/#requests.Response>
+            <http://docs.python-requests.org/en/latest/api/#requests.Response>
 
         """
 
@@ -115,7 +117,8 @@ class Controller():
         return (resp)
 
     def http_post_request(self, url, data, headers):
-        """Sends HTTP POST request to a remote server and returns the response.
+        """ Sends HTTP POST request to a remote server
+            and returns the response.
 
         :param string url: The complete url including protocol:
                            http://www.example.com/path/to/resource
@@ -124,7 +127,7 @@ class Controller():
         :param dict headers: The headers to include in the request.
         :return: The response from the http request.
         :rtype: None or `requests.response`
-                <http://docs.python-requests.org/en/latest/api/#requests.Response>
+            <http://docs.python-requests.org/en/latest/api/#requests.Response>
 
         """
 
@@ -142,7 +145,8 @@ class Controller():
         return (resp)
 
     def http_put_request(self, url, data, headers):
-        """Sends HTTP PUT request to a remote server and returns the response.
+        """ Sends HTTP PUT request to a remote server
+            and returns the response.
 
         :param string url: The complete url including protocol:
                            http://www.example.com/path/to/resource
@@ -151,7 +155,7 @@ class Controller():
         :param dict headers: The headers to include in the request.
         :return: The response from the http request.
         :rtype: None or `requests.response`
-                <http://docs.python-requests.org/en/latest/api/#requests.Response>
+            <http://docs.python-requests.org/en/latest/api/#requests.Response>
 
         """
 
@@ -169,7 +173,8 @@ class Controller():
         return (resp)
 
     def http_delete_request(self, url, data, headers):
-        """Sends HTTP DELETE request to a remote server and returns the response.
+        """ Sends HTTP DELETE request to a remote server
+            and returns the response.
 
         :param string url: The complete url including protocol:
                            http://www.example.com/path/to/resource
@@ -178,7 +183,7 @@ class Controller():
         :param dict headers: The headers to include in the request.
         :return: The response from the http request.
         :rtype: None or `requests.response`
-                <http://docs.python-requests.org/en/latest/api/#requests.Response>
+            <http://docs.python-requests.org/en/latest/api/#requests.Response>
 
         """
         resp = None
@@ -685,18 +690,20 @@ class Controller():
                 # If format of the response differs from our expectation then
                 # code in 'except' clause suppose to handle such condition
                 try:
-                    doc = xmltodict.parse(resp.content)
-                    p1 = 'get-schema'
-                    p2 = 'output'
-                    p3 = 'data'
-                    schema = doc[p1][p2][p3]
-                    status.set_status(STATUS.OK)
+                    doc = xmltodict.parse(resp.content, xml_attribs=False)
+                    p1 = 'data'
+                    data = find_key_value_in_dict(doc, p1)
+                    if(data and isinstance(data, basestring)):
+                        schema = data
+                        status.set_status(STATUS.OK)
+                    else:
+                        raise ValueError()
                 except(Exception):
                     dbg_print("DEBUG: data not found in the received reply")
                     status.set_status(STATUS.DATA_NOT_FOUND)
             else:
-                status.set_status(STATUS.DATA_NOT_FOUND)
                 print "DEBUG: TBD (not implemented content type parser)"
+                status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
 
@@ -727,7 +734,6 @@ class Controller():
                       "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         olist = None
-
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
@@ -766,9 +772,9 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes/node/controller-config/" + \
-                      "yang-ext:mount/config:modules"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes/node/controller-config/"
+                       "yang-ext:mount/config:modules")
         url = templateUrl.format(self.ipAddr, self.portNum)
         mlist = None
 
@@ -814,9 +820,9 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes/node/controller-config/" + \
-                      "yang-ext:mount/config:modules/module/{}/{}"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes/node/controller-config/"
+                       "yang-ext:mount/config:modules/module/{}/{}")
         url = templateUrl.format(self.ipAddr, self.portNum, moduleType,
                                  moduleName)
         module = None
@@ -1147,13 +1153,12 @@ class Controller():
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, None)
 
-    # ---------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # TBD:
     # NOTE: It is unclear which NETCONF node attributes are allowed for dynamic
     #       configuration changes. For now just follow an example that is
-    #       published on ODL wiki:
-    #       https://wiki.opendaylight.org/view/OpenDaylight_Controller:Config:Examples:Netconf
-    # ---------------------------------------------------------------------------
+    #       published on ODL wiki.
+    # -------------------------------------------------------------------------
     def modify_netconf_node_in_config(self, netconfdev):
         """ Modify connected netconf device's info in the controller
 
@@ -1453,9 +1458,10 @@ class Controller():
     def build_netconf_config_objects(self):
         status = OperStatus()
         objs = []
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes/node/controller-config/" + \
-                      "yang-ext:mount/config:modules"
+        templateUrl = (
+            "http://{}:{}/restconf/operational/"
+            "opendaylight-inventory:nodes/node/controller-config/"
+            "yang-ext:mount/config:modules")
         url = templateUrl.format(self.ipAddr, self.portNum)
         resp = self.http_get_request(url, data=None, headers=None)
         if(resp is None):
@@ -1485,10 +1491,11 @@ class Controller():
 
     def build_netconf_config_object(self, netconf_id):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes/node/controller-config/" + \
-                      "yang-ext:mount/config:modules/module/" + \
-                      "odl-sal-netconf-connector-cfg:sal-netconf-connector/{}"
+        templateUrl = (
+            "http://{}:{}/restconf/operational/"
+            "opendaylight-inventory:nodes/node/controller-config/"
+            "yang-ext:mount/config:modules/module/"
+            "odl-sal-netconf-connector-cfg:sal-netconf-connector/{}")
         url = templateUrl.format(self.ipAddr, self.portNum, netconf_id)
         cfg_obj = None
 
@@ -1524,9 +1531,6 @@ class Controller():
         payload = {'input': {'path': path,
                              'datastore': datastore,
                              'scope': scope}}
-        print payload
-        print json.dumps(payload)
-        print url
         resp = self.http_post_request(url, json.dumps(payload), headers)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)

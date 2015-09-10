@@ -44,7 +44,7 @@ import json
 
 from pybvc.controller.controller import Controller
 from pybvc.netconfdev.vrouter.vrouter5600 import VRouter5600
-from pybvc.netconfdev.vrouter.firewall import Firewall, Rules, Rule
+from pybvc.netconfdev.vrouter.firewall import Firewall, Rule
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 
@@ -78,8 +78,6 @@ if __name__ == "__main__":
     print ("<<< Demo Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     print ("\n")
 
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
@@ -90,14 +88,29 @@ if __name__ == "__main__":
 
     print ("\n")
     time.sleep(rundelay)
-    result = ctrl.add_netconf_node(vrouter)
+    node_configured = False
+    result = ctrl.check_node_config_status(nodeName)
     status = result.get_status()
-    if(status.eq(STATUS.OK)):
-        print ("<<< '%s' added to the Controller" % nodeName)
+    if(status.eq(STATUS.NODE_CONFIGURED)):
+        node_configured = True
+        print ("<<< '%s' is configured on the Controller" % nodeName)
+    elif(status.eq(STATUS.DATA_NOT_FOUND)):
+        node_configured = False
     else:
         print ("\n")
-        print ("!!!Demo terminated, reason: %s" % status.brief().lower())
+        print "Failed to get configuration status for the '%s'" % nodeName
+        print ("!!!Demo terminated, reason: %s" % status.detailed())
         exit(0)
+
+    if node_configured is False:
+        result = ctrl.add_netconf_node(vrouter)
+        status = result.get_status()
+        if(status.eq(STATUS.OK)):
+            print ("<<< '%s' added to the Controller" % nodeName)
+        else:
+            print ("\n")
+            print ("!!!Demo terminated, reason: %s" % status.detailed())
+            exit(0)
 
     print ("\n")
     time.sleep(rundelay)
@@ -132,40 +145,38 @@ if __name__ == "__main__":
     fwName1 = "ACCEPT-SRC-IPADDR"
     print (">>> Create new firewall instance '%s' on '%s'"
            % (fwName1, nodeName))
-    firewall1 = Firewall()
-    rules = Rules(fwName1)
+    firewall1 = Firewall(fwName1)
+    # Add a rule to the firewall instance
     rulenum = 30
     rule = Rule(rulenum)
     rule.add_action("accept")
     rule.add_source_address("172.22.17.108")
-    rules.add_rule(rule)
-    firewall1.add_rules(rules)
-    print firewall1.to_json()
+    firewall1.add_rule(rule)
+    print firewall1.get_payload()
     time.sleep(rundelay)
-    result = vrouter.create_firewall_instance(firewall1)
+    result = vrouter.add_modify_firewall_instance(firewall1)
     status = result.get_status()
     if(status.eq(STATUS.OK)):
         print ("Firewall instance '%s' was successfully created" % fwName1)
     else:
         print ("\n")
-        print ("!!!Demo terminated, reason: %s" % status.brief().lower())
+        print ("!!!Demo terminated, reason: %s" % status.detailed())
         exit(0)
 
     print "\n"
     fwName2 = "DROP-ICMP"
     print (">>> Create new firewall instance '%s' on '%s'"
            % (fwName2, nodeName))
-    firewall2 = Firewall()
-    rules = Rules(fwName2)
+    firewall2 = Firewall(fwName2)
+    # Add a rule to the firewall instance
     rulenum = 40
     rule = Rule(rulenum)
     rule.add_action("drop")
     rule.add_icmp_typename("ping")
-    rules.add_rule(rule)
-    firewall2.add_rules(rules)
-    print firewall2.to_json()
+    firewall2.add_rule(rule)
+    print firewall2.get_payload()
     time.sleep(rundelay)
-    result = vrouter.create_firewall_instance(firewall2)
+    result = vrouter.add_modify_firewall_instance(firewall2)
     status = result.get_status()
     if(status.eq(STATUS.OK)):
         print ("Firewall instance '%s' was successfully created" % fwName2)

@@ -78,8 +78,8 @@ def of_demo_3():
     print ctrl.brief_json()
 
     print ("\n")
-    print ("<<< Get detailed information about ports on OpenFlow node '%s'"
-           % nodeName)
+    print ("<<< Get detailed information about ports on OpenFlow node '%s'" %
+           nodeName)
     time.sleep(rundelay)
     ofswitch = OFSwitch(ctrl, nodeName)
 
@@ -96,8 +96,8 @@ def of_demo_3():
                 print json.dumps(info, indent=4)
             else:
                 print ("\n")
-                print ("!!!Demo terminated, reason: %s"
-                       % status.brief().lower())
+                print ("!!!Demo terminated, reason: %s" %
+                       status.brief().lower())
                 exit(0)
     else:
         print ("\n")

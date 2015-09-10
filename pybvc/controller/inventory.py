@@ -73,9 +73,12 @@ class Inventory():
             p1 = 'id'
             p2 = 'openflow'
             p3 = 'netconf_node_inventory:initial_capability'
-            devices = [{'clazz': 'NOS', 'filter': 'brocade-interface-ext?revision=2014-04-01'},
-                       {'clazz': 'VRouter5600', 'filter': 'vyatta-interfaces?revision=2014-12-02'},
-                       {'clazz': 'controller', 'filter': 'controller:netty:eventexecutor?revision=2013-11-12'}]
+            filter1 = 'brocade-interface-ext?revision=2014-04-01'
+            filter2 = 'vyatta-interfaces?revision=2014-12-02'
+            filter3 = 'controller:netty:eventexecutor?revision=2013-11-12'
+            devices = [{'clazz': 'NOS', 'filter': filter1},
+                       {'clazz': 'VRouter5600', 'filter': filter2},
+                       {'clazz': 'controller', 'filter': filter3}]
             for item in l:
                 if isinstance(item, dict):
                     d = dict_keys_dashed_to_underscored(item)
@@ -98,7 +101,6 @@ class Inventory():
                                 node = NetconfCapableNode(clazz='unknown',
                                                           inv_dict=d)
                                 self.add_netconf_node(node)
-
         else:
             raise TypeError("[Inventory] wrong argument type '%s'"
                             " (JSON 'string' is expected)" % type(s))
@@ -532,16 +534,16 @@ class GroupFeatures():
     # mapping of bit positions for OFPAT_* action types to
     # the corresponding action names
     actions_bitmap = {
-        0: 'OUTPUT',        # Output to switch port
-        1: 'SET_VLAN_VID',  # Set the 802.1q VLAN id
-        2: 'SET_VLAN_PCP',  # Set the 802.1q priority
-        3: 'STRIP_VLAN',    # Strip the 802.1q header
-        4: 'SET_DL_SRC',    # Ethernet source address
-        5: 'SET_DL_DST',    # Ethernet destination address
-        6: 'SET_NW_SRC',    # IP source address
-        7: 'SET_NW_DST',    # IP destination address/
-        8: 'SET_NW_TOS',    # IP ToS (DSCP field, 6 bits)
-        9: 'SET_TP_SRC',    # TCP/UDP source port
+        0: 'OUTPUT',         # Output to switch port
+        1: 'SET_VLAN_VID',   # Set the 802.1q VLAN id
+        2: 'SET_VLAN_PCP',   # Set the 802.1q priority
+        3: 'STRIP_VLAN',     # Strip the 802.1q header
+        4: 'SET_DL_SRC',     # Ethernet source address
+        5: 'SET_DL_DST',     # Ethernet destination address
+        6: 'SET_NW_SRC',     # IP source address
+        7: 'SET_NW_DST',     # IP destination address/
+        8: 'SET_NW_TOS',     # IP ToS (DSCP field, 6 bits)
+        9: 'SET_TP_SRC',     # TCP/UDP source port
         10: 'SET_TP_DST',    # TCP/UDP destination port
         11: 'COPY-TTL-OUT',  # Copy TTL "outwards"
         12: 'COPY-TTL-IN',   # Copy TTL "inwards"

@@ -44,15 +44,15 @@ import json
 
 from pybvc.controller.controller import Controller
 from pybvc.openflowdev.ofswitch import (OFSwitch,
-                                            FlowEntry,
-                                            Instruction,
-                                            OutputAction,
-                                            Match)
+                                        FlowEntry,
+                                        Instruction,
+                                        OutputAction,
+                                        Match)
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.constants import (ETH_TYPE_IPv6,
-                                        IP_DSCP_CS1,
-                                        IP_PROTO_TCP)
+                                    IP_DSCP_CS1,
+                                    IP_PROTO_TCP)
 
 
 def of_demo_18():
@@ -77,8 +77,6 @@ def of_demo_18():
     print ("<<< Demo 18 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     ofswitch = OFSwitch(ctrl, nodeName)
 
@@ -99,8 +97,8 @@ def of_demo_18():
     # --- Flow Actions: Output (CONTROLLER)
     output_port = "CONTROLLER"
 
-    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'"
-           % (ctrlIpAddr, nodeName))
+    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'" %
+           (ctrlIpAddr, nodeName))
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
@@ -109,11 +107,10 @@ def of_demo_18():
            "                IPv6 Destination Address (%s)\n"
            "                IP DSCP (%s)\n"
            "                TCP Source Port (%s)\n"
-           "                TCP Destination Port (%s)"
-           % (hex(eth_type), ipv6_src, ipv6_dst,
-              ip_dscp, tcp_src_port, tcp_dst_port))
-    print ("        Action: Output (to %s)"
-           % (output_port))
+           "                TCP Destination Port (%s)" %
+           (hex(eth_type), ipv6_src, ipv6_dst,
+            ip_dscp, tcp_src_port, tcp_dst_port))
+    print ("        Action: Output (to %s)" % (output_port))
 
     time.sleep(rundelay)
 
@@ -181,8 +178,8 @@ def of_demo_18():
 
     print ("\n")
     print ("<<< Delete flow with id of '%s' from the Controller's cache "
-           "and from the table '%s' on the '%s' node"
-           % (flow_id, table_id, nodeName))
+           "and from the table '%s' on the '%s' node" %
+           (flow_id, table_id, nodeName))
     time.sleep(rundelay)
     result = ofswitch.delete_flow(flow_entry.get_flow_table_id(),
                                   flow_entry.get_flow_id())

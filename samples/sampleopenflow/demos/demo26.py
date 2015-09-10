@@ -44,20 +44,21 @@ import time
 
 from pybvc.controller.controller import Controller
 from pybvc.openflowdev.ofswitch import (OFSwitch,
-                                            FlowEntry,
-                                            Instruction,
-                                            Match,
-                                            DropAction,
-                                            OutputAction,
-                                            PushVlanHeaderAction,
-                                            SetFieldAction,
-                                            PopVlanHeaderAction)
+                                        FlowEntry,
+                                        Instruction,
+                                        Match,
+                                        DropAction,
+                                        OutputAction,
+                                        PushVlanHeaderAction,
+                                        SetFieldAction,
+                                        PopVlanHeaderAction)
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.constants import (ETH_TYPE_ARP,
-                                        ETH_TYPE_IPv4,
-                                        ETH_TYPE_QINQ,
-                                        ETH_TYPE_DOT1Q)
+                                    ETH_TYPE_IPv4,
+                                    ETH_TYPE_QINQ,
+                                    ETH_TYPE_DOT1Q)
+
 
 def of_demo_26():
     f = "cfg.yml"
@@ -81,13 +82,11 @@ def of_demo_26():
     print ("<<< Demo 26 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
-
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
     ofswitch = OFSwitch(ctrl, nodeName)
 
-    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'"
-           % (ctrlIpAddr, nodeName))
+    print ("<<< 'Controller': %s, 'OpenFlow' switch: '%s'" %
+           (ctrlIpAddr, nodeName))
 
     flow_table_id = 0
     flow_id_base = 12
@@ -333,8 +332,8 @@ def of_demo_26():
         else:
             success = False
             print ("\n")
-            print ("!!!Demo terminated, failed to add flow:\n '%s'"
-                   % fe.to_ofp_oxm_syntax())
+            print ("!!!Demo terminated, failed to add flow:\n '%s'" %
+                   fe.to_ofp_oxm_syntax())
             print (" Failure reason: %s" % status.detailed())
 
     if success:
