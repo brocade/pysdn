@@ -201,8 +201,8 @@ class Controller():
 
     def get_nodes_operational_list(self):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes")
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
 
@@ -233,8 +233,8 @@ class Controller():
 
     def get_node_info(self, nodeId):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes/node/{}"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes/node/{}")
         url = templateUrl.format(self.ipAddr, self.portNum, nodeId)
         info = None
 
@@ -276,8 +276,8 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes/node/{}"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes/node/{}")
         url = templateUrl.format(self.ipAddr, self.portNum, nodeId)
 
         resp = self.http_get_request(url, data=None, headers=None)
@@ -311,8 +311,8 @@ class Controller():
 
         """
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes")
         url = templateUrl.format(self.ipAddr, self.portNum)
 
         resp = self.http_get_request(url, data=None, headers=None)
@@ -382,8 +382,8 @@ class Controller():
 
         """
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes")
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
 
@@ -432,8 +432,8 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes")
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
 
@@ -500,8 +500,8 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes")
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
 
@@ -556,8 +556,8 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes")
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
 
@@ -621,10 +621,10 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes/node/{}/" + \
-                      "yang-ext:mount/" + \
-                      "ietf-netconf-monitoring:netconf-state/schemas"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes/node/{}/"
+                       "yang-ext:mount/"
+                       "ietf-netconf-monitoring:netconf-state/schemas")
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         slist = None
 
@@ -670,9 +670,9 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operations/" + \
-                      "opendaylight-inventory:nodes/node/{}/" + \
-                      "yang-ext:mount/ietf-netconf-monitoring:get-schema"
+        templateUrl = ("http://{}:{}/restconf/operations/"
+                       "opendaylight-inventory:nodes/node/{}/"
+                       "yang-ext:mount/ietf-netconf-monitoring:get-schema")
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         headers = {'content-type': 'application/yang.data+json',
                    'accept': 'text/json, text/html, application/xml, */*'}
@@ -730,8 +730,8 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operations/" + \
-                      "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
+        templateUrl = ("http://{}:{}/restconf/operations/"
+                       "opendaylight-inventory:nodes/node/{}/yang-ext:mount/")
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         olist = None
         resp = self.http_get_request(url, data=None, headers=None)
@@ -868,10 +868,10 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes/node/{}/" + \
-                      "yang-ext:mount/" + \
-                      "ietf-netconf-monitoring:netconf-state/sessions"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes/node/{}/"
+                       "yang-ext:mount/"
+                       "ietf-netconf-monitoring:netconf-state/sessions")
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         slist = None
 
@@ -958,10 +958,10 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes/node/" + \
-                      "controller-config/" + \
-                      "yang-ext:mount/config:services"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes/node/"
+                       "controller-config/"
+                       "yang-ext:mount/config:services")
         url = templateUrl.format(self.ipAddr, self.portNum)
         slist = None
 
@@ -1007,10 +1007,10 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes/node/" + \
-                      "controller-config/" + \
-                      "yang-ext:mount/config:services/service/{}"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes/node/"
+                       "controller-config/"
+                       "yang-ext:mount/config:services/service/{}")
         url = templateUrl.format(self.ipAddr, self.portNum, name)
         service = None
 
@@ -1054,9 +1054,9 @@ class Controller():
         """
 
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes/node/" + \
-                      "controller-config/yang-ext:mount/config:modules"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes/node/"
+                       "controller-config/yang-ext:mount/config:modules")
         ns = "urn:opendaylight:params:xml:ns:yang:controller"
         xmlPayloadTemplate = '''
         <module xmlns="{}:config">
@@ -1135,11 +1135,12 @@ class Controller():
                              status code.
         """
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes/node/" + \
-                      "controller-config/" + \
-                      "yang-ext:mount/config:modules/module/" + \
-                      "odl-sal-netconf-connector-cfg:sal-netconf-connector/{}"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes/node/"
+                       "controller-config/"
+                       "yang-ext:mount/config:modules/module/"
+                       "odl-sal-netconf-connector-cfg:"
+                       "sal-netconf-connector/{}")
         url = templateUrl.format(self.ipAddr, self.portNum, netconfdev.name)
 
         resp = self.http_delete_request(url, data=None, headers=None)
@@ -1175,9 +1176,9 @@ class Controller():
                              status code.
         """
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes/node/" + \
-                      "controller-config/yang-ext:mount/config:modules"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes/node/"
+                       "controller-config/yang-ext:mount/config:modules")
         url = templateUrl.format(self.ipAddr, self.portNum)
         ns = "urn:opendaylight:params:xml:ns:yang:controller"
         xmlPayloadTemplate = '''
@@ -1210,33 +1211,35 @@ class Controller():
         return Result(status, None)
 
     def get_ext_mount_config_url(self, node):
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes/node/{}/"
+                       "yang-ext:mount/")
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
 
     def get_ext_mount_operational_url(self, node):
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes/node/{}/yang-ext:mount/"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes/node/{}/"
+                       "yang-ext:mount/")
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
 
     def get_node_operational_url(self, node):
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes/node/{}"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes/node/{}")
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
 
     def get_node_config_url(self, node):
-        templateUrl = "http://{}:{}/restconf/config/" + \
-                      "opendaylight-inventory:nodes/node/{}"
+        templateUrl = ("http://{}:{}/restconf/config/"
+                       "opendaylight-inventory:nodes/node/{}")
         url = templateUrl.format(self.ipAddr, self.portNum, node)
         return url
 
     def get_openflow_nodes_operational_list(self):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes")
         url = templateUrl.format(self.ipAddr, self.portNum)
         nlist = []
         resp = self.http_get_request(url, data=None, headers=None)
@@ -1267,8 +1270,8 @@ class Controller():
 
     def get_openflow_operational_flows_total_cnt(self):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "opendaylight-inventory:nodes"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "opendaylight-inventory:nodes")
         url = templateUrl.format(self.ipAddr, self.portNum)
         cnt = 0
         resp = self.http_get_request(url, data=None, headers=None)
@@ -1299,8 +1302,8 @@ class Controller():
 
     def get_topology_ids(self):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "network-topology:network-topology"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "network-topology:network-topology")
         tnames = []
 
         url = templateUrl.format(self.ipAddr, self.portNum)
@@ -1330,8 +1333,8 @@ class Controller():
 
     def build_topology_object(self, topo_name):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/operational/" + \
-                      "network-topology:network-topology/topology/{}"
+        templateUrl = ("http://{}:{}/restconf/operational/"
+                       "network-topology:network-topology/topology/{}")
         topo_obj = None
 
         url = templateUrl.format(self.ipAddr, self.portNum, topo_name)
@@ -1393,8 +1396,8 @@ class Controller():
 
     def build_openflow_node_inventory_object(self, node_id, operational=True):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/{}/" + \
-                      "opendaylight-inventory:nodes/node/{}"
+        templateUrl = ("http://{}:{}/restconf/{}/"
+                       "opendaylight-inventory:nodes/node/{}")
         inv_obj = None
 
         inv_type = "operational" if operational else "config"
@@ -1426,8 +1429,8 @@ class Controller():
 
     def build_netconf_node_inventory_object(self, node_id, operational=True):
         status = OperStatus()
-        templateUrl = "http://{}:{}/restconf/{}/" + \
-                      "opendaylight-inventory:nodes/node/{}"
+        templateUrl = ("http://{}:{}/restconf/{}/"
+                       "opendaylight-inventory:nodes/node/{}")
         inv_obj = None
 
         inv_type = "operational" if operational else "config"
@@ -1523,8 +1526,8 @@ class Controller():
     def create_data_change_event_subscription(self, datastore, scope, path):
         status = OperStatus()
         stream_name = None
-        templateUrl = "http://{}:{}/restconf/operations/" + \
-                      "sal-remote:create-data-change-event-subscription"
+        templateUrl = ("http://{}:{}/restconf/operations/"
+                       "sal-remote:create-data-change-event-subscription")
         url = templateUrl.format(self.ipAddr, self.portNum)
         headers = {'content-type': 'application/yang.data+json',
                    'accept': 'text/json, text/html, application/xml, */*'}

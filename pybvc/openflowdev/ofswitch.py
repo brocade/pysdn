@@ -1522,7 +1522,9 @@ class Action(object):
 class OutputAction(Action):
     ''' The Output action forwards a packet to a specified OpenFlow port
         OpenFlow switches must support forwarding to physical ports,
-        switch-defined logical ports and the required reserved ports  '''
+        switch-defined logical ports and the required reserved ports.
+        (OpenFlow Switch Specification Version 1.0 and 1.3)
+    '''
 
     def __init__(self, order=None, port=None, max_len=None, d=None):
         super(OutputAction, self).__init__(order)
@@ -1573,32 +1575,13 @@ class OutputAction(Action):
         self.order = order
 
 
-class SetQueueAction(Action):
-    ''' The set-queue action sets the queue id for a packet. When the packet is
-        forwarded to a port using the output action, the queue id determines
-        which queue attached to this port is used for scheduling and forwarding
-        the packet. Forwarding behavior is dictated by the configuration of the
-        queue and is used to provide basic Quality-of-Service (QoS) support '''
-
-    def __init__(self, order=None, queue=None, queue_id=None):
-        super(SetQueueAction, self).__init__(order)
-        self.set_queue_action = {'queue': queue, 'queue_id': queue_id}
-
-    def set_queue(self, queue):
-        self.group_action['queue'] = queue
-
-    def set_group_id(self, queue_id):
-        self.group_action['queue_id'] = queue_id
-
-    def set_order(self, order):
-        self.order = order
-
-
 class DropAction(Action):
     ''' There is no explicit action to represent drops. Instead, packets whose
         action sets have no output actions should be dropped. This result could
         come from empty instruction sets or empty action buckets in the
-        processing pipeline, or after executing a Clear-Actions instruction '''
+        processing pipeline, or after executing a Clear-Actions instruction.
+        (OpenFlow Switch Specification Version 1.0 and 1.3)
+    '''
 
     def __init__(self, order=None):
         super(DropAction, self).__init__(order)
@@ -1608,23 +1591,10 @@ class DropAction(Action):
         self.order = order
 
 
-class GroupAction(Action):
-    ''' Process the packet through the specified group.
-        The exact interpretation depends on group type. '''
-
-    def __init__(self, order=None, group=None, group_id=None):
-        super(GroupAction, self).__init__(order)
-        self.group_action = {'group': group, 'group_id': group_id}
-
-    def set_group(self, group):
-        self.group_action['group'] = group
-
-    def set_group_id(self, group_id):
-        self.group_action['group_id'] = group_id
-
-
 class SetVlanIdAction(Action):
-    ''' Set the 802.1q VLAN id '''
+    ''' Set the 802.1q VLAN id
+        (OpenFlow Switch Specification Version 1.0)
+    '''
 
     def __init__(self, order=None, vid=None):
         super(SetVlanIdAction, self).__init__(order)
@@ -1635,7 +1605,9 @@ class SetVlanIdAction(Action):
 
 
 class SetVlanPCPAction(Action):
-    ''' Set the 802.1q priority '''
+    ''' Set the 802.1q priority
+        (OpenFlow Switch Specification Version 1.0)
+    '''
 
     def __init__(self, order=None, vlan_pcp=None):
         super(SetVlanPCPAction, self).__init__(order)
@@ -1655,7 +1627,8 @@ class SetVlanCfiAction(Action):
         untagged port.
         Currently renamed as Drop eligible indicator (DEI).
         May be used separately or in conjunction with PCP to indicate
-        frames eligible to be dropped in the presence of congestion. '''
+        frames eligible to be dropped in the presence of congestion.
+    '''
 
     def __init__(self, order=None, vlan_cfi=None):
         super(SetVlanCfiAction, self).__init__(order)
@@ -1666,7 +1639,9 @@ class SetVlanCfiAction(Action):
 
 
 class StripVlanAction(Action):
-    ''' Strip the 802.1q header '''
+    ''' Strip the 802.1q header
+        (OpenFlow Switch Specification Version 1.0)
+    '''
 
     def __init__(self, order=None):
         super(StripVlanAction, self).__init__(order)
@@ -1674,7 +1649,9 @@ class StripVlanAction(Action):
 
 
 class SetDlSrcAction(Action):
-    ''' Set Ethernet source address '''
+    ''' Set Ethernet source address
+        (OpenFlow Switch Specification Version 1.0)
+    '''
 
     def __init__(self, order=None, mac_addr=None):
         super(SetDlSrcAction, self).__init__(order)
@@ -1685,7 +1662,9 @@ class SetDlSrcAction(Action):
 
 
 class SetDlDstAction(Action):
-    ''' Set Ethernet destination address '''
+    ''' Set Ethernet destination address
+        (OpenFlow Switch Specification Version 1.0)
+    '''
 
     def __init__(self, order=None, mac_addr=None):
         super(SetDlDstAction, self).__init__(order)
@@ -1696,7 +1675,9 @@ class SetDlDstAction(Action):
 
 
 class SetNwSrcAction(Action):
-    ''' Set IP source address '''
+    ''' Set IP source address
+        (OpenFlow Switch Specification Version 1.0)
+    '''
 
     def __init__(self, order=None, ip_addr=None):
         super(SetNwSrcAction, self).__init__(order)
@@ -1707,7 +1688,9 @@ class SetNwSrcAction(Action):
 
 
 class SetNwDstAction(Action):
-    ''' Set IP destination address '''
+    ''' Set IP destination address
+        (OpenFlow Switch Specification Version 1.0)
+    '''
 
     def __init__(self, order=None, ip_addr=None):
         super(SetNwDstAction, self).__init__(order)
@@ -1718,7 +1701,9 @@ class SetNwDstAction(Action):
 
 
 class SetTpSrcAction(Action):
-    ''' Set TCP/UDP source port '''
+    ''' Set TCP/UDP source port
+        (OpenFlow Switch Specification Version 1.0)
+    '''
 
     def __init__(self, order=None, port=None):
         super(SetTpSrcAction, self).__init__(order)
@@ -1729,7 +1714,9 @@ class SetTpSrcAction(Action):
 
 
 class SetTpDstAction(Action):
-    ''' Set TCP/UDP destination port '''
+    ''' Set TCP/UDP destination port
+        (OpenFlow Switch Specification Version 1.0)
+    '''
 
     def __init__(self, order=None, port=None):
         super(SetTpDstAction, self).__init__(order)
@@ -1739,10 +1726,39 @@ class SetTpDstAction(Action):
         self.set_tp_dst_action['port'] = port
 
 
+class SetNwTosAction(Action):
+    ''' Modify IPv4 ToS bits.
+        Replace the existing IP ToS field. This action is only applied
+        to IPv4 packets.
+        (OpenFlow Switch Specification Version 1.0)
+    '''
+
+    def __init__(self, order=None, d=None, tos=None):
+        super(SetNwTosAction, self).__init__(order)
+        ''' Value with which to replace existing IPv4 ToS field
+            NOTE: The modern redefinition of the ToS field is a 6 bit
+                  Differentiated Services Code Point (DSCP) field (the
+                  6 upper bits of the original TOS field) and a 2 bit
+                  Explicit Congestion Notification (ECN) field. '''
+        self.set_nw_tos_action = {'tos': tos}
+
+    def set_tos(self, tos):
+        self.set_nw_tos_action['tos'] = tos
+
+    def get_tos(self):
+        res = None
+        p = 'set_nw_tos_action'
+        if (hasattr(self, p)):
+            res = getattr(self, p)['tos']
+        return res
+
+
 class PushVlanHeaderAction(Action):
     ''' Push a new VLAN header onto the packet. The 'ethernet_type' is used as
         the Ethernet Type for the tag, only 0x8100 or 0x88a8 values should be
-        used.  '''
+        used.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=None, eth_type=None, tag=None, pcp=None,
                  cfi=None, vid=None, d=None):
@@ -1793,7 +1809,9 @@ class PushVlanHeaderAction(Action):
 
 
 class PopVlanHeaderAction(Action):
-    ''' Pop the outer-most VLAN header from the packet '''
+    ''' Pop the outer-most VLAN header from the packet.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=None):
         super(PopVlanHeaderAction, self).__init__(order)
@@ -1803,7 +1821,9 @@ class PopVlanHeaderAction(Action):
 class PushMplsHeaderAction(Action):
     ''' Push a new MPLS shim header onto the packet. The 'ethernet_type' is
         used as the Ethernet Type for the tag, only 0x8847 or 0x8848 values
-        should be used. '''
+        should be used.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=None, ethernet_type=None, d=None):
         super(PushMplsHeaderAction, self).__init__(order)
@@ -1838,7 +1858,9 @@ class PushMplsHeaderAction(Action):
 class PopMplsHeaderAction(Action):
     ''' Pop the outer-most MPLS tag or shim header from the packet.
         The 'ethernet_type' is used as the Ethernet Type for the
-        resulting packet (Ethernet Type for the MPLS payload). '''
+        resulting packet (Ethernet Type for the MPLS payload).
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=0, ethernet_type=None):
         super(PopMplsHeaderAction, self).__init__(order)
@@ -1855,7 +1877,9 @@ class PushPBBHeaderAction(Action):
         PBB - Provider Backbone Bridges is an Ethernet data-plane technology
         .     (also known as MAC-in-MAC) that involves encapsulating an
         .     Ethernet datagram inside another one with new source and
-        .     destination addresses. '''
+        .     destination addresses.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=0, ethernet_type=None):
         super(PushPBBHeaderAction, self).__init__(order)
@@ -1871,7 +1895,9 @@ class PopPBBHeaderAction(Action):
         PBB - Provider Backbone Bridges is an Ethernet data-plane technology
         .     (also known as MAC-in-MAC) that involves encapsulating an
         .     Ethernet datagram inside another one with new source and
-        .     destination addresses. '''
+        .     destination addresses.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=0):
         super(PopPBBHeaderAction, self).__init__(order)
@@ -1880,7 +1906,9 @@ class PopPBBHeaderAction(Action):
 
 class SetMplsTTLAction(Action):
     ''' Replace the existing MPLS TTL. Only applies to packets with an existing
-        MPLS shim header. '''
+        MPLS shim header.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=0, mpls_ttl=None):
         super(SetMplsTTLAction, self).__init__(order)
@@ -1892,7 +1920,9 @@ class SetMplsTTLAction(Action):
 
 class DecMplsTTLAction(Action):
     ''' Decrement the MPLS TTL. Only applies to packets with an existing MPLS
-        shim header '''
+        shim header.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=0):
         super(DecMplsTTLAction, self).__init__(order)
@@ -1901,7 +1931,9 @@ class DecMplsTTLAction(Action):
 
 class SetNwTTLAction(Action):
     ''' Replace the existing IPv4 TTL or IPv6 Hop Limit and update the IP
-        checksum. Only applies to IPv4 and IPv6 packets. '''
+        checksum. Only applies to IPv4 and IPv6 packets.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=0, ip_ttl=None):
         super(SetNwTTLAction, self).__init__(order)
@@ -1913,7 +1945,9 @@ class SetNwTTLAction(Action):
 
 class DecNwTTLAction(Action):
     ''' Decrement the IPv4 TTL or IPv6 Hop Limit field and update the IP
-        checksum. Only applies to IPv4 and IPv6 packets. '''
+        checksum. Only applies to IPv4 and IPv6 packets.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=0):
         super(DecNwTTLAction, self).__init__(order)
@@ -1922,7 +1956,9 @@ class DecNwTTLAction(Action):
 
 class CopyTTLOutwardsAction(Action):
     ''' Copy the TTL from next-to-outermost to outermost header with TTL.
-        Copy can be IP-to-IP, MPLS-to-MPLS, or IP-to-MPLS. '''
+        Copy can be IP-to-IP, MPLS-to-MPLS, or IP-to-MPLS.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=0):
         super(CopyTTLOutwardsAction, self).__init__(order)
@@ -1931,7 +1967,9 @@ class CopyTTLOutwardsAction(Action):
 
 class CopyTTLInwardsAction(Action):
     ''' Copy the TTL from outermost to next-to-outermost header with TTL.
-        Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP. '''
+        Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=0):
         super(CopyTTLInwardsAction, self).__init__(order)
@@ -1951,7 +1989,9 @@ class SetFieldAction(Action):
         that VLAN modification actions be supported. Set-Field actions should
         always be applied to the outermost-possible header (e.g.
         a 'Set VLAN ID' action always sets the ID of the outermost VLAN tag),
-        unless the field type specifies otherwise. '''
+        unless the field type specifies otherwise.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
 
     def __init__(self, order=None, d=None):
         super(SetFieldAction, self).__init__(order)
@@ -2040,12 +2080,54 @@ class SetFieldAction(Action):
         return res
 
 
+class SetQueueAction(Action):
+    ''' The set-queue action sets the queue id for a packet. When the packet is
+        forwarded to a port using the output action, the queue id determines
+        which queue attached to this port is used for scheduling and forwarding
+        the packet. Forwarding behavior is dictated by the configuration of the
+        queue and is used to provide basic Quality-of-Service (QoS) support.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
+
+    def __init__(self, order=None, queue=None, queue_id=None):
+        super(SetQueueAction, self).__init__(order)
+        self.set_queue_action = {'queue': queue, 'queue_id': queue_id}
+
+    def set_queue(self, queue):
+        self.group_action['queue'] = queue
+
+    def set_group_id(self, queue_id):
+        self.group_action['queue_id'] = queue_id
+
+    def set_order(self, order):
+        self.order = order
+
+
+class GroupAction(Action):
+    ''' Process the packet through the specified group.
+        The exact interpretation depends on group type.
+        (OpenFlow Switch Specification Version 1.3)
+    '''
+
+    def __init__(self, order=None, group=None, group_id=None):
+        super(GroupAction, self).__init__(order)
+        self.group_action = {'group': group, 'group_id': group_id}
+
+    def set_group(self, group):
+        self.group_action['group'] = group
+
+    def set_group_id(self, group_id):
+        self.group_action['group_id'] = group_id
+
+"""
 class FloodAction(Action):
     ''' Flood the packet along the minimum spanning tree, not including the
         incoming interface.
         The sentence 'along the minimum spanning tree' implies: flood the
         packet on all the ports that are not disabled by Spanning Tree
-        Protocol. '''
+        Protocol.
+        Seems to be ODL proprietary action type ???
+    '''
 
     def __init__(self, order=0):
         super(FloodAction, self).__init__(order)
@@ -2054,7 +2136,9 @@ class FloodAction(Action):
 
 class FloodAllAction(Action):
     ''' Send the packet out all interfaces, not including the incoming
-        interface '''
+        interface
+        Seems to be ODL proprietary action type ???
+    '''
 
     def __init__(self, order=0):
         super(FloodAllAction, self).__init__(order)
@@ -2083,32 +2167,7 @@ class LoopbackAction(Action):
     def __init__(self, order=0):
         super(LoopbackAction, self).__init__(order)
         self.loopback_action = {}
-
-
-class SetNwTosAction(Action):
-    ''' Modify IPv4 ToS bits.
-        Replace the existing IP ToS field. This action is only applied
-        to IPv4 packets.
-        NOTE: This is OpenFlow version 1.0 specific action type '''
-
-    def __init__(self, order=None, d=None, tos=None):
-        super(SetNwTosAction, self).__init__(order)
-        ''' Value with which to replace existing IPv4 ToS field
-            NOTE: The modern redefinition of the ToS field is a 6 bit
-                  Differentiated Services Code Point (DSCP) field (the
-                  6 upper bits of the original TOS field) and a 2 bit
-                  Explicit Congestion Notification (ECN) field. '''
-        self.set_nw_tos_action = {'tos': tos}
-
-    def set_tos(self, tos):
-        self.set_nw_tos_action['tos'] = tos
-
-    def get_tos(self):
-        res = None
-        p = 'set_nw_tos_action'
-        if (hasattr(self, p)):
-            res = getattr(self, p)['tos']
-        return res
+"""
 
 
 class Match(object):

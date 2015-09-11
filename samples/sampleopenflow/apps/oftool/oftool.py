@@ -509,6 +509,7 @@ class InventoryInfo():
                 pkts_tx = port_inv.get_packets_transmitted()
                 bytes_rx = port_inv.get_bytes_received()
                 bytes_tx = port_inv.get_bytes_transmitted()
+                current_speed = port_inv.get_current_speed()
                 print "\n".strip()
                 print "   Port '{}'".format(pnum)
                 print "\n".strip()
@@ -521,6 +522,7 @@ class InventoryInfo():
                 print "     Pkts TX          : {}".format(pkts_tx)
                 print "     Bytes RX         : {}".format(bytes_rx)
                 print "     Bytes TX         : {}".format(bytes_tx)
+                print "     Current speed    : {}".format(current_speed)
                 s = 'Current features'
                 cflist = port_inv.get_current_features()
                 if len(cflist) > 0:
