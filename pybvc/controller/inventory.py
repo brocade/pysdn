@@ -48,8 +48,9 @@ from pybvc.common.utils import strip_none
 
 
 class Inventory():
-    ''' Class that represents current state of
-        the Controller's inventory store '''
+    """ Class that represents current state of
+        the Controller's inventory store.
+    """
 
     def __init__(self, inv_json=None):
         self.openflow_nodes = []
@@ -143,9 +144,10 @@ class Inventory():
 
 
 class OpenFlowCapableNode():
-    ''' Class that represents current state of an OpenFlow capable node
-        in the Controller's inventory store
-        Helper class of the 'Inventory' class '''
+    """ Class that represents current state of an OpenFlow
+        capable node in the Controller's inventory store.
+        Helper class of the 'Inventory' class.
+    """
 
     def __init__(self, inv_json=None, inv_dict=None):
         self.ports = []
@@ -194,8 +196,8 @@ class OpenFlowCapableNode():
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
-                          indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def get_id(self):
         return self.id
@@ -365,8 +367,9 @@ class OpenFlowCapableNode():
 
 
 class OpenFlowPort():
-    ''' Class that represents current state of an OpenFlow enabled port
-        Helper class of the 'OpenFlowCapableNode' class '''
+    """ Class that represents current state of an OpenFlow enabled port.
+        Helper class of the 'OpenFlowCapableNode' class.
+    """
 
     def __init__(self, d):
         assert(isinstance(d, dict))
@@ -379,8 +382,8 @@ class OpenFlowPort():
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
-                          indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def get_port_id(self):
         pid = ""
@@ -438,8 +441,8 @@ class OpenFlowPort():
 
     def get_packets_received(self):
         pkts_cnt = 0
-        p1 = 'opendaylight_port_statistics:\
-              flow_capable_node_connector_statistics'
+        p1 = ('opendaylight_port_statistics:'
+              'flow_capable_node_connector_statistics')
         p2 = 'packets'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
@@ -450,8 +453,8 @@ class OpenFlowPort():
 
     def get_packets_transmitted(self):
         pkts_cnt = 0
-        p1 = 'opendaylight_port_statistics:\
-             flow_capable_node_connector_statistics'
+        p1 = ('opendaylight_port_statistics:'
+              'flow_capable_node_connector_statistics')
         p2 = 'packets'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
@@ -462,8 +465,8 @@ class OpenFlowPort():
 
     def get_bytes_received(self):
         bytes_cnt = 0
-        p1 = 'opendaylight_port_statistics:\
-              flow_capable_node_connector_statistics'
+        p1 = ('opendaylight_port_statistics:'
+              'flow_capable_node_connector_statistics')
         p2 = 'bytes'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
@@ -475,8 +478,8 @@ class OpenFlowPort():
 
     def get_bytes_transmitted(self):
         bytes_cnt = 0
-        p1 = 'opendaylight_port_statistics:\
-              flow_capable_node_connector_statistics'
+        p1 = ('opendaylight_port_statistics:'
+              'flow_capable_node_connector_statistics')
         p2 = 'bytes'
         d = self.__dict__
         if (p1 in d and p2 in d[p1]):
@@ -484,6 +487,15 @@ class OpenFlowPort():
             if (p3 in d[p1][p2]):
                 bytes_cnt = d[p1][p2][p3]
         return bytes_cnt
+
+    def get_current_speed(self):
+        speed = ""
+        p = 'flow_node_inventory:current_speed'
+        if hasattr(self, p):
+            speed = getattr(self, p)
+        else:
+            assert(False)
+        return speed
 
     def get_current_features(self):
         features = []
@@ -497,7 +509,7 @@ class OpenFlowPort():
 
 class GroupInfo():
     """ Helper class that represents current state of an OpenFlow
-        group entry in the Controller's operational data store
+        group entry in the Controller's operational data store.
         (OpenFlow switch context specific data)
     """
     def __init__(self, group_info):
@@ -522,7 +534,8 @@ class GroupInfo():
 class GroupFeatures():
     """ Helper class that is used to represent group features on the switch
         (group types, max number of groups for each type, group capabilities
-        and group supported actions) """
+        and group supported actions)
+    """
     # mapping of group type names to their numerical values
     # in the OFPGT_* enum
     group_types = {'group-all': 0, 'group-select': 1,
@@ -580,7 +593,7 @@ class GroupFeatures():
 
     def get_max_groups(self):
         """ The 'max_groups' field is the maximum number of groups
-            for each type of group
+            for each type of group.
         """
         res = None
         p = 'max_groups'
@@ -608,7 +621,7 @@ class GroupFeatures():
 
     def get_types(self):
         """ The 'types' field is a bitmap of group types supported
-            by the switch
+            by the switch.
         """
         res = None
         p1 = 'group_types_supported'
@@ -714,8 +727,9 @@ class GroupDescription():
 
 
 class NetconfCapableNode():
-    ''' Class that represents current state of a NETCONF capable node
-        Helper class of the 'Inventory' class '''
+    """ Class that represents current state of a NETCONF capable node.
+        Helper class of the 'Inventory' class.
+    """
 
     def __init__(self, clazz, inv_json=None, inv_dict=None):
         self.clazz = clazz
@@ -744,8 +758,8 @@ class NetconfCapableNode():
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
-                          indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def get_id(self):
         myid = ""
@@ -800,8 +814,9 @@ class NetconfCapableNode():
 
 
 class NetconfConfigModule():
-    ''' Class that represents NETCONF node configuration module
-        on the Controller '''
+    """ Class that represents NETCONF node configuration module
+        on the Controller
+    """
 
     def __init__(self, d):
         assert(isinstance(d, dict))
@@ -818,8 +833,8 @@ class NetconfConfigModule():
 
     def to_json(self):
         """ Returns JSON representation of this object. """
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
-                          indent=4)
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def get_name(self):
         name = ""

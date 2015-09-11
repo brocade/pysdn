@@ -286,8 +286,9 @@ class Link():
         res = False
         src_node = self.source['source_node']
         dst_node = self.destination['dest_node']
-        if(src_node.startswith('openflow')and dst_node.startswith('openflow')
-                and src_node != dst_node):
+        if(src_node.startswith('openflow') and
+           dst_node.startswith('openflow') and
+           src_node != dst_node):
             res = True
         return res
 
@@ -295,8 +296,9 @@ class Link():
         res = False
         src_node = self.source['source_node']
         dst_node = self.destination['dest_node']
-        if(src_node.startswith('openflow') and dst_node.startswith('openflow')
-                and src_node == dst_node):
+        if(src_node.startswith('openflow') and
+           dst_node.startswith('openflow') and
+           src_node == dst_node):
             res = True
         return res
 
@@ -304,7 +306,8 @@ class Link():
         res = False
         src_node = self.source['source_node']
         dst_node = self.destination['dest_node']
-        if(src_node.startswith('host') and dst_node.startswith('openflow')):
+        if(src_node.startswith('host') and
+           dst_node.startswith('openflow')):
             res = True
         return res
 
@@ -312,7 +315,8 @@ class Link():
         res = False
         src_node = self.source['source_node']
         dst_node = self.destination['dest_node']
-        if(src_node.startswith('openflow') and dst_node.startswith('host')):
+        if(src_node.startswith('openflow') and
+           dst_node.startswith('host')):
             res = True
         return res
 
