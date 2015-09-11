@@ -286,10 +286,10 @@ class TopoChangeEvent():
 
     def do_print(self):
         w = 65
-        print ("%s" % '<'*w)
+        print ("%s" % '<' * w)
         print " operation: %s" % self.operation
         self.path_info.do_print()
-        print ("%s" % '>'*w)
+        print ("%s" % '>' * w)
 
 
 class InventoryChangeNotification():
@@ -480,10 +480,10 @@ class InventoryChangeEvent():
 
     def do_print(self):
         w = 65
-        print ("%s" % '<'*w)
+        print ("%s" % '<' * w)
         print " operation: %s" % self.operation
         self.path_info.do_print()
-        print ("%s" % '>'*w)
+        print ("%s" % '>' * w)
 
 
 class FlowInfo():
