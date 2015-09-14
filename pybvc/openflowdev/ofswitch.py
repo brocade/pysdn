@@ -1477,31 +1477,96 @@ class Instruction():
     def create_action_from_dict(self, d):
         if isinstance(d, dict):
             action = None
-            p1 = 'order'
-            p2 = 'output_action'
-            p3 = 'push_vlan_action'
-            p4 = 'pop_vlan_action'
-            p5 = 'push_mpls_action'
-            p6 = 'pop_mpls_action'
-            p7 = 'set_field'
-            p8 = 'drop_action'
-            action_order = d.get(p1, None)
-            if (p2 in d):
-                action = OutputAction(order=action_order, d=d[p2])
+
+            # OpenFlow 1.0 and 1.3 actions
+            p0 = 'output_action'        # OFPAT_OUTPUT (0)
+
+            # OpenFlow 1.0 actions
+            p1 = 'set_vlan_id_action'   # OFPAT_SET_VLAN_VID (1)
+            p2 = 'set_vlan_pcp_action'  # OFPAT_SET_VLAN_PCP (2)
+            p3 = 'strip_vlan_action'    # OFPAT_STRIP_VLAN (3)
+            p4 = 'set_dl_src_action'    # OFPAT_SET_DL_SRC (4)
+            p5 = 'set_dl_dst_action'    # OFPAT_SET_DL_DST (5)
+            p6 = 'set_nw_src_action'    # OFPAT_SET_NW_SRC (6)
+            p7 = 'set_nw_dst_action'    # OFPAT_SET_NW_DST (7)
+            p8 = 'set_nw_tos_action'    # OFPAT_SET_NW_TOS (8)
+            p9 = 'set_tp_src_action'    # OFPAT_SET_TP_SRC (9)
+            p10 = 'set_tp_dst_action'   # OFPAT_SET_TP_DST (10)
+
+            # OpenFlow 1.3 actions
+# TBD       p11 = 'copy_ttl_out'         # OFPAT_COPY_TTL_OUT (11)
+# TBD       p12 = 'copy_ttl_in'          # OFPAT_COPY_TTL_IN (12)
+            p15 = 'set_mpls_ttl_action'  # OFPAT_SET_MPLS_TTL (15)
+            p16 = 'dec_mpls_ttl'         # OFPAT_DEC_MPLS_TTL (16)
+            p17 = 'push_vlan_action'     # OFPAT_PUSH_VLAN (17)
+            p18 = 'pop_vlan_action'      # OFPAT_POP_VLAN (18)
+            p19 = 'push_mpls_action'     # OFPAT_PUSH_MPLS (19)
+            p20 = 'pop_mpls_action'      # OFPAT_POP_MPLS (20)
+            p21 = 'set_queue_action'     # OFPAT_SET_QUEUE (21)
+            p22 = 'group_action'         # OFPAT_GROUP (22)
+            p23 = 'set_nw_ttl_action'    # OFPAT_SET_NW_TTL (23)
+            p24 = 'dec_nw_ttl'           # OFPAT_DEC_NW_TTL (24)
+            p25 = 'set_field'            # OFPAT_SET_FIELD (25)
+            p26 = 'push_pbb_action'      # OFPAT_PUSH_PBB (26)
+            p27 = 'pop_pbb_action'       # OFPAT_POP_PBB (27)
+
+            action_order = d.get('order', None)
+            if (p0 in d):
+                action = OutputAction(order=action_order, d=d[p0])
+            elif (p1 in d):
+                action = SetVlanIdAction(order=action_order, d=d[p1])
+            elif (p2 in d):
+                action = SetVlanPCPAction(order=action_order, d=d[p2])
             elif (p3 in d):
-                action = PushVlanHeaderAction(order=action_order, d=d[p3])
+                action = StripVlanAction(order=action_order)
             elif (p4 in d):
-                action = PopVlanHeaderAction(order=action_order)
+                action = SetDlSrcAction(order=action_order, d=d[p4])
             elif (p5 in d):
-                action = PushMplsHeaderAction(order=action_order, d=d[p5])
+                action = SetDlDstAction(order=action_order, d=d[p5])
             elif (p6 in d):
-                action = PopMplsHeaderAction(order=action_order)
+                action = SetNwSrcAction(order=action_order, d=d[p6])
             elif (p7 in d):
-                action = SetFieldAction(order=action_order, d=d[p7])
+                action = SetNwDstAction(order=action_order, d=d[p7])
             elif (p8 in d):
+                action = SetNwTosAction(order=action_order, d=d[p8])
+            elif (p9 in d):
+                action = SetTpSrcAction(order=action_order, d=d[p9])
+            elif (p10 in d):
+                action = SetTpDstAction(order=action_order, d=d[p10])
+#  TBD      elif (p11 in d):
+#                action = CopyTtlOutAction(order=action_order, d=d[p11])
+#  TBD      elif (p12 in d):
+#                action = CopyTtlInAction(order=action_order, d=d[p12])
+            elif (p15 in d):
+                action = SetMplsTTLAction(order=action_order, d=d[p15])
+            elif (p16 in d):
+                action = DecMplsTTLAction(order=action_order)
+            elif (p17 in d):
+                action = PushVlanHeaderAction(order=action_order, d=d[p17])
+            elif (p18 in d):
+                action = PopVlanHeaderAction(order=action_order)
+            elif (p19 in d):
+                action = PushMplsHeaderAction(order=action_order, d=d[p19])
+            elif (p20 in d):
+                action = PopMplsHeaderAction(order=action_order)
+            elif (p21 in d):
+                action = SetQueueAction(order=action_order, d=d[p21])
+            elif (p22 in d):
+                action = GroupAction(order=action_order, d=d[p22])
+            elif (p23 in d):
+                action = SetIpTTLAction(order=action_order, d=d[p23])
+            elif (p24 in d):
+                action = DecIpTTLAction(order=action_order)
+            elif (p25 in d):
+                action = SetFieldAction(order=action_order, d=d[p25])
+            elif (p26 in d):
+                action = PushPBBHeaderAction(order=action_order, d=d[p26])
+            elif (p27 in d):
+                action = PopPBBHeaderAction(order=action_order)
+            elif ('drop_action' in d):
                 action = DropAction(order=action_order)
             else:
-                msg = "can not find action in d='%s'" % d
+                msg = "Found unsupported action in d='%s'" % d
                 dbg_print(msg)
 
             return action
@@ -1520,11 +1585,11 @@ class Action(object):
 
 
 class OutputAction(Action):
-    ''' The Output action forwards a packet to a specified OpenFlow port
+    """ The Output action forwards a packet to a specified OpenFlow port.
         OpenFlow switches must support forwarding to physical ports,
         switch-defined logical ports and the required reserved ports.
         (OpenFlow Switch Specification Version 1.0 and 1.3)
-    '''
+    """
 
     def __init__(self, order=None, port=None, max_len=None, d=None):
         super(OutputAction, self).__init__(order)
@@ -1544,7 +1609,7 @@ class OutputAction(Action):
                 elif ('max_length' == k):
                     self.set_max_len(v)
                 else:
-                    print "[OutputAction] TBD"
+                    print ("[OutputAction] TBD -> k=%s, v=%s" % (k, v))
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -1576,12 +1641,13 @@ class OutputAction(Action):
 
 
 class DropAction(Action):
-    ''' There is no explicit action to represent drops. Instead, packets whose
-        action sets have no output actions should be dropped. This result could
-        come from empty instruction sets or empty action buckets in the
-        processing pipeline, or after executing a Clear-Actions instruction.
+    """ There is no explicit action to represent drops. Instead,
+        packets whose action sets have no output actions should
+        be dropped. This result could come from empty instruction
+        sets or empty action buckets in the processing pipeline,
+        or after executing a Clear-Actions instruction.
         (OpenFlow Switch Specification Version 1.0 and 1.3)
-    '''
+    """
 
     def __init__(self, order=None):
         super(DropAction, self).__init__(order)
@@ -1592,33 +1658,71 @@ class DropAction(Action):
 
 
 class SetVlanIdAction(Action):
-    ''' Set the 802.1q VLAN id
+    """ Set the 802.1q VLAN ID.
+        If no VLAN is present, a new header is added with the specified
+        VLAN ID and priority of zero. If a VLAN header already exists,
+        the VLAN ID is replaced with the specified value.
         (OpenFlow Switch Specification Version 1.0)
-    '''
+    """
 
-    def __init__(self, order=None, vid=None):
+    def __init__(self, order=None, vid=None, d=None):
         super(SetVlanIdAction, self).__init__(order)
+        if(d is not None):
+            self.__init_from_dict__(d)
+            return
         self.set_vlan_id_action = {'vlan_id': vid}
+
+    def __init_from_dict__(self, d):
+        if(d is not None and isinstance(d, dict)):
+            self.set_vlan_id_action = {'vlan_id': None}
+            for k, v in d.items():
+                if (k == 'vlan_id'):
+                    self.set_vid(v)
+                else:
+                    msg = ("[SetVlanIdAction] TBD -> k='%s', v='%s'" % (k, v))
+                    dbg_print(msg)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_vid(self, vid):
         self.set_vlan_id_action['vlan_id'] = vid
 
 
 class SetVlanPCPAction(Action):
-    ''' Set the 802.1q priority
+    """ Set VLAN priority.
+        If no VLAN is present, a new header is added with the specified
+        priority and a VLAN ID of zero. If a VLAN header already exists,
+        the priority field is replaced with the specified value.
         (OpenFlow Switch Specification Version 1.0)
-    '''
+    """
 
-    def __init__(self, order=None, vlan_pcp=None):
+    def __init__(self, order=None, vlan_pcp=None, d=None):
         super(SetVlanPCPAction, self).__init__(order)
+        if(d is not None):
+            self.__init_from_dict__(d)
+            return
         self.set_vlan_pcp_action = {'vlan_pcp': vlan_pcp}
+
+    def __init_from_dict__(self, d):
+        if(d is not None and isinstance(d, dict)):
+            self.set_vlan_pcp_action = {'vlan_pcp': None}
+            for k, v in d.items():
+                if (k == 'vlan_pcp'):
+                    self.set_vlan_pcp(v)
+                else:
+                    msg = ("[SetVlanPCPAction] TBD -> k='%s', v='%s'" % (k, v))
+                    dbg_print(msg)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_vlan_pcp(self, vlan_pcp):
         self.set_vlan_pcp_action['vlan_pcp'] = vlan_pcp
 
-
+'''
 class SetVlanCfiAction(Action):
-    ''' Seems to be ODL proprietary action type ???
+    """ Seems to be ODL proprietary action type ???
         CFI (1-bit field) was formerly designated Canonical Format Indicator
         with a value of 0 indicating a MAC address in canonical format. It is
         always set to zero for Ethernet. CFI was used for compatibility between
@@ -1628,7 +1732,7 @@ class SetVlanCfiAction(Action):
         Currently renamed as Drop eligible indicator (DEI).
         May be used separately or in conjunction with PCP to indicate
         frames eligible to be dropped in the presence of congestion.
-    '''
+    """
 
     def __init__(self, order=None, vlan_cfi=None):
         super(SetVlanCfiAction, self).__init__(order)
@@ -1636,12 +1740,13 @@ class SetVlanCfiAction(Action):
 
     def set_vlan_cfi(self, vlan_cfi):
         self.set_vlan_cfi_action['vlan_cfi'] = vlan_cfi
+'''
 
 
 class StripVlanAction(Action):
-    ''' Strip the 802.1q header
+    """ Strip VLAN header if present.
         (OpenFlow Switch Specification Version 1.0)
-    '''
+    """
 
     def __init__(self, order=None):
         super(StripVlanAction, self).__init__(order)
@@ -1649,98 +1754,163 @@ class StripVlanAction(Action):
 
 
 class SetDlSrcAction(Action):
-    ''' Set Ethernet source address
+    """ Modify Ethernet source MAC address.
+        Replace the existing Ethernet source MAC address
+        with the new value.
         (OpenFlow Switch Specification Version 1.0)
-    '''
+    """
 
-    def __init__(self, order=None, mac_addr=None):
+    def __init__(self, order=None, mac_addr=None, d=None):
         super(SetDlSrcAction, self).__init__(order)
+        if(d is not None):
+            self.__init_from_dict__(d)
+            return
         self.set_dl_src_action = {'address': mac_addr}
+
+    def __init_from_dict__(self, d):
+        if(d is not None and isinstance(d, dict)):
+            self.set_dl_src_action = {'address': None}
+            for k, v in d.items():
+                if (k == 'address'):
+                    self.set_dl_src(v)
+                else:
+                    msg = ("[SetDlSrcAction] TBD -> k='%s', v='%s'" % (k, v))
+                    dbg_print(msg)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_dl_src(self, mac_addr):
         self.set_dl_src_action['address'] = mac_addr
 
 
 class SetDlDstAction(Action):
-    ''' Set Ethernet destination address
+    """ Modify Ethernet destination MAC address.
+        Replace the existing Ethernet destination MAC address
+        with the new value.
         (OpenFlow Switch Specification Version 1.0)
-    '''
+    """
 
-    def __init__(self, order=None, mac_addr=None):
+    def __init__(self, order=None, mac_addr=None, d=None):
         super(SetDlDstAction, self).__init__(order)
+        if(d is not None):
+            self.__init_from_dict__(d)
+            return
         self.set_dl_dst_action = {'address': mac_addr}
+
+    def __init_from_dict__(self, d):
+        if(d is not None and isinstance(d, dict)):
+            self.set_dl_dst_action = {'address': None}
+            for k, v in d.items():
+                if (k == 'address'):
+                    self.set_dl_dst(v)
+                else:
+                    msg = ("[SetDlDstAction] TBD -> k='%s', v='%s'" % (k, v))
+                    dbg_print(msg)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_dl_dst(self, mac_addr):
         self.set_dl_dst_action['address'] = mac_addr
 
 
 class SetNwSrcAction(Action):
-    ''' Set IP source address
+    """ Modify IPv4 source address.
+        Replace the existing IP source address with new value and
+        update the IP checksum (and TCP/UDP checksum if applicable).
+        This action is only applicable to IPv4 packets.
         (OpenFlow Switch Specification Version 1.0)
-    '''
+    """
 
-    def __init__(self, order=None, ip_addr=None):
+    def __init__(self, order=None, ip_addr=None, d=None):
         super(SetNwSrcAction, self).__init__(order)
-        self.set_nw_src_action = {'address': ip_addr}
+        if(d is not None):
+            self.__init_from_dict__(d)
+            return
+        self.set_nw_src_action = {'ipv4_address': ip_addr}
+
+    def __init_from_dict__(self, d):
+        if(d is not None and isinstance(d, dict)):
+            self.set_nw_src_action = {'ipv4_address': None}
+            for k, v in d.items():
+                if (k == 'ipv4_address'):
+                    self.set_nw_src(v)
+                else:
+                    msg = ("[SetNwSrcAction] TBD -> k='%s', v='%s'" % (k, v))
+                    dbg_print(msg)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_nw_src(self, ip_addr):
-        self.set_nw_src_action['address'] = ip_addr
+        self.set_nw_src_action['ipv4_address'] = ip_addr
 
 
 class SetNwDstAction(Action):
-    ''' Set IP destination address
+    """ Modify IPv4 destination address.
+        Replace the existing IP destination address with new value and
+        update the IP checksum (and TCP/UDP checksum if applicable).
+        This action is only applicable to IPv4 packets.
         (OpenFlow Switch Specification Version 1.0)
-    '''
+    """
 
-    def __init__(self, order=None, ip_addr=None):
+    def __init__(self, order=None, ip_addr=None, d=None):
         super(SetNwDstAction, self).__init__(order)
-        self.set_nw_dst_action = {'address': ip_addr}
+        if(d is not None):
+            self.__init_from_dict__(d)
+            return
+        self.set_nw_dst_action = {'ipv4_address': ip_addr}
+
+    def __init_from_dict__(self, d):
+        if(d is not None and isinstance(d, dict)):
+            self.set_nw_dst_action = {'ipv4_address': None}
+            for k, v in d.items():
+                if (k == 'ipv4_address'):
+                    self.set_nw_dst(v)
+                else:
+                    msg = ("[SetNwDstAction] TBD -> k='%s', v='%s'" % (k, v))
+                    dbg_print(msg)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_nw_dst(self, ip_addr):
-        self.set_nw_dst_action['address'] = ip_addr
-
-
-class SetTpSrcAction(Action):
-    ''' Set TCP/UDP source port
-        (OpenFlow Switch Specification Version 1.0)
-    '''
-
-    def __init__(self, order=None, port=None):
-        super(SetTpSrcAction, self).__init__(order)
-        self.set_tp_src_action = {'port': port}
-
-    def set_tp_src_port(self, port):
-        self.set_tp_src_action['port'] = port
-
-
-class SetTpDstAction(Action):
-    ''' Set TCP/UDP destination port
-        (OpenFlow Switch Specification Version 1.0)
-    '''
-
-    def __init__(self, order=None, port=None):
-        super(SetTpDstAction, self).__init__(order)
-        self.set_tp_dst_action = {'port': port}
-
-    def set_tp_dst_port(self, port):
-        self.set_tp_dst_action['port'] = port
+        self.set_nw_dst_action['ipv4_address'] = ip_addr
 
 
 class SetNwTosAction(Action):
-    ''' Modify IPv4 ToS bits.
-        Replace the existing IP ToS field. This action is only applied
-        to IPv4 packets.
+    """ Modify IPv4 ToS bits.
+        Replace the existing IP ToS field.
+        This action is only applied to IPv4 packets.
         (OpenFlow Switch Specification Version 1.0)
-    '''
+    """
 
-    def __init__(self, order=None, d=None, tos=None):
+    def __init__(self, order=None, tos=None, d=None):
         super(SetNwTosAction, self).__init__(order)
-        ''' Value with which to replace existing IPv4 ToS field
+        if(d is not None):
+            self.__init_from_dict__(d)
+            return
+        """ Value with which to replace existing IPv4 ToS field
             NOTE: The modern redefinition of the ToS field is a 6 bit
                   Differentiated Services Code Point (DSCP) field (the
                   6 upper bits of the original TOS field) and a 2 bit
-                  Explicit Congestion Notification (ECN) field. '''
+                  Explicit Congestion Notification (ECN) field.
+        """
         self.set_nw_tos_action = {'tos': tos}
+
+    def __init_from_dict__(self, d):
+        if(d is not None and isinstance(d, dict)):
+            self.set_nw_tos_action = {'tos': None}
+            for k, v in d.items():
+                if (k == 'tos'):
+                    self.set_tos(v)
+                else:
+                    msg = ("[SetNwTosAction] TBD -> k='%s', v='%s'" % (k, v))
+                    dbg_print(msg)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_tos(self, tos):
         self.set_nw_tos_action['tos'] = tos
@@ -1753,12 +1923,76 @@ class SetNwTosAction(Action):
         return res
 
 
+class SetTpSrcAction(Action):
+    """ Modify transport source port.
+        Replace the existing TCP/UDP source port with new value and
+        update the TCP/UDP checksum.
+        This action is only applicable to TCP and UDP packets.
+        (OpenFlow Switch Specification Version 1.0)
+    """
+
+    def __init__(self, order=None, port=None, d=None):
+        super(SetTpSrcAction, self).__init__(order)
+        if(d is not None):
+            self.__init_from_dict__(d)
+            return
+        self.set_tp_src_action = {'port': port}
+
+    def __init_from_dict__(self, d):
+        if(d is not None and isinstance(d, dict)):
+            self.set_tp_src_action = {'port': None}
+            for k, v in d.items():
+                if (k == 'port'):
+                    self.set_tp_src_port(v)
+                else:
+                    msg = ("[SetTpSrcAction] TBD -> k='%s', v='%s'" % (k, v))
+                    dbg_print(msg)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
+
+    def set_tp_src_port(self, port):
+        self.set_tp_src_action['port'] = port
+
+
+class SetTpDstAction(Action):
+    """ Modify transport destination port.
+        Replace the existing TCP/UDP destination port with new value and
+        update the TCP/UDP checksum.
+        This action is only applicable to TCP and UDP packets.
+        (OpenFlow Switch Specification Version 1.0)
+    """
+
+    def __init__(self, order=None, port=None, d=None):
+        super(SetTpDstAction, self).__init__(order)
+        if(d is not None):
+            self.__init_from_dict__(d)
+            return
+        self.set_tp_dst_action = {'port': port}
+
+    def __init_from_dict__(self, d):
+        if(d is not None and isinstance(d, dict)):
+            self.set_tp_dst_action = {'port': None}
+            for k, v in d.items():
+                if (k == 'port'):
+                    self.set_tp_dst_port(v)
+                else:
+                    msg = ("[SetTpDstAction] TBD -> k='%s', v='%s'" % (k, v))
+                    dbg_print(msg)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
+
+    def set_tp_dst_port(self, port):
+        self.set_tp_dst_action['port'] = port
+
+
 class PushVlanHeaderAction(Action):
-    ''' Push a new VLAN header onto the packet. The 'ethernet_type' is used as
-        the Ethernet Type for the tag, only 0x8100 or 0x88a8 values should be
-        used.
+    """ Push a new VLAN header onto the packet. The 'ethernet_type'
+        is used as the Ethernet Type for the tag, only 0x8100 or 0x88a8
+        values should be used.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=None, eth_type=None, tag=None, pcp=None,
                  cfi=None, vid=None, d=None):
@@ -1777,7 +2011,7 @@ class PushVlanHeaderAction(Action):
                 if ('ethernet_type' == k):
                     self.set_eth_type(v)
                 else:
-                    print "[PushVlanHeaderAction] TBD"
+                    print ("[PushVlanHeaderAction] TBD -> k=%s, v=%s" % (k, v))
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -1809,9 +2043,9 @@ class PushVlanHeaderAction(Action):
 
 
 class PopVlanHeaderAction(Action):
-    ''' Pop the outer-most VLAN header from the packet.
+    """ Pop the outer-most VLAN header from the packet.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=None):
         super(PopVlanHeaderAction, self).__init__(order)
@@ -1819,11 +2053,11 @@ class PopVlanHeaderAction(Action):
 
 
 class PushMplsHeaderAction(Action):
-    ''' Push a new MPLS shim header onto the packet. The 'ethernet_type' is
+    """ Push a new MPLS shim header onto the packet. The 'ethernet_type' is
         used as the Ethernet Type for the tag, only 0x8847 or 0x8848 values
         should be used.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=None, ethernet_type=None, d=None):
         super(PushMplsHeaderAction, self).__init__(order)
@@ -1836,10 +2070,10 @@ class PushMplsHeaderAction(Action):
         if (d is not None and isinstance(d, dict)):
             self.push_mpls_action = {'ethernet_type': None}
             for k, v in d.items():
-                if ('ethernet_type' == k):
+                if (k == 'ethernet_type'):
                     self.set_eth_type(v)
-            else:
-                print "[PushMplsHeaderAction] TBD"
+                else:
+                    print "[PushMplsHeaderAction] TBD -> k=%s, v=%s" % (k, v)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -1856,11 +2090,11 @@ class PushMplsHeaderAction(Action):
 
 
 class PopMplsHeaderAction(Action):
-    ''' Pop the outer-most MPLS tag or shim header from the packet.
+    """ Pop the outer-most MPLS tag or shim header from the packet.
         The 'ethernet_type' is used as the Ethernet Type for the
         resulting packet (Ethernet Type for the MPLS payload).
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=0, ethernet_type=None):
         super(PopMplsHeaderAction, self).__init__(order)
@@ -1871,7 +2105,7 @@ class PopMplsHeaderAction(Action):
 
 
 class PushPBBHeaderAction(Action):
-    ''' Push a new PBB service instance header (I-TAG TCI) onto the packet.
+    """ Push a new PBB service instance header (I-TAG TCI) onto the packet.
         The 'ethernet_type' is used as the Ethernet Type for the tag. Only
         Ethernet Type  0x88E7 should be used
         PBB - Provider Backbone Bridges is an Ethernet data-plane technology
@@ -1879,25 +2113,40 @@ class PushPBBHeaderAction(Action):
         .     Ethernet datagram inside another one with new source and
         .     destination addresses.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
-    def __init__(self, order=0, ethernet_type=None):
+    def __init__(self, order=0, ethernet_type=None, d=None):
         super(PushPBBHeaderAction, self).__init__(order)
+        if (d is not None):
+            self.__init_from_dict__(d)
+            return
         self.push_pbb_action = {'ethernet_type': ethernet_type}
+
+    def __init_from_dict__(self, d):
+        if (d is not None and isinstance(d, dict)):
+            self.push_pbb_action = {'ethernet_type': None}
+            for k, v in d.items():
+                if (k == 'ethernet_type'):
+                    self.set_eth_type(v)
+                else:
+                    print "[PushPBBHeaderAction] TBD -> k=%s, v=%s" % (k, v)
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_eth_type(self, ethernet_type):
         self.push_pbb_action['ethernet_type'] = ethernet_type
 
 
 class PopPBBHeaderAction(Action):
-    ''' Pop the outer-most PBB service instance header (I-TAG TCI)
+    """ Pop the outer-most PBB service instance header (I-TAG TCI)
         from the packet
         PBB - Provider Backbone Bridges is an Ethernet data-plane technology
         .     (also known as MAC-in-MAC) that involves encapsulating an
         .     Ethernet datagram inside another one with new source and
         .     destination addresses.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=0):
         super(PopPBBHeaderAction, self).__init__(order)
@@ -1905,60 +2154,92 @@ class PopPBBHeaderAction(Action):
 
 
 class SetMplsTTLAction(Action):
-    ''' Replace the existing MPLS TTL. Only applies to packets with an existing
-        MPLS shim header.
+    """ Replace the existing MPLS TTL. Only applies to packets with
+        an existing MPLS shim header.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
-    def __init__(self, order=0, mpls_ttl=None):
+    def __init__(self, order=0, mpls_ttl=None, d=None):
         super(SetMplsTTLAction, self).__init__(order)
+        if (d is not None):
+            self.__init_from_dict__(d)
+            return
         self.set_mpls_ttl_action = {'mpls_ttl': mpls_ttl}
+
+    def __init_from_dict__(self, d):
+        if (d is not None and isinstance(d, dict)):
+            self.set_mpls_ttl_action = {'mpls_ttl': None}
+            for k, v in d.items():
+                if (k == 'mpls_ttl'):
+                    self.set_mpls_ttl(v)
+                else:
+                    print ("[PushMplsHeaderAction] TBD -> k=%s, v=%s" % (k, v))
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_mpls_ttl(self, mpls_ttl):
         self.set_mpls_ttl_action['mpls_ttl'] = mpls_ttl
 
 
 class DecMplsTTLAction(Action):
-    ''' Decrement the MPLS TTL. Only applies to packets with an existing MPLS
-        shim header.
+    """ Decrement the MPLS TTL. Only applies to packets with
+        an existing MPLS shim header.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=0):
         super(DecMplsTTLAction, self).__init__(order)
         self.dec_mpls_ttl = {}
 
 
-class SetNwTTLAction(Action):
-    ''' Replace the existing IPv4 TTL or IPv6 Hop Limit and update the IP
-        checksum. Only applies to IPv4 and IPv6 packets.
+class SetIpTTLAction(Action):
+    """ Replace the existing IPv4 TTL or IPv6 Hop Limit and
+        update the IP checksum.
+        Only applies to IPv4 and IPv6 packets.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
-    def __init__(self, order=0, ip_ttl=None):
-        super(SetNwTTLAction, self).__init__(order)
+    def __init__(self, order=0, ip_ttl=None, d=None):
+        super(SetIpTTLAction, self).__init__(order)
+        if (d is not None):
+            self.__init_from_dict__(d)
+            return
         self.set_nw_ttl_action = {'nw_ttl': ip_ttl}
+
+    def __init_from_dict__(self, d):
+        if (d is not None and isinstance(d, dict)):
+            self.set_nw_ttl_action = {'nw_ttl': None}
+            for k, v in d.items():
+                if (k == 'nw_ttl'):
+                    self.set_ip_ttl(v)
+                else:
+                    print ("[SetIpTTLAction] TBD -> k=%s, v=%s" % (k, v))
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_ip_ttl(self, ip_ttl):
         self.set_nw_ttl_action['nw_ttl'] = ip_ttl
 
 
-class DecNwTTLAction(Action):
-    ''' Decrement the IPv4 TTL or IPv6 Hop Limit field and update the IP
-        checksum. Only applies to IPv4 and IPv6 packets.
+class DecIpTTLAction(Action):
+    """ Decrement the IPv4 TTL or IPv6 Hop Limit field and
+        update the IP checksum.
+        Only applies to IPv4 and IPv6 packets.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=0):
-        super(DecNwTTLAction, self).__init__(order)
+        super(DecIpTTLAction, self).__init__(order)
         self.dec_nw_ttl = {}
 
 
 class CopyTTLOutwardsAction(Action):
-    ''' Copy the TTL from next-to-outermost to outermost header with TTL.
+    """ Copy the TTL from next-to-outermost to outermost header with TTL.
         Copy can be IP-to-IP, MPLS-to-MPLS, or IP-to-MPLS.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=0):
         super(CopyTTLOutwardsAction, self).__init__(order)
@@ -1966,10 +2247,10 @@ class CopyTTLOutwardsAction(Action):
 
 
 class CopyTTLInwardsAction(Action):
-    ''' Copy the TTL from outermost to next-to-outermost header with TTL.
+    """ Copy the TTL from outermost to next-to-outermost header with TTL.
         Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=0):
         super(CopyTTLInwardsAction, self).__init__(order)
@@ -1977,21 +2258,22 @@ class CopyTTLInwardsAction(Action):
 
 
 class SetFieldAction(Action):
-    ''' The Extensible set_field action reuses the OXM encoding defined for
-        matches, and enables to rewrite any header field in a single action.
-        This allows any new match field, including experimenter fields, to be
-        available for rewrite.
-        The various Set-Field actions are identified by their field type and
-        modify the values of respective header fields in the packet. While
-        not strictly required, the support of rewriting various header fields
-        using Set-Field actions greatly increase the usefulness of an OpenFlow
-        implementation. To aid integration with existing networks, we suggest
-        that VLAN modification actions be supported. Set-Field actions should
-        always be applied to the outermost-possible header (e.g.
-        a 'Set VLAN ID' action always sets the ID of the outermost VLAN tag),
-        unless the field type specifies otherwise.
+    """ The Extensible set_field action reuses the OXM encoding defined
+        for matches, and enables to rewrite any header field in a single
+        action. This allows any new match field, including experimenter
+        fields, to be available for rewrite.
+        The various Set-Field actions are identified by their field type
+        and modify the values of respective header fields in the packet.
+        While not strictly required, the support of rewriting various
+        header fields using Set-Field actions greatly increase the
+        usefulness of an OpenFlow implementation. To aid integration with
+        existing networks, we suggest that VLAN modification actions be
+        supported. Set-Field actions should always be applied to the
+        outermost-possible header (e.g. a 'Set VLAN ID' action always sets
+        the ID of the outermost VLAN tag), unless the field type specifies
+        otherwise.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
     def __init__(self, order=None, d=None):
         super(SetFieldAction, self).__init__(order)
@@ -2008,12 +2290,14 @@ class SetFieldAction(Action):
                               'protocol_match_fields': None,
                               'ip_match': None}
             for k, v in d.items():
-                if ('vlan_match' == k):
+                if (k == 'vlan_match'):
                     self.set_field[k] = VlanMatch(v)
-                elif ('protocol_match_fields' == k):
+                elif (k == 'protocol_match_fields'):
                     self.set_field[k] = ProtocolMatchFields(v)
+                elif (k == 'ethernet_match'):
+                    self.set_field[k] = EthernetMatch(v)
                 else:
-                    print "[SetFieldAction] TBD"
+                    print ("[SetFieldAction] TBD -> k=%s, v=%s" % (k, v))
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "(dictionary is expected)" % d)
@@ -2081,37 +2365,72 @@ class SetFieldAction(Action):
 
 
 class SetQueueAction(Action):
-    ''' The set-queue action sets the queue id for a packet. When the packet is
-        forwarded to a port using the output action, the queue id determines
-        which queue attached to this port is used for scheduling and forwarding
-        the packet. Forwarding behavior is dictated by the configuration of the
-        queue and is used to provide basic Quality-of-Service (QoS) support.
+    """ The set-queue action sets the queue id for a packet. When the
+        packet is forwarded to a port using the output action, the queue
+        id determines which queue attached to this port is used for
+        scheduling and forwarding the packet. Forwarding behavior is
+        dictated by the configuration of the queue and is used to provide
+        basic Quality-of-Service (QoS) support.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
-    def __init__(self, order=None, queue=None, queue_id=None):
+    def __init__(self, order=None, queue=None, queue_id=None, d=None):
         super(SetQueueAction, self).__init__(order)
+        if (d is not None):
+            self.__init_from_dict__(d)
+            return
         self.set_queue_action = {'queue': queue, 'queue_id': queue_id}
 
-    def set_queue(self, queue):
-        self.group_action['queue'] = queue
+    def __init_from_dict__(self, d):
+        if (d is not None and isinstance(d, dict)):
+            self.set_queue_action = {'queue': None, 'queue_id': None}
+            for k, v in d.items():
+                if (k == 'queue'):
+                    self.set_gueue(v)
+                elif (k == 'queue_id'):
+                    self.set_gueue_id(v)
+                else:
+                    print ("[SetQueueAction] TBD -> k=%s, v=%s" % (k, v))
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
-    def set_group_id(self, queue_id):
-        self.group_action['queue_id'] = queue_id
+    def set_queue(self, queue):
+        self.set_queue_action['queue'] = queue
+
+    def set_gueue_id(self, queue_id):
+        self.set_queue_action['queue_id'] = queue_id
 
     def set_order(self, order):
         self.order = order
 
 
 class GroupAction(Action):
-    ''' Process the packet through the specified group.
+    """ Process the packet through the specified group.
         The exact interpretation depends on group type.
         (OpenFlow Switch Specification Version 1.3)
-    '''
+    """
 
-    def __init__(self, order=None, group=None, group_id=None):
+    def __init__(self, order=None, group=None, group_id=None, d=None):
         super(GroupAction, self).__init__(order)
+        if (d is not None):
+            self.__init_from_dict__(d)
+            return
         self.group_action = {'group': group, 'group_id': group_id}
+
+    def __init_from_dict__(self, d):
+        if (d is not None and isinstance(d, dict)):
+            self.group_action = {'group': None, 'group_id': None}
+            for k, v in d.items():
+                if (k == 'group'):
+                    self.set_group(v)
+                elif (k == 'group_id'):
+                    self.set_group_id(v)
+                else:
+                    print ("[GroupAction] TBD -> k=%s, v=%s" % (k, v))
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
 
     def set_group(self, group):
         self.group_action['group'] = group
@@ -2119,15 +2438,15 @@ class GroupAction(Action):
     def set_group_id(self, group_id):
         self.group_action['group_id'] = group_id
 
-"""
+'''
 class FloodAction(Action):
-    ''' Flood the packet along the minimum spanning tree, not including the
+    """ Flood the packet along the minimum spanning tree, not including the
         incoming interface.
         The sentence 'along the minimum spanning tree' implies: flood the
         packet on all the ports that are not disabled by Spanning Tree
         Protocol.
         Seems to be ODL proprietary action type ???
-    '''
+    """
 
     def __init__(self, order=0):
         super(FloodAction, self).__init__(order)
@@ -2135,10 +2454,10 @@ class FloodAction(Action):
 
 
 class FloodAllAction(Action):
-    ''' Send the packet out all interfaces, not including the incoming
-        interface
+    """ Send the packet out all interfaces, not including the incoming
+        interface.
         Seems to be ODL proprietary action type ???
-    '''
+    """
 
     def __init__(self, order=0):
         super(FloodAllAction, self).__init__(order)
@@ -2146,7 +2465,7 @@ class FloodAllAction(Action):
 
 
 class HwPathAction(Action):
-    ''' Seems to be ODL proprietary action type ??? '''
+    """ Seems to be ODL proprietary action type ??? """
 
     def __init__(self, order=0):
         super(HwPathAction, self).__init__(order)
@@ -2154,7 +2473,7 @@ class HwPathAction(Action):
 
 
 class SwPathAction(Action):
-    ''' Seems to be ODL proprietary action type ??? '''
+    """ Seems to be ODL proprietary action type ??? """
 
     def __init__(self, order=0):
         super(SwPathAction, self).__init__(order)
@@ -2162,16 +2481,16 @@ class SwPathAction(Action):
 
 
 class LoopbackAction(Action):
-    ''' Seems to be ODL proprietary action type ???'''
+    """ Seems to be ODL proprietary action type ??? """
 
     def __init__(self, order=0):
         super(LoopbackAction, self).__init__(order)
         self.loopback_action = {}
-"""
+'''
 
 
 class Match(object):
-    """Class that represents OpenFlow flow matching attributes """
+    """ Class that represents OpenFlow flow matching attributes """
 
     def __init__(self, d=None):
         if (d is not None):
