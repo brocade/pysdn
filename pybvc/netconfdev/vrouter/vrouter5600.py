@@ -394,7 +394,7 @@ class VRouter5600(NetconfNode):
                                 ifList.append(item[p2])
         return Result(status, ifList)
 
-    def get_interfaces_cfg(self):
+    def get_interfaces_cfg(self, timeout=None):
         """ Return the configuration for the interfaces on the VRouter5600
          :return: A tuple: Status, configuration of the interfaces
         :rtype: instance of the `Result` class (containing configuration data)
@@ -412,7 +412,7 @@ class VRouter5600(NetconfNode):
         ctrl = self.ctrl
         url = ctrl.get_ext_mount_config_url(self.name)
         url += modelref
-        resp = ctrl.http_get_request(url, data=None, headers=None)
+        resp = ctrl.http_get_request(url, data=None, headers=None, timeout=timeout)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -830,3 +830,39 @@ class VRouter5600(NetconfNode):
         templateModelRef = "vyatta-protocols-static:static/interface-route/{}"
         model_ref = templateModelRef.format(ip_prefix.replace("/", "%2F"))
         return self.delete_protocols_cfg(model_ref)
+
+    @staticmethod
+    def maptoietfinterfaces(node, data):
+        ilist = []
+        for iface in data['interfaces']['vyatta-interfaces-dataplane:dataplane']:
+            if iface is not None:
+                ilist.append({'node': node,
+                              'name': iface['tagnode'],
+                              # 'description': iface.get('description', 'none'),
+                              'mtu': iface.get('mtu', 'unknown'),
+                              'operstatus': 'unknown',
+                              'adminstatus': 'unknown',
+                              # 'type': 'dataplane',
+                              # 'vlan': iface.get('vlan', 'none'),
+                              'ipv4-address': iface.get('address', 'none'),
+                              'mac': 'unknown'})
+                if 'vif' in iface:
+                    for vif in iface['vif']:
+                        if vif is not None:
+                            if 'disable' in vif:
+                                enabled = "Down"
+                            else:
+                                enabled = "Up"
+                            ilist.append({'node': node,
+                                          'name': "{}.{}".format(iface['tagnode'], vif['tagnode']), 
+                                          # 'description': vif.get('description', 'none'),
+                                          'mtu': vif.get('mtu', 'unknown'),
+                                          'operstatus': enabled,
+                                          'adminstatus': "unknown",
+                                          # 'type': 'vif',
+                                          # 'vlan': vif.get('vlan', 'none'),
+                                          'ipv4-address': vif.get('address', 'none'),
+                                          'mac': 'unknown'})
+
+        return ilist
+

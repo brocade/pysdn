@@ -47,7 +47,7 @@ from pybvc.common.utils import dict_keys_dashed_to_underscored
 from pybvc.common.utils import strip_none
 
 
-class Inventory():
+class Inventory(object):
     ''' Class that represents current state of
         the Controller's inventory store '''
 
@@ -73,7 +73,7 @@ class Inventory():
             p1 = 'id'
             p2 = 'openflow'
             p3 = 'netconf_node_inventory:initial_capability'
-            devices = [{'clazz': 'NOS', 'filter': 'brocade-interface-ext?revision=2014-04-01'},
+            devices = [{'clazz': 'NOS', 'filter': 'brocade-interface@2012-04-24.yang'},
                        {'clazz': 'VRouter5600', 'filter': 'vyatta-interfaces?revision=2014-12-02'},
                        {'clazz': 'controller', 'filter': 'controller:netty:eventexecutor?revision=2013-11-12'}]
             for item in l:
@@ -83,7 +83,6 @@ class Inventory():
                         if (d[p1].startswith(p2)):
                             node = OpenFlowCapableNode(inv_dict=d)
                             self.add_openflow_node(node)
-                    # TODO Fix this as nodes that are not connectec can be mounted with no capabilities.
                     if p3 in d:
                         # Netconf
                         capabilities = d.get(p3)
@@ -99,6 +98,10 @@ class Inventory():
                                 node = NetconfCapableNode(clazz='unknown',
                                                           inv_dict=d)
                                 self.add_netconf_node(node)
+                    else:
+                        # TODO might be a badly connected node.. Need to compare with config:modules
+                        node = NetconfCapableNode(clazz='unknown', inv_dict=d)
+                        self.add_netconf_node(node)
 
         else:
             raise TypeError("[Inventory] wrong argument type '%s'"
@@ -140,8 +143,44 @@ class Inventory():
                 break
         return node
 
+# class UnknownNode():
+#     ''' Class to represent undiscovered nodes '''
+#     def __init__(self, d):
+#         assert(isinstance(d, dict))
+#         js = json.dumps(d)
+#         d1 = dict_keys_dashed_to_underscored(obj)
+#         for k, v in d1.items():
+#             setattr(self, k, v)
 
-class OpenFlowCapableNode():
+#     def to_string(self):
+#         """ Returns string representation of this object. """
+#         return str(vars(self))
+
+#     def to_json(self):
+#         """ Returns JSON representation of this object. """
+#         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
+#                           indent=4)
+
+#     def get_name(self):
+#         name = ""
+#         p = 'name'
+#         if hasattr(self, p):
+#             name = getattr(self, p)
+#         else:
+#             assert(False)
+
+#         return name
+
+#     def get_ip_address(self):
+#         addr = ""
+#         p = 'address'
+#         if hasattr(self, p):
+#             addr = getattr(self, p)
+#         else:
+#             assert(False)
+
+
+class OpenFlowCapableNode(object):
     ''' Class that represents current state of an OpenFlow capable node
         in the Controller's inventory store
         Helper class of the 'Inventory' class '''
@@ -363,7 +402,7 @@ class OpenFlowCapableNode():
         return None
 
 
-class OpenFlowPort():
+class OpenFlowPort(object):
     ''' Class that represents current state of an OpenFlow enabled port
         Helper class of the 'OpenFlowCapableNode' class '''
 
@@ -494,7 +533,7 @@ class OpenFlowPort():
         return features
 
 
-class GroupInfo():
+class GroupInfo(object):
     """ Helper class that represents current state of an OpenFlow
         group entry in the Controller's operational data store
         (OpenFlow switch context specific data)
@@ -518,7 +557,7 @@ class GroupInfo():
         return myid
 
 
-class GroupFeatures():
+class GroupFeatures(object):
     """ Helper class that is used to represent group features on the switch
         (group types, max number of groups for each type, group capabilities
         and group supported actions) """
