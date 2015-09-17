@@ -45,13 +45,26 @@ import time
 from pybvc.controller.controller import Controller
 from pybvc.common.status import STATUS
 from pybvc.controller.inventory import NetconfCapableNode
+from pybvc.common.utils import load_dict_from_file
 
 
 def nc_demo_13():
-    ctrlIpAddr = '172.22.18.186'
-    ctrlPortNum = '8181'
-    ctrlUname = 'admin'
-    ctrlPswd = 'admin'
+
+    f = "cfg1.yml"
+    d = {}
+    if(load_dict_from_file(f, d) is False):
+        print("Config file '%s' read error: " % f)
+        exit()
+
+    try:
+        ctrlIpAddr = d['ctrlIpAddr']
+        ctrlPortNum = d['ctrlPortNum']
+        ctrlUname = d['ctrlUname']
+        ctrlPswd = d['ctrlPswd']
+        rundelay = d['rundelay']
+    except:
+        print ("Failed to get Controller device attributes")
+        exit(0)
 
     netconf_ids = []
     netconf_nodes = []
@@ -59,8 +72,6 @@ def nc_demo_13():
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     print ("<<< Demo Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    rundelay = 2
 
     print "\n"
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)

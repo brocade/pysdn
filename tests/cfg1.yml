@@ -1,7 +1,8 @@
 # Controller specification
-#ctrlIpAddr: "192.168.59.103"
-ctrlIpAddr: "172.22.18.186"
+ctrlIpAddr: "192.168.59.103"
+#ctrlIpAddr: "172.22.18.186"
 #ctrlIpAddr: "172.22.18.245"
+ctrlIpAddr: "172.22.17.5"
 ctrlPortNum: "8181"
 ctrlUname: 'admin'
 ctrlPswd:  'admin'
