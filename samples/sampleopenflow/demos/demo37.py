@@ -46,13 +46,14 @@ from pybvc.openflowdev.ofswitch import (OFSwitch,
                                         FlowEntry,
                                         Match,
                                         Instruction,
+                                        SetVlanIdAction,
+                                        SetVlanPCPAction,
+                                        StripVlanAction,
                                         SetFieldAction,
-                                        SetNwTosAction,
                                         OutputAction)
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.status import STATUS
-from pybvc.common.constants import (ETH_TYPE_IPv4,
-                                    IP_DSCP_CS5)
+from pybvc.common.constants import ETH_TYPE_IPv4
 
 
 def delete_flows(ofswitch, table_id, flow_ids):
@@ -67,7 +68,7 @@ def delete_flows(ofswitch, table_id, flow_ids):
                    (flow_id, status.brief()))
 
 
-def of_demo_31():
+def of_demo_37():
     f = "cfg.yml"
     d = {}
     if(load_dict_from_file(f, d) is False):
@@ -86,7 +87,7 @@ def of_demo_31():
         exit(0)
 
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    print ("<<< Demo 31 Start")
+    print ("<<< Demo 37 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
@@ -101,29 +102,30 @@ def of_demo_31():
     # ---------------------------------------------------
     table_id = 0
     flow_id = first_flow_id
-    flow_name = "Set IPv4 ToS action"
+    flow_name = "Modify VLAN ID and VLAN priority example1"
     priority = 600
     cookie = 1000
 
     match_in_port = 109
-    match_ip_eth_type = ETH_TYPE_IPv4
-    match_ipv4_dst = "10.1.2.3/32"
+    match_eth_type = ETH_TYPE_IPv4
+    match_vlan_id = 100
 
-    mod_nw_tos = 8
-
+    act_mod_vlan_id = 172
+    act_mod_vlan_pcp = 2
     act_out_port = 112
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Input Port (%s)\n"
            "                Ethernet Type (%s)\n"
-           "                IPv4 Destination Address (%s)" %
+           "                VLAN ID (%s)" %
            (match_in_port,
-            hex(match_ip_eth_type),
-            match_ipv4_dst))
-    print ("        Actions: Set IPv4 ToS (tos %s)\n"
-           "                 Output (Port number %s)" %
-           (mod_nw_tos, act_out_port))
+            hex(match_eth_type),
+            match_vlan_id))
+    print ("        Actions: Set VLAN ID (%s)\n"
+           "                 Set VLAN priority (%s)\n"
+           "                 Output (%s)" %
+           (act_mod_vlan_id, act_mod_vlan_pcp, act_out_port))
 
     time.sleep(rundelay)
 
@@ -143,8 +145,13 @@ def of_demo_31():
     instruction = Instruction(instruction_order=0)
 
     action_order = 0
-    action = SetNwTosAction(action_order)
-    action.set_tos(mod_nw_tos)
+    action = SetVlanIdAction(action_order)
+    action.set_vid(act_mod_vlan_id)
+    instruction.add_apply_action(action)
+
+    action_order += 1
+    action = SetVlanPCPAction(action_order)
+    action.set_vlan_pcp(act_mod_vlan_pcp)
     instruction.add_apply_action(action)
 
     action_order += 1
@@ -158,8 +165,8 @@ def of_demo_31():
     match = Match()
 
     match.set_in_port(match_in_port)
-    match.set_eth_type(match_ip_eth_type)
-    match.set_ipv4_dst(match_ipv4_dst)
+    match.set_eth_type(match_eth_type)
+    match.set_vlan_id(match_vlan_id)
 
     flow_entry1.add_match(match)
 
@@ -182,29 +189,30 @@ def of_demo_31():
     # ---------------------------------------------------
     table_id = 0
     flow_id += 1
-    flow_name = "Set Field (IP DSCP) action"
+    flow_name = "Modify VLAN ID and VLAN priority example2"
     priority = 600
     cookie = 1000
 
     match_in_port = 109
     match_eth_type = ETH_TYPE_IPv4
-    match_ipv4_dst = "192.1.2.3/32"
+    match_vlan_id = 111
 
-    mod_ip_dscp = IP_DSCP_CS5
-
+    act_mod_vlan_id = 1024
+    act_mod_vlan_pcp = 3
     act_out_port = 112
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Input Port (%s)\n"
            "                Ethernet Type (%s)\n"
-           "                IPv4 Destination Address (%s)" %
+           "                VLAN ID (%s)" %
            (match_in_port,
-            hex(match_ip_eth_type),
-            match_ipv4_dst))
-    print ("        Actions: Set Field (IP DSCP %s)\n"
+            hex(match_eth_type),
+            match_vlan_id))
+    print ("        Actions: Set Field (VLAN ID %s)\n"
+           "                 Set Field (VLAN PCP %s)\n"
            "                 Output (Port number %s)" %
-           (mod_ip_dscp, act_out_port))
+           (act_mod_vlan_id, act_mod_vlan_pcp, act_out_port))
 
     time.sleep(rundelay)
 
@@ -225,7 +233,12 @@ def of_demo_31():
 
     action_order = 0
     action = SetFieldAction(action_order)
-    action.set_ip_dscp(mod_ip_dscp)
+    action.set_vlan_id(act_mod_vlan_id)
+    instruction.add_apply_action(action)
+
+    action_order += 1
+    action = SetFieldAction(action_order)
+    action.set_vlan_pcp(act_mod_vlan_pcp)
     instruction.add_apply_action(action)
 
     action_order += 1
@@ -240,7 +253,7 @@ def of_demo_31():
 
     match.set_in_port(match_in_port)
     match.set_eth_type(match_eth_type)
-    match.set_ipv4_dst(match_ipv4_dst)
+    match.set_vlan_id(match_vlan_id)
 
     flow_entry2.add_match(match)
 
@@ -249,6 +262,84 @@ def of_demo_31():
     print flow_entry2.get_payload()
     time.sleep(rundelay)
     result = ofswitch.add_modify_flow(flow_entry2)
+    status = result.get_status()
+    if(status.eq(STATUS.OK)):
+        print ("<<< Flow successfully added to the Controller")
+    else:
+        print ("\n")
+        print ("!!!Demo terminated, reason: %s" % status.detailed())
+        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+        exit(0)
+
+    # ---------------------------------------------------
+    # Third flow entry
+    # ---------------------------------------------------
+    table_id = 0
+    flow_id += 1
+    flow_name = "Strip VLAN header action example"
+    priority = 600
+    cookie = 1000
+
+    match_in_port = 112
+    match_eth_type = ETH_TYPE_IPv4
+    match_vlan_id = 172
+
+    act_out_port = 109
+
+    print "\n"
+    print ("<<< Set OpenFlow flow on the Controller")
+    print ("        Match:  Input Port (%s)\n"
+           "                Ethernet Type (%s)\n"
+           "                VLAN ID (%s)" %
+           (match_in_port,
+            hex(match_eth_type),
+            match_vlan_id))
+    print ("        Actions: Strip VLAN header\n"
+           "                 Output (Port number %s)" %
+           (act_out_port))
+
+    time.sleep(rundelay)
+
+    # Allocate a placeholder for the Flow Entry
+    flow_entry3 = FlowEntry()
+
+    # Generic attributes of the Flow Entry
+    flow_entry3.set_flow_table_id(table_id)
+    flow_entry3.set_flow_name(flow_name)
+    flow_entry3.set_flow_id(flow_id)
+    flow_entry3.set_flow_cookie(cookie)
+    flow_entry3.set_flow_priority(priority)
+    flow_entry3.set_flow_hard_timeout(0)
+    flow_entry3.set_flow_idle_timeout(0)
+
+    # Instructions/Actions for the Flow Entry
+    instruction = Instruction(instruction_order=0)
+
+    action_order = 0
+    action = StripVlanAction(action_order)
+    instruction.add_apply_action(action)
+
+    action_order += 1
+    action = OutputAction(action_order)
+    action.set_outport(act_out_port)
+    instruction.add_apply_action(action)
+
+    flow_entry3.add_instruction(instruction)
+
+    # Match Fields for the Flow Entry
+    match = Match()
+
+    match.set_in_port(match_in_port)
+    match.set_eth_type(match_eth_type)
+    match.set_vlan_id(match_vlan_id)
+
+    flow_entry3.add_match(match)
+
+    print ("\n")
+    print ("<<< Flow to send:")
+    print flow_entry3.get_payload()
+    time.sleep(rundelay)
+    result = ofswitch.add_modify_flow(flow_entry3)
     status = result.get_status()
     if(status.eq(STATUS.OK)):
         print ("<<< Flow successfully added to the Controller")
@@ -270,4 +361,4 @@ def of_demo_31():
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 if __name__ == "__main__":
-    of_demo_31()
+    of_demo_37()

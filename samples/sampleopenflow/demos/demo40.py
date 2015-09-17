@@ -46,13 +46,17 @@ from pybvc.openflowdev.ofswitch import (OFSwitch,
                                         FlowEntry,
                                         Match,
                                         Instruction,
+                                        SetNwSrcAction,
+                                        SetNwDstAction,
+                                        SetTpSrcAction,
+                                        SetTpDstAction,
                                         SetFieldAction,
-                                        SetNwTosAction,
                                         OutputAction)
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.status import STATUS
 from pybvc.common.constants import (ETH_TYPE_IPv4,
-                                    IP_DSCP_CS5)
+                                    IP_PROTO_TCP,
+                                    IP_PROTO_UDP)
 
 
 def delete_flows(ofswitch, table_id, flow_ids):
@@ -67,7 +71,7 @@ def delete_flows(ofswitch, table_id, flow_ids):
                    (flow_id, status.brief()))
 
 
-def of_demo_31():
+def of_demo_40():
     f = "cfg.yml"
     d = {}
     if(load_dict_from_file(f, d) is False):
@@ -86,7 +90,7 @@ def of_demo_31():
         exit(0)
 
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    print ("<<< Demo 31 Start")
+    print ("<<< Demo 40 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
@@ -101,29 +105,47 @@ def of_demo_31():
     # ---------------------------------------------------
     table_id = 0
     flow_id = first_flow_id
-    flow_name = "Set IPv4 ToS action"
-    priority = 600
-    cookie = 1000
+    flow_name = "Modify IP packet example1"
+    priority = 900
+    cookie = 1300
 
-    match_in_port = 109
-    match_ip_eth_type = ETH_TYPE_IPv4
-    match_ipv4_dst = "10.1.2.3/32"
+    match_in_port = 10
+    match_eth_type = ETH_TYPE_IPv4
+    match_ip_proto = IP_PROTO_TCP
+    match_ipv4_src_addr = "192.1.2.0/24"
+    match_ipv4_dst_addr = "173.194.123.40/32"
+    match_tcp_dst_port = 8080
 
-    mod_nw_tos = 8
-
-    act_out_port = 112
+    act_mod_ipv4_src_addr = "212.16.1.8/32"
+    act_mod_ipv4_dst_addr = "52.87.12.11/32"
+    act_mod_tcp_src_port = 8888
+    act_mod_tcp_dst_port = 9999
+    act_out_port = 119
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Input Port (%s)\n"
            "                Ethernet Type (%s)\n"
-           "                IPv4 Destination Address (%s)" %
+           "                IP Protocol (%s)\n"
+           "                IPv4 Source Address (%s)\n"
+           "                IPv4 Destination Address (%s)\n"
+           "                TCP Destination Port (%s)" %
            (match_in_port,
-            hex(match_ip_eth_type),
-            match_ipv4_dst))
-    print ("        Actions: Set IPv4 ToS (tos %s)\n"
-           "                 Output (Port number %s)" %
-           (mod_nw_tos, act_out_port))
+            hex(match_eth_type),
+            match_ip_proto,
+            match_ipv4_src_addr,
+            match_ipv4_dst_addr,
+            match_tcp_dst_port))
+    print ("        Actions: Modify IPv4 Source Address (%s)\n"
+           "                 Modify IPv4 Destination Address (%s)\n"
+           "                 Modify TCP Source Port (%s)\n"
+           "                 Modify TCP Destination Port (%s)\n"
+           "                 Output (%s)" %
+           (act_mod_ipv4_src_addr,
+            act_mod_ipv4_dst_addr,
+            act_mod_tcp_src_port,
+            act_mod_tcp_dst_port,
+            act_out_port))
 
     time.sleep(rundelay)
 
@@ -143,8 +165,23 @@ def of_demo_31():
     instruction = Instruction(instruction_order=0)
 
     action_order = 0
-    action = SetNwTosAction(action_order)
-    action.set_tos(mod_nw_tos)
+    action = SetNwSrcAction(action_order)
+    action.set_nw_src(act_mod_ipv4_src_addr)
+    instruction.add_apply_action(action)
+
+    action_order += 1
+    action = SetNwDstAction(action_order)
+    action.set_nw_dst(act_mod_ipv4_dst_addr)
+    instruction.add_apply_action(action)
+
+    action_order += 1
+    action = SetTpSrcAction(action_order)
+    action.set_tp_src_port(act_mod_tcp_src_port)
+    instruction.add_apply_action(action)
+
+    action_order += 1
+    action = SetTpDstAction(action_order)
+    action.set_tp_dst_port(act_mod_tcp_dst_port)
     instruction.add_apply_action(action)
 
     action_order += 1
@@ -158,8 +195,11 @@ def of_demo_31():
     match = Match()
 
     match.set_in_port(match_in_port)
-    match.set_eth_type(match_ip_eth_type)
-    match.set_ipv4_dst(match_ipv4_dst)
+    match.set_eth_type(match_eth_type)
+    match.set_ip_proto(match_ip_proto)
+    match.set_ipv4_src(match_ipv4_src_addr)
+    match.set_ipv4_dst(match_ipv4_dst_addr)
+    match.set_tcp_dst_port(match_tcp_dst_port)
 
     flow_entry1.add_match(match)
 
@@ -182,29 +222,47 @@ def of_demo_31():
     # ---------------------------------------------------
     table_id = 0
     flow_id += 1
-    flow_name = "Set Field (IP DSCP) action"
-    priority = 600
-    cookie = 1000
+    flow_name = "Modify IP packet example2"
+    priority = 900
+    cookie = 1300
 
-    match_in_port = 109
+    match_in_port = 110
     match_eth_type = ETH_TYPE_IPv4
-    match_ipv4_dst = "192.1.2.3/32"
+    match_ip_proto = IP_PROTO_UDP
+    match_ipv4_src_addr = "10.1.0.0/16"
+    match_ipv4_dst_addr = "168.1.1.101/32"
+    match_udp_dst_port = 1812
 
-    mod_ip_dscp = IP_DSCP_CS5
-
-    act_out_port = 112
+    act_mod_ipv4_src_addr = "172.101.1.9/32"
+    act_mod_ipv4_dst_addr = "172.101.1.1/32"
+    act_mod_udp_src_port = 5555
+    act_mod_udp_dst_port = 7777
+    act_out_port = 120
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Input Port (%s)\n"
            "                Ethernet Type (%s)\n"
-           "                IPv4 Destination Address (%s)" %
+           "                IP Protocol (%s)\n"
+           "                IPv4 Source Address (%s)\n"
+           "                IPv4 Destination Address (%s)\n"
+           "                UDP Destination Port (%s)" %
            (match_in_port,
-            hex(match_ip_eth_type),
-            match_ipv4_dst))
-    print ("        Actions: Set Field (IP DSCP %s)\n"
-           "                 Output (Port number %s)" %
-           (mod_ip_dscp, act_out_port))
+            hex(match_eth_type),
+            match_ip_proto,
+            match_ipv4_src_addr,
+            match_ipv4_dst_addr,
+            match_udp_dst_port))
+    print ("        Actions: Set Field (IPv4 Source Address %s)\n"
+           "                 Set Field (IPv4 Destination Address %s)\n"
+           "                 Set Field (UDP Source Port %s)\n"
+           "                 Set Field (UDP Destination Port %s)\n"
+           "                 Output (%s)" %
+           (act_mod_ipv4_src_addr,
+            act_mod_ipv4_dst_addr,
+            act_mod_udp_src_port,
+            act_mod_udp_dst_port,
+            act_out_port))
 
     time.sleep(rundelay)
 
@@ -225,7 +283,22 @@ def of_demo_31():
 
     action_order = 0
     action = SetFieldAction(action_order)
-    action.set_ip_dscp(mod_ip_dscp)
+    action.set_ipv4_src(act_mod_ipv4_src_addr)
+    instruction.add_apply_action(action)
+
+    action_order += 1
+    action = SetFieldAction(action_order)
+    action.set_ipv4_dst(act_mod_ipv4_dst_addr)
+    instruction.add_apply_action(action)
+
+    action_order += 1
+    action = SetFieldAction(action_order)
+    action.set_udp_src_port(act_mod_udp_src_port)
+    instruction.add_apply_action(action)
+
+    action_order += 1
+    action = SetFieldAction(action_order)
+    action.set_udp_dst_port(act_mod_udp_dst_port)
     instruction.add_apply_action(action)
 
     action_order += 1
@@ -240,7 +313,10 @@ def of_demo_31():
 
     match.set_in_port(match_in_port)
     match.set_eth_type(match_eth_type)
-    match.set_ipv4_dst(match_ipv4_dst)
+    match.set_ip_proto(match_ip_proto)
+    match.set_ipv4_src(match_ipv4_src_addr)
+    match.set_ipv4_dst(match_ipv4_dst_addr)
+    match.set_udp_dst_port(match_udp_dst_port)
 
     flow_entry2.add_match(match)
 
@@ -270,4 +346,4 @@ def of_demo_31():
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 if __name__ == "__main__":
-    of_demo_31()
+    of_demo_40()

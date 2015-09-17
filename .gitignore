@@ -67,8 +67,10 @@ target/
 *.sublime-workspace
 
 tests/test_results.txt
+tests/test_result.txt
 
-# IDE (Eclipse/PyDev) settings
+# IDE (Eclipse/PyDev)
+.settings
 .project
 .pydevproject
 
