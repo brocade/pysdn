@@ -48,7 +48,7 @@ from pybvc.netconfdev.vrouter.vpn import Vpn
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 
-if __name__ == "__main__":
+def vr_demo_9():
 
     f = "cfg4.yml"
     d = {}
@@ -336,3 +336,6 @@ if __name__ == "__main__":
     print ("\n")
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     print (">>> Demo End")
+
+if __name__ == "__main__":
+    vr_demo_9()
