@@ -1,17 +1,54 @@
-# Controller specification
-ctrlIpAddr: "172.22.18.186"
-#ctrlIpAddr: "172.22.18.245"
-ctrlPortNum: "8181"
-ctrlUname: 'admin'
-ctrlPswd:  'admin'
+##############################################################################
+#
+#    This configuration file contains information used by example commands.
+#    That includes information about a Controller to be communicated to
+#    and a NETCONF device being managed by the Controller.
+#
+#    Following configuration parameters are required:
+#
+#    ctrlIpAddr    - IP address of the Controller
+#    ctrlPortNum   - TCP/UDP destination port number on the Controller
+#    ctrlUname     - administrator user name on the Controller
+#    ctrlPswd      - administrator user password on the Controller
+#
+#    nodeName      - NETCONF device identifier to be set on the Controller
+#    nodeIpAddr    - IP address of the NETCONF device to be used by
+#                    the Controller for establishing management session.
+#    nodePortNum   - TCP/UDP destination port number configured on the
+#                    NETCONF device for communication over NETCONF protocol
+#    nodeUname     - administrator user name on the NETCONF device
+#    nodePswd      - administrator user password on the NETCONF device
+#
+#    Example of configuration:
+#
+#    ctrlIpAddr: 192.0.2.168
+#    ctrlPortNum: 8181
+#    ctrlUname: "name"
+#    ctrlPswd: "password"
+#
+#    nodeName: "deviceName"
+#    nodeIpAddr: 203.0.113.11
+#    nodePortNum: 830
+#    nodeUname: "name"
+#    nodePswd: "password"
+#
+#    NOTE: Please do not publish this file to the repository with the
+#          changes that are specific to your local network setup
+#
+##############################################################################
 
-# NetconfNode specification
-nodeName: "vRouter"
-#nodeIpAddr: "172.22.17.107"
-#nodeIpAddr: "172.22.17.109"
-#nodeName: "mbp108"
-#nodeIpAddr: "172.22.17.108"
-nodeIpAddr: "172.22.17.110"
+# Set the following parameters according to your local network
+# environment setup (please take a look at NOTE in above)
+
+# Controller
+ctrlIpAddr: 192.0.2.168
+ctrlPortNum: 8181
+ctrlUname: "name"
+ctrlPswd: "password"
+
+# NETCONF device
+nodeName: "deviceName"
+nodeIpAddr: 203.0.113.11
 nodePortNum: 830
-nodeUname: "vyatta"
-nodePswd: "vyatta"
+nodeUname: "name"
+nodePswd: "password"

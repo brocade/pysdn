@@ -43,20 +43,48 @@ import time
 
 from pybvc.controller.controller import Controller
 from pybvc.openflowdev.ofswitch import (OFSwitch,
+                                        FlowEntry,
+                                        Match,
+                                        Instruction,
+                                        GroupAction,
                                         GroupEntry,
                                         GroupBucket,
                                         OutputAction)
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.status import STATUS
-from pybvc.common.constants import (OFPGT_ALL)
+from pybvc.common.constants import (OFPGT_ALL, ETH_TYPE_IPv4)
 
 
-def print_groups(lcfg, loper):
+def delete_flows(ofswitch, table_id, flow_ids):
+    for flow_id in flow_ids:
+        result = ofswitch.delete_flow(table_id, flow_id)
+        status = result.get_status()
+        if(status.eq(STATUS.OK)):
+            print ("<<< Flow with id of '%s' successfully removed "
+                   "from the Controller" % flow_id)
+        else:
+            print ("!!!Flow '%s' removal error, reason: %s" %
+                   (flow_id, status.brief()))
+
+
+def delete_groups(ofswitch, group_ids):
+    for group_id in group_ids:
+        result = ofswitch.delete_group(group_id)
+        status = result.get_status()
+        if(status.eq(STATUS.OK)):
+            print ("<<< Group '%s' successfully removed from the Controller" %
+                   group_id)
+        else:
+            print ("!!!Group '%s' removal error, reason: %s" %
+                   (group_id, status.brief()))
+
+
+def print_groups(cfg, oper):
     q = 10  # number of list items to be in a single chunk (output string)
     print "\n".strip()
     s = 'Configured Groups IDs'
-    if lcfg:
-        chunks = [lcfg[x:x+q] for x in xrange(0, len(lcfg), q)]
+    if cfg:
+        chunks = [cfg[x:x+q] for x in xrange(0, len(cfg), q)]
         print "        %s  :" % s,
         for i in range(0, len(chunks)):
             n = 0 if i == 0 else len(s) + 18
@@ -65,8 +93,8 @@ def print_groups(lcfg, loper):
         print "        %s  : %s" % (s, "none")
 
     s = 'Operational Groups IDs'
-    if loper:
-        chunks = [loper[x:x+q] for x in xrange(0, len(loper), q)]
+    if oper:
+        chunks = [oper[x:x+q] for x in xrange(0, len(oper), q)]
         print "        %s :" % s,
         for i in range(0, len(chunks)):
             n = 0 if i == 0 else len(s) + 18
@@ -229,18 +257,81 @@ def of_demo_33():
     # configuration and operational data stores
     print_groups(grp_ids_cfg, grp_ids_oper)
 
+    first_flow_id = 110
+    # ---------------------------------------------------
+    # First flow entry
+    # ---------------------------------------------------
+    table_id = 0
+    flow_id = first_flow_id
+    flow_name = "Group action example"
+    priority = 1000
+    cookie = 1400
+
+    match_in_port = 109
+    match_eth_type = ETH_TYPE_IPv4
+
+    print "\n".strip()
+    print ("<<< Set OpenFlow flow on the Controller")
+    print ("        Match: Input Port (%s)\n"
+           "               Ethernet Type (%s)" %
+           (match_in_port, hex(match_eth_type)))
+    print ("        Actions: Apply Group (%s)\n" % group_id)
+
+    time.sleep(rundelay)
+
+    # Allocate a placeholder for the Flow Entry
+    flow_entry1 = FlowEntry()
+
+    # Generic attributes of the Flow Entry
+    flow_entry1.set_flow_table_id(table_id)
+    flow_entry1.set_flow_name(flow_name)
+    flow_entry1.set_flow_id(flow_id)
+    flow_entry1.set_flow_cookie(cookie)
+    flow_entry1.set_flow_priority(priority)
+    flow_entry1.set_flow_hard_timeout(0)
+    flow_entry1.set_flow_idle_timeout(0)
+
+    # Instructions/Actions for the Flow Entry
+    instruction = Instruction(instruction_order=0)
+
+    action_order = 0
+    action = GroupAction(action_order)
+    action.set_group_id(group_id)
+    instruction.add_apply_action(action)
+
+    flow_entry1.add_instruction(instruction)
+
+    # Match Fields for the Flow Entry
+    match = Match()
+
+    match.set_in_port(match_in_port)
+    match.set_eth_type(match_eth_type)
+
+    flow_entry1.add_match(match)
+
+    print ("<<< Flow to send:")
+    print flow_entry1.get_payload()
+    time.sleep(rundelay)
+    result = ofswitch.add_modify_flow(flow_entry1)
+    status = result.get_status()
+    if(status.eq(STATUS.OK)):
+        print ("<<< Flow successfully added to the Controller")
+    else:
+        print ("\n")
+        print ("!!!Demo terminated, reason: %s" % status.detailed())
+        delete_groups(ofswitch, grp_ids_cfg)
+        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+        exit(0)
+
+    print "\n".strip()
+    print ("<<< Remove all flows from the Controller")
+    time.sleep(rundelay)
+    delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+
     print "\n".strip()
     print ("<<< Remove all groups from the Controller")
-    for group_id in grp_ids_cfg:
-        result = ofswitch.delete_group(group_id)
-        status = result.get_status()
-        if(status.eq(STATUS.OK)):
-            print ("<<< Group '%s' successfully removed from the Controller" %
-                   group_id)
-        else:
-            print ("\n")
-            print ("!!!Error, failed to remove group '%s', reason: %s" %
-                   (group_id, status.detailed()))
+    time.sleep(rundelay)
+    delete_groups(ofswitch, grp_ids_cfg)
 
     print ("\n").strip()
     print ("<<< Get OpenFlow Groups Information")

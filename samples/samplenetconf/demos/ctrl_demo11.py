@@ -97,6 +97,34 @@ def nc_demo_11():
         print ("!!!Demo terminated, reason: %s" % status.brief())
         exit(0)
 
+    node_configured = False
+    result = ctrl.check_node_config_status(nodeName)
+    status = result.get_status()
+    if(status.eq(STATUS.NODE_CONFIGURED)):
+        node_configured = True
+    elif(status.eq(STATUS.DATA_NOT_FOUND)):
+        node_configured = False
+    else:
+        print ("\n")
+        print "Failed to get configuration status for the '%s'" % nodeName
+        print ("!!!Demo terminated, reason: %s" % status.detailed())
+        exit(0)
+
+    if node_configured:
+        print ("\n")
+        print ("<<< '%s' is already configured on the Controller" % nodeName)
+        print ("Unmounting '%s' from the Controller" % nodeName)
+        time.sleep(rundelay)
+        result = ctrl.delete_netconf_node(nodename=nodeName)
+        status = result.get_status()
+        if(status.eq(STATUS.OK)):
+            print ("<<< '%s' NETCONF node was successfully removed "
+                   "from the Controller" % nodeName)
+        else:
+            print ("\n")
+            print ("!!!Demo terminated, reason: %s" % status.brief())
+            exit(0)
+
     print ("\n")
     time.sleep(rundelay)
     print ("<<< Creating new '%s' NETCONF node" % nodeName)

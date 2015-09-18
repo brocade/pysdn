@@ -57,7 +57,8 @@ from pybvc.common.utils import (find_key_values_in_dict,
                                 dbg_print)
 from pybvc.controller.inventory import (GroupFeatures,
                                         GroupDescription,
-                                        GroupStatistics)
+                                        GroupStatistics,
+                                        QueueStats)
 
 
 class OFSwitch(OpenflowNode):
@@ -857,6 +858,80 @@ class OFSwitch(OpenflowNode):
     def get_configured_GroupEntries(self):
         return self.get_GroupEntries(False)
 
+    def get_port_queue_stats(self, port_num, queue_id, decode_obj=False):
+        status = OperStatus()
+        queue_stats = None
+        s = ("opendaylight-queue-statistics:"
+             "flow-capable-node-connector-queue-statistics")
+        templateUrlExt = ("/node-connector/{}:{}/"
+                          "flow-node-inventory:queue/{}/") + s
+        ctrl = self.ctrl
+        myname = self.name
+        url = ctrl.get_node_operational_url(myname)
+        urlext = templateUrlExt.format(myname, port_num, queue_id)
+        url += urlext
+
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            d = json.loads(resp.content).get(s, None)
+            if d:
+                queue_stats = QueueStats(queue_id, d) if decode_obj else d
+            status.set_status(STATUS.OK
+                              if queue_stats
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+
+        return Result(status, queue_stats)
+
+    def get_port_queues_stats(self, port_num, decode_obj=False):
+        status = OperStatus()
+        queue_stats = []
+        templateUrlExt = "/node-connector/{}:{}/"
+        ctrl = self.ctrl
+        myname = self.name
+        url = ctrl.get_node_operational_url(myname)
+        urlext = templateUrlExt.format(myname, port_num)
+        url += urlext
+
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p = 'node-connector'
+            l = json.loads(resp.content).get(p)
+            if isinstance(l, list) and isinstance(l[0], dict):
+                p1 = 'flow-node-inventory:queue'
+                l1 = l[0].get(p1)
+                if isinstance(l1, list) and l1:
+                    p2 = 'queue-id'
+                    p3 = ('opendaylight-queue-statistics:'
+                          'flow-capable-node-connector-queue-statistics')
+                    for item in l1:
+                        qi = item.get(p2)
+                        qs = item.get(p3)
+                        if qi is not None and qs is not None:
+                            stats = QueueStats(qi, qs) if decode_obj else qs
+                            queue_stats.append(stats)
+
+            status.set_status(STATUS.OK
+                              if queue_stats
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+
+        return Result(status, queue_stats)
+
 
 class FlowEntry(object):
     """ Class for creating and interacting with OpenFlow flows """
@@ -1554,9 +1629,9 @@ class Instruction():
             elif (p22 in d):
                 action = GroupAction(order=action_order, d=d[p22])
             elif (p23 in d):
-                action = SetIpTTLAction(order=action_order, d=d[p23])
+                action = SetNwTTLAction(order=action_order, d=d[p23])
             elif (p24 in d):
-                action = DecIpTTLAction(order=action_order)
+                action = DecNwTTLAction(order=action_order)
             elif (p25 in d):
                 action = SetFieldAction(order=action_order, d=d[p25])
             elif (p26 in d):
@@ -2178,8 +2253,8 @@ class SetMplsTTLAction(Action):
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
 
-    def set_mpls_ttl(self, mpls_ttl):
-        self.set_mpls_ttl_action['mpls_ttl'] = mpls_ttl
+    def set_ttl(self, ttl):
+        self.set_mpls_ttl_action['mpls_ttl'] = ttl
 
 
 class DecMplsTTLAction(Action):
@@ -2193,7 +2268,7 @@ class DecMplsTTLAction(Action):
         self.dec_mpls_ttl = {}
 
 
-class SetIpTTLAction(Action):
+class SetNwTTLAction(Action):
     """ Replace the existing IPv4 TTL or IPv6 Hop Limit and
         update the IP checksum.
         Only applies to IPv4 and IPv6 packets.
@@ -2201,7 +2276,7 @@ class SetIpTTLAction(Action):
     """
 
     def __init__(self, order=0, ip_ttl=None, d=None):
-        super(SetIpTTLAction, self).__init__(order)
+        super(SetNwTTLAction, self).__init__(order)
         if (d is not None):
             self.__init_from_dict__(d)
             return
@@ -2214,16 +2289,16 @@ class SetIpTTLAction(Action):
                 if (k == 'nw_ttl'):
                     self.set_ip_ttl(v)
                 else:
-                    print ("[SetIpTTLAction] TBD -> k=%s, v=%s" % (k, v))
+                    print ("[SetNwTTLAction] TBD -> k=%s, v=%s" % (k, v))
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
 
-    def set_ip_ttl(self, ip_ttl):
-        self.set_nw_ttl_action['nw_ttl'] = ip_ttl
+    def set_ttl(self, ttl):
+        self.set_nw_ttl_action['nw_ttl'] = ttl
 
 
-class DecIpTTLAction(Action):
+class DecNwTTLAction(Action):
     """ Decrement the IPv4 TTL or IPv6 Hop Limit field and
         update the IP checksum.
         Only applies to IPv4 and IPv6 packets.
@@ -2231,7 +2306,7 @@ class DecIpTTLAction(Action):
     """
 
     def __init__(self, order=0):
-        super(DecIpTTLAction, self).__init__(order)
+        super(DecNwTTLAction, self).__init__(order)
         self.dec_nw_ttl = {}
 
 
@@ -2282,13 +2357,27 @@ class SetFieldAction(Action):
             return
         self.set_field = {'vlan_match': None,
                           'protocol_match_fields': None,
-                          'ip_match': None}
+                          'ip_match': None,
+                          'ethernet_match': None,
+                          'ipv4_source': None,
+                          'ipv4_destination': None,
+                          'tcp_source_port': None,
+                          'tcp_destination_port': None,
+                          'udp_source_port': None,
+                          'udp_destination_port': None}
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
             self.set_field = {'vlan_match': None,
                               'protocol_match_fields': None,
-                              'ip_match': None}
+                              'ip_match': None,
+                              'ethernet_match': None,
+                              'ipv4_source': None,
+                              'ipv4_destination': None,
+                              'tcp_source_port': None,
+                              'tcp_destination_port': None,
+                              'udp_source_port': None,
+                              'udp_destination_port': None}
             for k, v in d.items():
                 if (k == 'vlan_match'):
                     self.set_field[k] = VlanMatch(v)
@@ -2296,6 +2385,18 @@ class SetFieldAction(Action):
                     self.set_field[k] = ProtocolMatchFields(v)
                 elif (k == 'ethernet_match'):
                     self.set_field[k] = EthernetMatch(v)
+                elif (k == 'ipv4_source'):
+                    self.set_field[k] = v
+                elif (k == 'ipv4_destination'):
+                    self.set_field[k] = v
+                elif (k == 'tcp_source_port'):
+                    self.set_field[k] = v
+                elif (k == 'tcp_destination_port'):
+                    self.set_field[k] = v
+                elif (k == 'udp_source_port'):
+                    self.set_field[k] = v
+                elif (k == 'udp_destination_port'):
+                    self.set_field[k] = v
                 else:
                     print ("[SetFieldAction] TBD -> k=%s, v=%s" % (k, v))
         else:
@@ -2315,6 +2416,39 @@ class SetFieldAction(Action):
             if (vm is not None):
                 res = vm.get_vid()
         return res
+
+    def set_vlan_pcp(self, vlan_pcp):
+        if(self.set_field['vlan_match'] is None):
+            self.set_field['vlan_match'] = VlanMatch()
+        self.set_field['vlan_match'].set_pcp(vlan_pcp)
+
+    def set_eth_src(self, mac_addr):
+        if(self.set_field['ethernet_match'] is None):
+            self.set_field['ethernet_match'] = EthernetMatch()
+        self.set_field['ethernet_match'].set_src(mac_addr)
+
+    def set_eth_dst(self, mac_addr):
+        if(self.set_field['ethernet_match'] is None):
+            self.set_field['ethernet_match'] = EthernetMatch()
+        self.set_field['ethernet_match'].set_dst(mac_addr)
+
+    def set_ipv4_src(self, ipv4_addr):
+        self.set_field['ipv4_source'] = ipv4_addr
+
+    def set_ipv4_dst(self, ipv4_addr):
+        self.set_field['ipv4_destination'] = ipv4_addr
+
+    def set_tcp_src_port(self, tcp_port):
+        self.set_field['tcp_source_port'] = tcp_port
+
+    def set_tcp_dst_port(self, tcp_port):
+        self.set_field['tcp_destination_port'] = tcp_port
+
+    def set_udp_src_port(self, udp_port):
+        self.set_field['udp_source_port'] = udp_port
+
+    def set_udp_dst_port(self, udp_port):
+        self.set_field['udp_destination_port'] = udp_port
 
     def set_mpls_label(self, mpls_label):
         if(self.set_field['protocol_match_fields'] is None):
@@ -2780,8 +2914,8 @@ class Match(object):
             res = ipm.get_ip_proto()
         return res
 
-    def set_udp_src_port(self, udp_src_port):
-        self.udp_source_port = udp_src_port
+    def set_udp_src_port(self, udp_port):
+        self.udp_source_port = udp_port
 
     def get_udp_src_port(self):
         res = None
@@ -2790,8 +2924,8 @@ class Match(object):
             res = getattr(self, p)
         return res
 
-    def set_udp_dst_port(self, udp_dst_port):
-        self.udp_destination_port = udp_dst_port
+    def set_udp_dst_port(self, udp_port):
+        self.udp_destination_port = udp_port
 
     def get_udp_dst_port(self):
         res = None
@@ -2800,8 +2934,8 @@ class Match(object):
             res = getattr(self, p)
         return res
 
-    def set_tcp_src_port(self, tcp_src_port):
-        self.tcp_source_port = tcp_src_port
+    def set_tcp_src_port(self, tcp_port):
+        self.tcp_source_port = tcp_port
 
     def get_tcp_src_port(self):
         res = None
@@ -2810,8 +2944,8 @@ class Match(object):
             res = getattr(self, p)
         return res
 
-    def set_tcp_dst_port(self, tcp_dst_port):
-        self.tcp_destination_port = tcp_dst_port
+    def set_tcp_dst_port(self, tcp_port):
+        self.tcp_destination_port = tcp_port
 
     def get_tcp_dst_port(self):
         res = None

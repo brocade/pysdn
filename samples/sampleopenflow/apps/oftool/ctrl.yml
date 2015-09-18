@@ -1,22 +1,32 @@
-#--------------------------------------
-# Controller specific attributes
-#--------------------------------------
+##############################################################################
+#
+#    This configuration file contains information used by the 'oftool'
+#    sample application for communication with a remote Controller.
+#
+#    Following configuration parameters are required:
+#
+#    ipaddr - IP address of the Controller
+#    port   - TCP/UDP destination port number on the Controller
+#    name   - administrator user name on the Controller
+#    pswd   - administrator user password on the Controller
+#
+#    Example of configuration:
+#
+#    ipaddr: 192.0.2.168
+#    port: 8181
+#    name: "name"
+#    pswd: "password"
+#
+#    NOTE: Please do not publish this file to the repository with the
+#          changes that are specific to your local network setup
+#
+##############################################################################
 
-# IP address
-ipaddr: 172.22.18.186
-#ipaddr: 54.85.62.30
-#ipaddr: 172.16.1.11
-#ipaddr: 54.85.212.52
-#ipaddr: 54.165.249.196
+# Set the following parameters according to your local network
+# environment setup (please take a look at NOTE in above)
 
-# TCP port number
+# Controller
+ipaddr: 192.0.2.168
 port: 8181
-#port: 8181
-#port: 8080
-#port: 8102
-
-# Admin user name
-name: admin
-
-# Admin user password
-pswd: admin
+name: "name"
+pswd: "password"

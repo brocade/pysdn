@@ -25,7 +25,7 @@
 # CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
 # SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)g
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 
@@ -326,6 +326,14 @@ class OpenFlowCapableNode():
             port_id = item.get_port_id()
             port_ids.append(port_id)
         return sorted(port_ids)
+
+    def get_port_id(self, port_num):
+        pid = None
+        for item in self.ports:
+            if(item.get_port_number() == port_num):
+                pid = item.get_port_id()
+                break
+        return pid
 
     def get_port_number(self, port_id):
         pnum = None
@@ -724,6 +732,61 @@ class GroupDescription():
 
     def get_group_id(self):
         return self.group_id
+
+
+class QueueStats():
+    def __init__(self, queue_id, stats):
+        self.qid = queue_id
+        if (isinstance(stats, dict)):
+            d = dict_keys_dashed_to_underscored(stats)
+            for k, v in d.items():
+                setattr(self, k, v)
+        else:
+            raise TypeError("[QueueStats] wrong argument type '%s'"
+                            " (dictionary is expected)" % type(stats))
+
+    def to_json(self):
+        """ Return this object as JSON """
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
+    def queue_id(self):
+        return self.qid
+
+    def tx_pkts(self):
+        ''' Number of transmitted packets '''
+        p = 'transmitted_packets'
+        res = getattr(self, p) if hasattr(self, p) else None
+        return res
+
+    def tx_bytes(self):
+        ''' Number of transmitted bytes '''
+        p = 'transmitted_bytes'
+        res = getattr(self, p) if hasattr(self, p) else None
+        return res
+
+    def tx_errs(self):
+        ''' Number of packets dropped due to overrun '''
+        p = 'transmission_errors'
+        res = getattr(self, p) if hasattr(self, p) else None
+        # Following statement is a temporary hack:
+        #    Controller always returns value that
+        #    is equal to the upper max range for the 'Counter64'
+        #    IETF integer type
+        res = 0 if res == 18446744073709551615 else res
+        return res
+
+    def time_alive(self):
+        ''' Time queue has been alive '''
+        res = None
+        p = 'duration'
+        if hasattr(self, p):
+            v = getattr(self, p)
+            if (type(v) is dict):
+                s = v.get('second', '')
+                ns = v.get('nanosecond', '')
+                res = float(s * 1000000000 + ns) / 1000000000
+        return res
 
 
 class NetconfCapableNode():

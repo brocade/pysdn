@@ -155,6 +155,34 @@ class TestOpenFlowSamples(unittest.TestCase):
         from demo36 import of_demo_36
         assert of_demo_36() is None
 
+    def test_of37(self):
+        from demo37 import of_demo_37
+        assert of_demo_37() is None
+
+    def test_of38(self):
+        from demo38 import of_demo_38
+        assert of_demo_38() is None
+
+    def test_of39(self):
+        from demo39 import of_demo_39
+        assert of_demo_39() is None
+
+    def test_of40(self):
+        from demo40 import of_demo_40
+        assert of_demo_40() is None
+
+    def test_of41(self):
+        from demo41 import of_demo_41
+        assert of_demo_41() is None
+
+    def test_of42(self):
+        from demo42 import of_demo_42
+        assert of_demo_42() is None
+
+    def test_of43(self):
+        from demo43 import of_demo_43
+        assert of_demo_43() is None
+
     def test_nc1(self):
         from ctrl_demo1 import nc_demo_1
         assert nc_demo_1() is None

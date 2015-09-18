@@ -46,13 +46,12 @@ from pybvc.openflowdev.ofswitch import (OFSwitch,
                                         FlowEntry,
                                         Match,
                                         Instruction,
-                                        SetFieldAction,
-                                        SetNwTosAction,
+                                        SetNwTTLAction,
+                                        DecNwTTLAction,
                                         OutputAction)
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.status import STATUS
-from pybvc.common.constants import (ETH_TYPE_IPv4,
-                                    IP_DSCP_CS5)
+from pybvc.common.constants import ETH_TYPE_IPv4
 
 
 def delete_flows(ofswitch, table_id, flow_ids):
@@ -67,7 +66,7 @@ def delete_flows(ofswitch, table_id, flow_ids):
                    (flow_id, status.brief()))
 
 
-def of_demo_31():
+def of_demo_41():
     f = "cfg.yml"
     d = {}
     if(load_dict_from_file(f, d) is False):
@@ -86,7 +85,7 @@ def of_demo_31():
         exit(0)
 
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    print ("<<< Demo 31 Start")
+    print ("<<< Demo 41 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     ctrl = Controller(ctrlIpAddr, ctrlPortNum, ctrlUname, ctrlPswd)
@@ -101,17 +100,16 @@ def of_demo_31():
     # ---------------------------------------------------
     table_id = 0
     flow_id = first_flow_id
-    flow_name = "Set IPv4 ToS action"
-    priority = 600
-    cookie = 1000
+    flow_name = "Modify IP TTL example1"
+    priority = 800
+    cookie = 1200
 
-    match_in_port = 109
-    match_ip_eth_type = ETH_TYPE_IPv4
-    match_ipv4_dst = "10.1.2.3/32"
+    match_in_port = 1
+    match_eth_type = ETH_TYPE_IPv4
+    match_ipv4_dst_addr = "10.0.0.0/8"
 
-    mod_nw_tos = 8
-
-    act_out_port = 112
+    act_mod_ip_ttl = 3
+    act_out_port = 2
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
@@ -119,11 +117,11 @@ def of_demo_31():
            "                Ethernet Type (%s)\n"
            "                IPv4 Destination Address (%s)" %
            (match_in_port,
-            hex(match_ip_eth_type),
-            match_ipv4_dst))
-    print ("        Actions: Set IPv4 ToS (tos %s)\n"
-           "                 Output (Port number %s)" %
-           (mod_nw_tos, act_out_port))
+            hex(match_eth_type),
+            match_ipv4_dst_addr))
+    print ("        Actions: Set IP TTL (%s)\n"
+           "                 Output (%s)" %
+           (act_mod_ip_ttl, act_out_port))
 
     time.sleep(rundelay)
 
@@ -143,8 +141,8 @@ def of_demo_31():
     instruction = Instruction(instruction_order=0)
 
     action_order = 0
-    action = SetNwTosAction(action_order)
-    action.set_tos(mod_nw_tos)
+    action = SetNwTTLAction(action_order)
+    action.set_ttl(act_mod_ip_ttl)
     instruction.add_apply_action(action)
 
     action_order += 1
@@ -158,8 +156,8 @@ def of_demo_31():
     match = Match()
 
     match.set_in_port(match_in_port)
-    match.set_eth_type(match_ip_eth_type)
-    match.set_ipv4_dst(match_ipv4_dst)
+    match.set_eth_type(match_eth_type)
+    match.set_ipv4_dst(match_ipv4_dst_addr)
 
     flow_entry1.add_match(match)
 
@@ -182,29 +180,27 @@ def of_demo_31():
     # ---------------------------------------------------
     table_id = 0
     flow_id += 1
-    flow_name = "Set Field (IP DSCP) action"
-    priority = 600
-    cookie = 1000
+    flow_name = "Modify IP TTL example2"
+    priority = 800
+    cookie = 1200
 
-    match_in_port = 109
+    match_in_port = 2
     match_eth_type = ETH_TYPE_IPv4
-    match_ipv4_dst = "192.1.2.3/32"
+    match_ipv4_src_addr = "10.0.0.0/8"
 
-    mod_ip_dscp = IP_DSCP_CS5
-
-    act_out_port = 112
+    act_out_port = 1
 
     print "\n"
     print ("<<< Set OpenFlow flow on the Controller")
     print ("        Match:  Input Port (%s)\n"
            "                Ethernet Type (%s)\n"
-           "                IPv4 Destination Address (%s)" %
+           "                IPv4 Source Address (%s)" %
            (match_in_port,
-            hex(match_ip_eth_type),
-            match_ipv4_dst))
-    print ("        Actions: Set Field (IP DSCP %s)\n"
-           "                 Output (Port number %s)" %
-           (mod_ip_dscp, act_out_port))
+            hex(match_eth_type),
+            match_ipv4_src_addr))
+    print ("        Actions: Decrement IP TTL\n"
+           "                 Output (%s)" %
+           (act_out_port))
 
     time.sleep(rundelay)
 
@@ -224,8 +220,7 @@ def of_demo_31():
     instruction = Instruction(instruction_order=0)
 
     action_order = 0
-    action = SetFieldAction(action_order)
-    action.set_ip_dscp(mod_ip_dscp)
+    action = DecNwTTLAction(action_order)
     instruction.add_apply_action(action)
 
     action_order += 1
@@ -240,7 +235,7 @@ def of_demo_31():
 
     match.set_in_port(match_in_port)
     match.set_eth_type(match_eth_type)
-    match.set_ipv4_dst(match_ipv4_dst)
+    match.set_ipv4_src(match_ipv4_src_addr)
 
     flow_entry2.add_match(match)
 
@@ -270,4 +265,4 @@ def of_demo_31():
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 if __name__ == "__main__":
-    of_demo_31()
+    of_demo_41()
