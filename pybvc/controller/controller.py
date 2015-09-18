@@ -1120,7 +1120,7 @@ class Controller():
 
         return Result(status, resp)
 
-    def delete_netconf_node(self, netconfdev):
+    def delete_netconf_node(self, netconfdev=None, nodename=None):
         """ Disconnect a netconf device from the controller
         :param netconfdev:
                          :class:`pybvc.controller.netconfnode.NetconfNode`
@@ -1141,7 +1141,9 @@ class Controller():
                        "yang-ext:mount/config:modules/module/"
                        "odl-sal-netconf-connector-cfg:"
                        "sal-netconf-connector/{}")
-        url = templateUrl.format(self.ipAddr, self.portNum, netconfdev.name)
+        assert(netconfdev or nodename)
+        nm = netconfdev.name if netconfdev else nodename
+        url = templateUrl.format(self.ipAddr, self.portNum, nm)
 
         resp = self.http_delete_request(url, data=None, headers=None)
         if(resp is None):
