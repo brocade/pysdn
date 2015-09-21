@@ -1,9 +1,40 @@
-# Controller specification
-ctrlIpAddr: "192.168.59.103"
-#ctrlIpAddr: "172.22.18.186"
-#ctrlIpAddr: "172.22.18.245"
-ctrlIpAddr: "172.22.17.5"
-ctrlPortNum: "8181"
-ctrlUname: 'admin'
-ctrlPswd:  'admin'
+##############################################################################
+#
+#    This configuration file contains information used by the test scripts
+#    for communication with a remote Controller.
+#
+#    Following configuration parameters are required:
+#
+#    ctrlIpAddr    - IP address of the Controller
+#    ctrlPortNum   - TCP/UDP destination port number on the Controller
+#    ctrlUname     - administrator user name on the Controller
+#    ctrlPswd      - administrator user password on the Controller
+#
+#    rundelay      - time interval (delay in seconds) between steps execution
+#                    in demo scripts
+#
+#    Example of configuration:
+#
+#    ctrlIpAddr: 192.0.2.168
+#    ctrlPortNum: 8181
+#    ctrlUname: "name"
+#    ctrlPswd: "password"
+#
+#    rundelay: 0
+#
+#    NOTE: Please do not publish this file to the repository with the
+#          changes that are specific to your local network setup
+#
+##############################################################################
+
+# Set the following parameters according to your local network
+# environment setup (please take a look at NOTE in above)
+
+# Controller
+ctrlIpAddr: 192.0.2.168
+ctrlPortNum: 8181
+ctrlUname: "name"
+ctrlPswd: "password"
+
+# Test scripts delay
 rundelay: 0

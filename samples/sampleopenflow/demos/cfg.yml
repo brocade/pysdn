@@ -39,7 +39,7 @@
 ctrlIpAddr: 192.0.2.168
 ctrlPortNum: 8181
 ctrlUname: "name"
-ctrlPswd:  "password"
+ctrlPswd: "password"
 
 # OpenFlow device
 nodeName: "openflow:1"

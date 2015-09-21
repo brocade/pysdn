@@ -1,23 +1,77 @@
-# Controller specification
-ctrlIpAddr: "172.22.17.5"
-#ctrlIpAddr: "172.22.18.186"
-ctrlPortNum: "8181"
-ctrlUname: 'admin'
-ctrlPswd:  'admin'
+##############################################################################
+#
+#    This configuration file contains information used by some demo scripts.
+#    That includes information about a Controller to be communicated to
+#    and a NETCONF device being managed by the Controller.
+#
+#    Following configuration parameters are required:
+#
+#    ctrlIpAddr    - IP address of the Controller
+#    ctrlPortNum   - TCP/UDP destination port number on the Controller
+#    ctrlUname     - administrator user name on the Controller
+#    ctrlPswd      - administrator user password on the Controller
+#
+#    nodeName      - NETCONF device identifier to be set on the Controller
+#    nodeIpAddr    - IP address of the NETCONF device to be used by
+#                    the Controller for establishing management session.
+#    nodePortNum   - TCP/UDP destination port number configured on the
+#                    NETCONF device for communication over NETCONF protocol
+#    nodeUname     - administrator user name on the NETCONF device
+#    nodePswd      - administrator user password on the NETCONF device
+#
+#    interfaceName - Name of a dataplane interface configured on the NETCONF
+#                    device for the testing purpose
+#    loopback      - Name of a loopback interface configured on the NETCONF
+#                    device for the testing purpose
+#
+#    rundelay      - time interval (delay in seconds) between steps execution
+#                    in demo scripts
+#
+#    Example of configuration:
+#
+#    ctrlIpAddr: 192.0.2.168
+#    ctrlPortNum: 8181
+#    ctrlUname: "name"
+#    ctrlPswd: "password"
+#
+#    nodeName: "deviceName"
+#    nodeIpAddr: 203.0.113.11
+#    nodePortNum: 830
+#    nodeUname: "name"
+#    nodePswd: "password"
 
-# NetconfNode specification
-nodeName: "vRouter"
-#nodeIpAddr: "172.22.17.109"
-#nodeIpAddr: "172.22.17.110"
-#nodeIpAddr: "10.6.6.140"
-nodeIpAddr: "172.22.17.65"
+#    interfaceName: "dp0p1p7"
+#    loopback: "lo4"
+#
+#    rundelay: 0
+#
+#    NOTE: Please do not publish this file to the repository with the
+#          changes that are specific to your local network setup
+#
+##############################################################################
+
+# Set the following parameters according to your local network
+# environment setup (please take a look at NOTE in above)
+
+# Controller
+ctrlIpAddr: 192.0.2.168
+ctrlPortNum: 8181
+ctrlUname: "name"
+ctrlPswd: "password"
+
+# NETCONF device
+# (It is expected by the scripts that the device is accessible on the network
+#  if this configuration is used)
+nodeName: "deviceName"
+nodeIpAddr: 203.0.113.11
 nodePortNum: 830
-nodeUname: "vyatta"
-nodePswd: "vyatta"
-rundelay: 1
+nodeUname: "name"
+nodePswd: "password"
 
-# Make sure the next Dataplane and loopback interfaces have been configured on device
-interfaceName: "dp0p224p1"
-#interfaceName: "dp0p192p1"
-#loopback: "lo5"
+# NETCONF device interfaces
+# (Make sure these interfaces are configured on the device)
+interfaceName: "dp0p1p7"
 loopback: "lo4"
+
+# Demo scripts delay
+rundelay: 0

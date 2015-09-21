@@ -43,6 +43,8 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *,cover
+tests/test_results.txt
+tests/test_result.txt
 
 # Translations
 *.mo
@@ -66,9 +68,6 @@ target/
 *.sublime-project
 *.sublime-workspace
 
-tests/test_results.txt
-tests/test_result.txt
-
 # IDE (Eclipse/PyDev)
 .settings
 .project
@@ -85,3 +84,12 @@ tmp*
 
 # Logging
 *.log
+
+# PyBVC configuration files containing
+# local site specific information
+#ctrl.yml
+#cfg.yml
+#cfg1.yml
+#cfg2.yml
+#cfg3.yml
+#cfg4.yml
