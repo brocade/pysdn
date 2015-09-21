@@ -87,9 +87,9 @@ tmp*
 
 # PyBVC configuration files containing
 # local site specific information
-#ctrl.yml
-#cfg.yml
-#cfg1.yml
-#cfg2.yml
-#cfg3.yml
-#cfg4.yml
+ctrl.yml
+cfg.yml
+cfg1.yml
+cfg2.yml
+cfg3.yml
+cfg4.yml
