@@ -81,7 +81,7 @@ def of_demo_30():
         " (such as add/remove node or flow entry) is detected\n"
         " it will be reported to the screen.\n"
         "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n"
-        )
+    )
 
     print "\n".strip()
     print description

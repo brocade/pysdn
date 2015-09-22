@@ -122,7 +122,7 @@ def nc_demo_13():
         print "         Connection status : {}".format(node.get_conn_status())
         print "\n".strip()
         print "         Initial Capabilities"
-        print "         {}".format('-'*60)
+        print "         {}".format('-' * 60)
         clist = node.get_initial_capabilities()
         for item in clist:
             print "         {}".format(item)

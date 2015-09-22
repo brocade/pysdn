@@ -97,7 +97,7 @@ def nc_demo_12():
     sym = '-'
     print "\n".strip()
     print "         {0:<25}  {1:<21}".format(s1, s2)
-    print "         {0:<25}  {1:<21}".format(sym*25, sym*21)
+    print "         {0:<25}  {1:<21}".format(sym * 25, sym * 21)
 
     assert(netconf_cfg_modules)
     for item in netconf_cfg_modules:

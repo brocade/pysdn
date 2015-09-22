@@ -202,9 +202,9 @@ class TopologyInfo():
             sym = '-'
             print "\n".strip()
             print "     {0:<15}  {1:<30}  {2:<10}".format(s1, s2, s3)
-            print "     {0:<15}  {1:<30}  {2:<10}".format(sym*15,
-                                                          sym*30,
-                                                          sym*10)
+            print "     {0:<15}  {1:<30}  {2:<10}".format(sym * 15,
+                                                          sym * 30,
+                                                          sym * 10)
             switch_ids = topo.get_switch_ids()
             for switch_id in switch_ids:
                 inv_node = inventory.get_openflow_node(switch_id)
@@ -220,7 +220,7 @@ class TopologyInfo():
             s5 = 'MAC Address'
             print "\n".strip()
             print "     {0:<15}  {1:<17}".format(s4, s5)
-            print "     {0:<15}  {1:<17}".format(sym*15, sym*17)
+            print "     {0:<15}  {1:<17}".format(sym * 15, sym * 17)
             host_ids = topo.get_host_ids()
             for host_id in host_ids:
                 topo_node = topo.get_node_by_id(host_id)
@@ -279,12 +279,12 @@ class TopologyInfo():
         print "   Number of flows : %s" % switch_inv.get_flows_cnt()
         clist = switch_inv.get_capabilities()
         g = 2
-        chunks = [clist[x:x+g] for x in xrange(0, len(clist), g)]
+        chunks = [clist[x:x + g] for x in xrange(0, len(clist), g)]
         s = 'Capabilities'
         print "   %s    :" % s,
         for i in range(0, len(chunks)):
             n = 0 if i == 0 else len(s) + 9
-            print "%s%s" % (" "*n, ", ".join(chunks[i]))
+            print "%s%s" % (" " * n, ", ".join(chunks[i]))
 
         print "\n".strip()
 
@@ -292,7 +292,7 @@ class TopologyInfo():
         s2 = "OpenFlow Id"
         sym = '-'
         print "   {0:<10}  {1:<30}".format(s1, s2)
-        print "   {0:<10}  {1:<30}".format(sym*10, sym*30)
+        print "   {0:<10}  {1:<30}".format(sym * 10, sym * 30)
         pids = switch_inv.get_port_ids()
         for pid in pids:
             pnum = switch_inv.get_port_number(pid)
@@ -388,11 +388,11 @@ class InventoryInfo():
                 clist = node.get_capabilities()
                 if len(clist) > 0:
                     g = 2
-                    chunks = [clist[x:x+g] for x in xrange(0, len(clist), g)]
+                    chunks = [clist[x:x + g] for x in xrange(0, len(clist), g)]
                     print "     %s    :" % s,
                     for i in range(0, len(chunks)):
                         n = 0 if i == 0 else len(s) + 11
-                        print "%s%s" % (" "*n, ", ".join(chunks[i]))
+                        print "%s%s" % (" " * n, ", ".join(chunks[i]))
                 else:
                     print "     %s : %s" % (s, None)
 
@@ -401,9 +401,10 @@ class InventoryInfo():
                 print "\n".strip()
                 print "     {0:<8}  {1:<10}".format(s1, s2)
                 sym = '-'
-                print "     {0:<8}  {1:<10}".format(sym*len(s1), sym*len(s2))
+                print "     {0:<8}  {1:<10}".format(sym * len(s1),
+                                                    sym * len(s2))
                 flow_tables_cnt = node.get_flow_tables_cnt()
-                for table_id in range(0, flow_tables_cnt+1):
+                for table_id in range(0, flow_tables_cnt + 1):
                     cnt = node.get_flows_in_table_cnt(table_id)
                     if (cnt != 0):
                         print "     {0:<8}  {1:<10}".format(table_id, cnt)
@@ -412,7 +413,7 @@ class InventoryInfo():
                 s2 = 'OpenFlow Id'
                 print "\n".strip()
                 print "     {0:<8}  {1:<16}".format(s1, s2)
-                print "     {0:<8}  {1:<30}".format(sym*8, sym*30)
+                print "     {0:<8}  {1:<30}".format(sym * 8, sym * 30)
                 port_ids = node.get_port_ids()
                 for port_id in port_ids:
                     port_obj = node.get_port_obj(port_id)
@@ -428,9 +429,9 @@ class InventoryInfo():
             sym = '-'
             print "\n".strip()
             print "     {0:<15}  {1:<30}  {2:<10}".format(s1, s2, s3)
-            print "     {0:<15}  {1:<30}  {2:<10}".format(sym*15,
-                                                          sym*30,
-                                                          sym*10)
+            print "     {0:<15}  {1:<30}  {2:<10}".format(sym * 15,
+                                                          sym * 30,
+                                                          sym * 10)
             for node in openflow_nodes:
                 assert(isinstance(node, OpenFlowCapableNode))
                 addr = node.get_ip_address()
@@ -488,12 +489,12 @@ class InventoryInfo():
                    switch_inv.get_max_buffers_info())
             clist = switch_inv.get_capabilities()
             g = 2
-            chunks = [clist[x:x+g] for x in xrange(0, len(clist), g)]
+            chunks = [clist[x:x + g] for x in xrange(0, len(clist), g)]
             s = 'Capabilities'
             print "   %s    :" % s,
             for i in range(0, len(chunks)):
                 n = 0 if i == 0 else len(s) + 9
-                print "%s%s" % (" "*n, ", ".join(chunks[i]))
+                print "%s%s" % (" " * n, ", ".join(chunks[i]))
 
             port_ids = switch_inv.get_port_ids()
             for port_id in port_ids:
@@ -527,11 +528,12 @@ class InventoryInfo():
                 cflist = port_inv.get_current_features()
                 if len(cflist) > 0:
                     g = 2
-                    chunks = [cflist[x:x+g] for x in xrange(0, len(cflist), g)]
+                    chunks = [cflist[x:x + g]
+                              for x in xrange(0, len(cflist), g)]
                     print "     %s :" % s,
                     for i in range(0, len(chunks)):
                         n = 0 if i == 0 else len(s) + 8
-                        print "%s%s" % (" "*n, ", ".join(chunks[i]))
+                        print "%s%s" % (" " * n, ", ".join(chunks[i]))
                 else:
                     print "     %s : %s" % (s, None)
         else:
@@ -548,21 +550,21 @@ class InventoryInfo():
                    switch_inv.get_max_buffers_info())
             clist = switch_inv.get_capabilities()
             g = 2
-            chunks = [clist[x:x+g] for x in xrange(0, len(clist), g)]
+            chunks = [clist[x:x + g] for x in xrange(0, len(clist), g)]
             s = 'Capabilities'
             print "   %s    :" % s,
             for i in range(0, len(chunks)):
                 n = 0 if i == 0 else len(s) + 9
-                print "%s%s" % (" "*n, ", ".join(chunks[i]))
+                print "%s%s" % (" " * n, ", ".join(chunks[i]))
 
             s1 = 'Table Id'
             s2 = 'Flows Cnt'
             print "\n".strip()
             print "     {0:<8}  {1:<10}".format(s1, s2)
             sym = '-'
-            print "     {0:<8}  {1:<10}".format(sym*len(s1), sym*len(s2))
+            print "     {0:<8}  {1:<10}".format(sym * len(s1), sym * len(s2))
             flow_tables_cnt = switch_inv.get_flow_tables_cnt()
-            for table_id in range(0, flow_tables_cnt+1):
+            for table_id in range(0, flow_tables_cnt + 1):
                 cnt = switch_inv.get_flows_in_table_cnt(table_id)
                 if (cnt != 0):
                     print "     {0:<8}  {1:<10}".format(table_id, cnt)
@@ -571,7 +573,7 @@ class InventoryInfo():
             s2 = 'OpenFlow Id'
             print "\n".strip()
             print "     {0:<8}  {1:<16}".format(s1, s2)
-            print "     {0:<8}  {1:<30}".format(sym*8, sym*30)
+            print "     {0:<8}  {1:<30}".format(sym * 8, sym * 30)
             port_ids = switch_inv.get_port_ids()
             for port_id in port_ids:
                 port_obj = switch_inv.get_port_obj(port_id)
@@ -796,11 +798,11 @@ class GroupInfo():
             alist = group_features.get_max_groups()
             if alist:
                 q = 1   # number of list items per output string
-                chunks = [alist[x:x+q] for x in xrange(0, len(alist), q)]
+                chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
                 print "  %s     :" % s,
                 for i in range(0, len(chunks)):
                     n = 0 if i == 0 else len(s) + 9
-                    print "%s%s" % (" "*n, ", ".join(map(str, chunks[i])))
+                    print "%s%s" % (" " * n, ", ".join(map(str, chunks[i])))
             else:
                 print "  %s     : %s" % (s, "n/a")
 
@@ -808,11 +810,11 @@ class GroupInfo():
             alist = group_features.get_types()
             if alist:
                 q = 1   # number of list items per output string
-                chunks = [alist[x:x+q] for x in xrange(0, len(alist), q)]
+                chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
                 print "  %s    :" % s,
                 for i in range(0, len(chunks)):
                     n = 0 if i == 0 else len(s) + 8
-                    print "%s%s" % (" "*n, ", ".join(chunks[i]))
+                    print "%s%s" % (" " * n, ", ".join(chunks[i]))
             else:
                 print "  %s    : %s" % (s, "n/a")
 
@@ -820,11 +822,11 @@ class GroupInfo():
             alist = group_features.get_capabilities()
             if alist:
                 q = 1   # number of list items per output string
-                chunks = [alist[x:x+q] for x in xrange(0, len(alist), q)]
+                chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
                 print "  %s   :" % s,
                 for i in range(0, len(chunks)):
                     n = 0 if i == 0 else len(s) + 7
-                    print "%s%s" % (" "*n, ", ".join(chunks[i]))
+                    print "%s%s" % (" " * n, ", ".join(chunks[i]))
             else:
                 print "  %s   : %s" % (s, "n/a")
 
@@ -835,10 +837,10 @@ class GroupInfo():
                 print "  %s        :" % s,
                 for i, alist in enumerate(actions):
                     n = 0 if i == 0 else len(s) + 12
-                    chunks = [alist[x:x+q] for x in xrange(0, len(alist), q)]
+                    chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
                     for j in range(0, len(chunks)):
                         n = 0 if i == 0 and j == 0 else len(s) + 12
-                        print "%s%s" % (" "*n, ", ".join(chunks[j]))
+                        print "%s%s" % (" " * n, ", ".join(chunks[j]))
                     print "\n".strip()
             else:
                 print "  %s     : %s" % (s, "n/a")
@@ -1102,7 +1104,7 @@ class OFToolParser(object):
                   "  -f, --file     path to the file containing flow entries\n"
                   "                 (default is './flow.json')\n"
                   "  -dry-run       show content of flow(s) to be created"
-            )
+        )
         parser.add_argument('-s', '--switch', metavar="SWITCHID")
         parser.add_argument('-f', '--file', metavar="<path>",
                             dest='flow_file',
@@ -1244,7 +1246,7 @@ class OFToolParser(object):
                   "Options:\n"
                   "  -s, --switch   switch identifier\n"
                   "  -g, --group    group identifier (integer)\n"
-            )
+        )
         parser.add_argument('-s', '--switch', metavar="SWITCHID")
         parser.add_argument('-g', '--group', metavar="GROUPID",
                             type=self.positive_int)

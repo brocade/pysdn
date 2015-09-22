@@ -49,6 +49,7 @@ from pybvc.netconfdev.vrouter.protocols import StaticRoute
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 
+
 def vr_demo_14():
 
     f = "cfg4.yml"
@@ -96,7 +97,7 @@ def vr_demo_14():
         node_configured = True
         print ("<<< '%s' is configured on the Controller" % nodeName)
     elif(status.eq(STATUS.DATA_NOT_FOUND)):
-        node_onfigured = False
+        node_configured = False
     else:
         print ("\n")
         print "Failed to get configuration status for the '%s'" % nodeName

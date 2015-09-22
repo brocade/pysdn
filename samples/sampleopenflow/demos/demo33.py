@@ -84,21 +84,21 @@ def print_groups(cfg, oper):
     print "\n".strip()
     s = 'Configured Groups IDs'
     if cfg:
-        chunks = [cfg[x:x+q] for x in xrange(0, len(cfg), q)]
+        chunks = [cfg[x:x + q] for x in xrange(0, len(cfg), q)]
         print "        %s  :" % s,
         for i in range(0, len(chunks)):
             n = 0 if i == 0 else len(s) + 18
-            print "%s%s" % (" "*n, ", ".join(map(str, chunks[i])))
+            print "%s%s" % (" " * n, ", ".join(map(str, chunks[i])))
     else:
         print "        %s  : %s" % (s, "none")
 
     s = 'Operational Groups IDs'
     if oper:
-        chunks = [oper[x:x+q] for x in xrange(0, len(oper), q)]
+        chunks = [oper[x:x + q] for x in xrange(0, len(oper), q)]
         print "        %s :" % s,
         for i in range(0, len(chunks)):
             n = 0 if i == 0 else len(s) + 18
-            print "%s%s" % (" "*n, ", ".join(map(str, chunks[i])))
+            print "%s%s" % (" " * n, ", ".join(map(str, chunks[i])))
     else:
         print "        %s : %s" % (s, "none")
 
@@ -320,13 +320,13 @@ def of_demo_33():
         print ("\n")
         print ("!!!Demo terminated, reason: %s" % status.detailed())
         delete_groups(ofswitch, grp_ids_cfg)
-        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id + 1))
         exit(0)
 
     print "\n".strip()
     print ("<<< Remove all flows from the Controller")
     time.sleep(rundelay)
-    delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+    delete_flows(ofswitch, table_id, range(first_flow_id, flow_id + 1))
 
     print "\n".strip()
     print ("<<< Remove all groups from the Controller")

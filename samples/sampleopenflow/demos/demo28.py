@@ -108,7 +108,7 @@ def of_demo_28():
     sym = '-'
     print "\n".strip()
     print "        {0:<15}  {1:<30}".format(s1, s2)
-    print "        {0:<15}  {1:<30}".format(sym*15, sym*30)
+    print "        {0:<15}  {1:<30}".format(sym * 15, sym * 30)
     for node in openflow_nodes:
         addr = node.get_ip_address()
         node_id = node.get_id()
@@ -124,21 +124,21 @@ def of_demo_28():
         print "        Number of flows : %s" % node.get_flows_cnt()
         clist = node.get_capabilities()
         g = 2
-        chunks = [clist[x:x+g] for x in xrange(0, len(clist), g)]
+        chunks = [clist[x:x + g] for x in xrange(0, len(clist), g)]
         s = 'Capabilities'
         print "        %s    :" % s,
         for i in range(0, len(chunks)):
             n = 0 if i == 0 else len(s) + 14
-            print "%s%s" % (" "*n, ", ".join(chunks[i]))
+            print "%s%s" % (" " * n, ", ".join(chunks[i]))
 
         s1 = 'Table Id'
         s2 = 'Flows Cnt'
         print "\n".strip()
         print "        {0:<8}  {1:<10}".format(s1, s2)
         sym = '-'
-        print "        {0:<8}  {1:<10}".format(sym*len(s1), sym*len(s2))
+        print "        {0:<8}  {1:<10}".format(sym * len(s1), sym * len(s2))
         flow_tables_cnt = node.get_flow_tables_cnt()
-        for table_id in range(0, flow_tables_cnt+1):
+        for table_id in range(0, flow_tables_cnt + 1):
             cnt = node.get_flows_in_table_cnt(table_id)
             if (cnt != 0):
                 print "        {0:<8}  {1:<10}".format(table_id, cnt)
@@ -147,7 +147,7 @@ def of_demo_28():
         s2 = 'OpenFlow Id'
         print "\n".strip()
         print "        {0:<8}  {1:<16}".format(s1, s2)
-        print "        {0:<8}  {1:<30}".format(sym*8, sym*30)
+        print "        {0:<8}  {1:<30}".format(sym * 8, sym * 30)
         port_ids = node.get_port_ids()
         for port_id in port_ids:
             port_obj = node.get_port_obj(port_id)
@@ -173,12 +173,12 @@ def of_demo_28():
         print "        Number of flows : %s" % node.get_flows_cnt()
         clist = node.get_capabilities()
         g = 2
-        chunks = [clist[x:x+g] for x in xrange(0, len(clist), g)]
+        chunks = [clist[x:x + g] for x in xrange(0, len(clist), g)]
         s = 'Capabilities'
         print "        %s    :" % s,
         for i in range(0, len(chunks)):
             n = 0 if i == 0 else len(s) + 14
-            print "%s%s" % (" "*n, ", ".join(chunks[i]))
+            print "%s%s" % (" " * n, ", ".join(chunks[i]))
 
         port_ids = node.get_port_ids()
         for port_id in port_ids:

@@ -43,7 +43,6 @@ class TestNetConfSamples(unittest.TestCase):
         from vr_demo9 import vr_demo_9
         assert vr_demo_9() is None
 
-
 # Not currently working --------------->>>
 
 #  def test_netconf10(self):

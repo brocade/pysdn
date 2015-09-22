@@ -176,12 +176,12 @@ def of_demo_40():
 
     action_order += 1
     action = SetTpSrcAction(action_order)
-    action.set_tp_src_port(act_mod_tcp_src_port)
+    action.set_tp_src(act_mod_tcp_src_port)
     instruction.add_apply_action(action)
 
     action_order += 1
     action = SetTpDstAction(action_order)
-    action.set_tp_dst_port(act_mod_tcp_dst_port)
+    action.set_tp_dst(act_mod_tcp_dst_port)
     instruction.add_apply_action(action)
 
     action_order += 1
@@ -214,7 +214,7 @@ def of_demo_40():
     else:
         print ("\n")
         print ("!!!Demo terminated, reason: %s" % status.detailed())
-        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id + 1))
         exit(0)
 
     # ---------------------------------------------------
@@ -331,14 +331,14 @@ def of_demo_40():
     else:
         print ("\n")
         print ("!!!Demo terminated, reason: %s" % status.detailed())
-        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id + 1))
         exit(0)
 
     print ("\n")
     print ("<<< Delete flows from the Controller's cache "
            "and from the table '%s' on the '%s' node" % (table_id, nodeName))
     time.sleep(rundelay)
-    delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+    delete_flows(ofswitch, table_id, range(first_flow_id, flow_id + 1))
 
     print ("\n")
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")

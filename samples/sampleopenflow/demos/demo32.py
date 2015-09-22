@@ -107,7 +107,7 @@ def of_demo_32():
     sym = '-'
     print "\n".strip()
     print "        {0:<15}  {1:<30}".format(s1, s2)
-    print "        {0:<15}  {1:<30}".format(sym*15, sym*30)
+    print "        {0:<15}  {1:<30}".format(sym * 15, sym * 30)
     for node in openflow_nodes:
         addr = node.get_ip_address()
         node_id = node.get_id()
@@ -130,33 +130,33 @@ def of_demo_32():
         s = 'Max groups'
         alist = group_features.get_max_groups()
         if alist:
-            chunks = [alist[x:x+q] for x in xrange(0, len(alist), q)]
+            chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
             print "            %s     :" % s,
             for i in range(0, len(chunks)):
                 n = 0 if i == 0 else len(s) + 19
-                print "%s%s" % (" "*n, ", ".join(map(str, chunks[i])))
+                print "%s%s" % (" " * n, ", ".join(map(str, chunks[i])))
         else:
             print "            %s     : %s" % (s, "n/a")
 
         s = 'Group types'
         alist = group_features.get_types()
         if alist:
-            chunks = [alist[x:x+q] for x in xrange(0, len(alist), q)]
+            chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
             print "            %s    :" % s,
             for i in range(0, len(chunks)):
                 n = 0 if i == 0 else len(s) + 18
-                print "%s%s" % (" "*n, ", ".join(chunks[i]))
+                print "%s%s" % (" " * n, ", ".join(chunks[i]))
         else:
             print "            %s    : %s" % (s, "n/a")
 
         s = 'Capabilities'
         alist = group_features.get_capabilities()
         if alist:
-            chunks = [alist[x:x+q] for x in xrange(0, len(alist), q)]
+            chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
             print "            %s   :" % s,
             for i in range(0, len(chunks)):
                 n = 0 if i == 0 else len(s) + 17
-                print "%s%s" % (" "*n, ", ".join(chunks[i]))
+                print "%s%s" % (" " * n, ", ".join(chunks[i]))
         else:
             print "            %s   : %s" % (s, "n/a")
 
@@ -168,11 +168,11 @@ def of_demo_32():
         s = 'Group IDs'
         alist = node.get_group_ids()
         if alist:
-            chunks = [alist[x:x+q] for x in xrange(0, len(alist), q)]
+            chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
             print "            %s      :" % s,
             for i in range(0, len(chunks)):
                 n = 0 if i == 0 else len(s) + 13
-                print "%s%s" % (" "*n, ", ".join(map(str, chunks[i])))
+                print "%s%s" % (" " * n, ", ".join(map(str, chunks[i])))
         else:
             print "            %s      : %s" % (s, "")
 

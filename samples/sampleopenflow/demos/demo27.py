@@ -158,7 +158,7 @@ def of_demo_27():
         sym = '-'
         print "\n".strip()
         print "        {0:<15}  {1:<30}".format(s1, s2)
-        print "        {0:<15}  {1:<30}".format(sym*15, sym*30)
+        print "        {0:<15}  {1:<30}".format(sym * 15, sym * 30)
         switch_ids = topo.get_switch_ids()
         for switch_id in switch_ids:
             inv_node = inventory.get_openflow_node(switch_id)

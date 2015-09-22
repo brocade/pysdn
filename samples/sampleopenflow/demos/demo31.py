@@ -174,7 +174,7 @@ def of_demo_31():
     else:
         print ("\n")
         print ("!!!Demo terminated, reason: %s" % status.detailed())
-        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id + 1))
         exit(0)
 
     # ---------------------------------------------------
@@ -255,14 +255,14 @@ def of_demo_31():
     else:
         print ("\n")
         print ("!!!Demo terminated, reason: %s" % status.detailed())
-        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+        delete_flows(ofswitch, table_id, range(first_flow_id, flow_id + 1))
         exit(0)
 
     print ("\n")
     print ("<<< Delete flows from the Controller's cache "
            "and from the table '%s' on the '%s' node" % (table_id, nodeName))
     time.sleep(rundelay)
-    delete_flows(ofswitch, table_id, range(first_flow_id, flow_id+1))
+    delete_flows(ofswitch, table_id, range(first_flow_id, flow_id + 1))
 
     print ("\n")
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
