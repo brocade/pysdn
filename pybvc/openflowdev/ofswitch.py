@@ -935,29 +935,21 @@ class OFSwitch(OpenflowNode):
 
 class FlowEntry(object):
     """ Class for creating and interacting with OpenFlow flows """
+
     ''' Reference name in the YANG data tree on the Controller '''
     _mn = "flow-node-inventory:flow"
 
-    def __init__(self, flow_json=None, flow_dict=None):
-        assert_msg = "[FlowEntry] either '%s' or '%s' should be used, " \
-                     "not both" % ('flow_json', 'flow_dict')
-        # TODO check this
-        assert(not ((flow_json is not None) and
-                    (flow_dict is not None))), assert_msg
-        if (flow_dict is not None):
-            self.__init_from_dict__(flow_dict)
-            return
-        if (flow_json is not None):
-            self.__init_from_json__(flow_json)
-            return
+    def __attrs__(self):
         ''' Unique identifier of this FlowEntry in the Controller's
-            data store '''
+            data store
+        '''
         self.id = None
         ''' Opaque Controller-issued identifier '''
         self.cookie = None
         ''' Mask used to restrict the cookie bits that must match
             when the command is OFPFC_MODIFY* or OFPFC_DELETE*. A
-            value of 0 indicates no restriction '''
+            value of 0 indicates no restriction
+        '''
         self.cookie_mask = None
         ''' ID of the table to put the flow in '''
         self.table_id = None
@@ -971,19 +963,22 @@ class FlowEntry(object):
         self.strict = None
         ''' For OFPFC_DELETE* commands, require matching entries to include
             this as an output port.
-            A value of OFPP_ANY indicates no restriction. '''
+            A value of OFPP_ANY indicates no restriction.
+        '''
         self.out_port = None
         ''' For OFPFC_DELETE* commands, require matching entries to include
             this as an output group.
-            A value of OFPG_ANY indicates no restriction '''
+            A value of OFPG_ANY indicates no restriction
+        '''
         self.out_group = None
         ''' Bitmap of OFPFF_* flags '''
         self.flags = None
         ''' This FlowEntry name in the FlowTable (internal Controller's
             inventory attribute) '''
         self.flow_name = None
-        ''' This FlowEntry identifier in the FlowTable (internal Controller's
-            inventory attribute) '''
+        ''' This FlowEntry identifier in the FlowTable (internal
+            Controller's inventory attribute)
+        '''
         self.id = None
         ''' ??? (internal Controller's inventory attribute) '''
         self.installHw = None
@@ -997,29 +992,42 @@ class FlowEntry(object):
             This message has no body. Upon receipt, the switch must finish
             processing all previously-received messages, including
             sending corresponding reply or error messages, before
-            executing any messages beyond the Barrier Request. '''
+            executing any messages beyond the Barrier Request.
+        '''
         self.barrier = None
         ''' Buffered packet to apply to, or OFP_NO_BUFFER. Not meaningful
-            for OFPFC_DELETE* '''
+            for OFPFC_DELETE*
+        '''
         self.buffer_id = None
         '''  Flow match fields '''
         self.match = None
         ''' Instructions to be executed when a flow matches this flow entry
-            match fields '''
+            match fields
+        '''
         self.instructions = {'instruction': []}
+
+    def __init__(self, flow_json=None, flow_dict=None):
+        self.__attrs__()
+        assert_msg = ("[FlowEntry] either '%s' or '%s' should be used, "
+                      "not both" % ('flow_json', 'flow_dict'))
+        assert(not ((flow_json is not None) and
+                    (flow_dict is not None))), assert_msg
+        if (flow_dict is not None):
+            self.__init_from_dict__(flow_dict)
+        elif (flow_json is not None):
+            self.__init_from_json__(flow_json)
 
     def __init_from_json__(self, s):
         if (s is not None and isinstance(s, basestring)):
-            self.instructions = {'instruction': []}
             js = s.replace('opendaylight_flow_statistics:flow_statistics',
                            'flow_statistics')
             obj = json.loads(js)
             d = dict_keys_dashed_to_underscored(obj)
             for k, v in d.items():
-                if ('match' == k):
+                if (k == 'match'):
                     match = Match(v)
                     self.add_match(match)
-                elif ('instructions' == k):
+                elif (k == 'instructions'):
                     instructions = Instructions(v)
                     self.add_instructions(instructions)
                 else:
@@ -1222,20 +1230,13 @@ class FlowEntry(object):
             sm = sm.translate(None, '"{} ')
             sm = "matches={" + sm + "}"
 
-        # Flow Instructions
-        apply_actions_list = []
+        # Flow Instructions/Actions
         instructions = self.get_instructions()
+        apply_actions = []
         for instruction in instructions:
             if instruction.is_apply_actions_type():
-                output_list = []
-                push_vlan_list = []
-                pop_vlan_list = []
-                push_mpls_list = []
-                pop_mpls_list = []
-                set_field_list = []
-                drop_list = []
-                apply_actions = instruction.get_apply_actions()
-                for action in apply_actions:
+                actions = instruction.get_apply_actions()
+                for action in actions:
                     if (isinstance(action, OutputAction)):
                         s = "output="
                         port = action.get_outport()
@@ -1243,42 +1244,157 @@ class FlowEntry(object):
                         ml = action.get_max_len()
                         if (ml is not None):
                             s += ":" + str(ml)
-                        output_list.append(s)
+                        apply_actions.append(s)
+                    elif (isinstance(action, SetVlanIdAction)):
+                        vid = action.get_vid()
+                        if (vid):
+                            s = "set_vlan_vid=%s" % vid
+                            apply_actions.append(s)
+                    elif (isinstance(action, SetVlanPCPAction)):
+                        pcp = action.get_vlan_pcp()
+                        if (pcp):
+                            s = "set_vlan_pcp=%s" % pcp
+                            apply_actions.append(s)
+                    elif (isinstance(action, StripVlanAction)):
+                        s = "strip_vlan"
+                        apply_actions.append(s)
+                    elif (isinstance(action, SetDlSrcAction)):
+                        mac = action.get_dl_src()
+                        if (mac):
+                            s = "set_dl_src=%s" % mac
+                            apply_actions.append(s)
+                    elif (isinstance(action, SetDlDstAction)):
+                        mac = action.get_dl_dst()
+                        if (mac):
+                            s = "set_dl_dst=%s" % mac
+                            apply_actions.append(s)
+                    elif (isinstance(action, SetNwSrcAction)):
+                        nw_src = action.get_nw_src()
+                        if (nw_src):
+                            s = "set_nw_src=%s" % nw_src
+                            apply_actions.append(s)
+                    elif (isinstance(action, SetNwDstAction)):
+                        nw_dst = action.get_nw_dst()
+                        if (nw_dst):
+                            s = "set_nw_dst=%s" % nw_dst
+                            apply_actions.append(s)
+                    elif (isinstance(action, SetNwTosAction)):
+                        nw_tos = action.get_tos()
+                        if (nw_tos):
+                            s = "set_nw_tos=%s" % nw_tos
+                            apply_actions.append(s)
+                    elif (isinstance(action, SetTpSrcAction)):
+                        tp_src = action.get_tp_src()
+                        if (tp_src):
+                            s = "set_tp_src=%s" % tp_src
+                            apply_actions.append(s)
+                    elif (isinstance(action, SetTpDstAction)):
+                        tp_dst = action.get_tp_dst()
+                        if (tp_dst):
+                            s = "set_tp_dst=%s" % tp_dst
+                            apply_actions.append(s)
                     elif (isinstance(action, PushVlanHeaderAction)):
                         s = "push_vlan="
                         eth_type = action.get_eth_type()
                         s += str(hex(int(eth_type)))
-                        push_vlan_list.append(s)
+                        apply_actions.append(s)
                     elif (isinstance(action, PopVlanHeaderAction)):
                         s = "pop_vlan"
-                        pop_vlan_list.append(s)
+                        apply_actions.append(s)
                     elif (isinstance(action, PushMplsHeaderAction)):
-                        s = "push_mpls="
                         eth_type = action.get_eth_type()
-                        s += str(hex(int(eth_type)))
-                        push_mpls_list.append(s)
+                        if (eth_type):
+                            s = "push_mpls=%s" % str(hex(int(eth_type)))
+                            apply_actions.append(s)
                     elif (isinstance(action, PopMplsHeaderAction)):
-                        s = "pop_mpls"
-                        pop_mpls_list.append(s)
+                        eth_type = action.get_eth_type()
+                        if (eth_type):
+                            s = "pop_mpls=%s" % str(hex(int(eth_type)))
+                            apply_actions.append(s)
+                    elif (isinstance(action, SetMplsTTLAction)):
+                        ttl = action.get_ttl()
+                        if (ttl):
+                            s = "set_mpls_ttl=%s" % ttl
+                            apply_actions.append(s)
+                    elif (isinstance(action, DecMplsTTLAction)):
+                        s = "dec_mpls_ttl"
+                        apply_actions.append(s)
+                    elif (isinstance(action, SetNwTTLAction)):
+                        ttl = action.get_ttl()
+                        if(ttl):
+                            s = "set_nw_ttl=%s" % ttl
+                            apply_actions.append(s)
+                    elif (isinstance(action, DecNwTTLAction)):
+                        s = "dec_nw_ttl"
+                        apply_actions.append(s)
+#                    elif (isinstance(action, CopyTTLOutwardsAction)):
+#                        "TBD"
+#                    elif (isinstance(action, CopyTTLInwardsAction)):
+#                        TBD
+                    elif (isinstance(action, SetQueueAction)):
+                        qid = action.get_queue_id()
+                        if (qid):
+                            s = "set_queue=%s" % qid
+                            apply_actions.append(s)
+                    elif (isinstance(action, GroupAction)):
+                        grp_id = action.get_group_id()
+                        if (grp_id):
+                            s = "group=%s" % grp_id
+                            apply_actions.append(s)
                     elif (isinstance(action, SetFieldAction)):
                         mpls_label = action.get_mpls_label()
                         if (mpls_label is not None):
-                            s = "set_mpls_label=%s" % mpls_label
-                            set_field_list.append(s)
+                            s = "set_field->mpls_label=%s" % mpls_label
+                            apply_actions.append(s)
                         vlan_id = action.get_vlan_id()
                         if (vlan_id is not None):
-                            s = "set_vlan_vid=%s" % vlan_id
-                            set_field_list.append(s)
+                            s = "set_field->vlan_vid=%s" % vlan_id
+                            apply_actions.append(s)
+                        vlan_pcp = action.get_vlan_pcp()
+                        if (vlan_pcp is not None):
+                            s = "set_field->vlan_pcp=%s" % vlan_pcp
+                            apply_actions.append(s)
+                        eth_src = action.get_eth_src()
+                        if (eth_src):
+                            s = "set_field->eth_src=%s" % eth_src
+                            apply_actions.append(s)
+                        eth_dst = action.get_eth_dst()
+                        if (eth_dst):
+                            s = "set_field->eth_dst=%s" % eth_dst
+                            apply_actions.append(s)
+                        ipv4_src = action.get_ipv4_src()
+                        if (ipv4_src):
+                            s = "set_field->ipv4_src=%s" % ipv4_src
+                            apply_actions.append(s)
+                        ipv4_dst = action.get_ipv4_dst()
+                        if (ipv4_dst):
+                            s = "set_field->ipv4_dst=%s" % ipv4_dst
+                            apply_actions.append(s)
+                        ip_dscp = action.get_ip_dscp()
+                        if (ip_dscp):
+                            s = "set_field->ip_dscp=%s" % ip_dscp
+                            apply_actions.append(s)
+                        udp_src = action.get_udp_src_port()
+                        if (udp_src):
+                            s = "set_field->udp_src=%s" % udp_src
+                            apply_actions.append(s)
+                        udp_dst = action.get_udp_dst_port()
+                        if (udp_dst):
+                            s = "set_field->udp_dst=%s" % udp_dst
+                            apply_actions.append(s)
+#                    elif (isinstance(action, PushPBBHeaderAction)):
+#                        "TBD"
+#                    elif (isinstance(action, PopPBBHeaderAction)):
+#                        "TBD"
                     elif (isinstance(action, DropAction)):
                         s = "drop"
-                        drop_list.append(s)
-
-                apply_actions_list = pop_mpls_list + push_mpls_list + \
-                    pop_vlan_list + push_vlan_list + \
-                    set_field_list + drop_list + output_list
+                        apply_actions.append(s)
+                    else:
+                        msg = "TBD -> yet unimplemented action %s" % action
+                        dbg_print(msg)
 
         sa = "actions={"
-        actions_list = apply_actions_list
+        actions_list = apply_actions
         if(actions_list):
             sa += ",".join(actions_list)
         sa += "}"
@@ -1452,25 +1568,26 @@ class FlowEntry(object):
 class Instructions():
     ''' 'Class representing OpenFlow flow instructions set '''
 
+    def __attrs__(self):
+        self.instructions = []
+
     def __init__(self, d=None):
+        self.__attrs__()
         if (d is not None):
             self.__init_from_dict__(d)
-            return
-        self.instructions = []
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            self.instructions = []
             for k, v in d.items():
-                if ('instruction' == k):
+                if (k == 'instruction'):
                     if isinstance(v, list):
                         for item in v:
                             if (isinstance(item, dict)):
                                 inst = Instruction(d=item)
                                 self.add_instruction(inst)
                     elif isinstance(v, dict):
-                            inst = Instruction(d=v)
-                            self.add_instruction(inst)
+                        inst = Instruction(d=v)
+                        self.add_instruction(inst)
                     else:
                         msg = "DEBUG: key=%s, value=%s" \
                               " - unexpected data format" % (k, v)
@@ -1493,11 +1610,8 @@ class Instructions():
 class Instruction():
     ''' Class representing an OpenFlow flow instruction '''
 
-    def __init__(self, instruction_order=None, d=None):
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
-        self.order = instruction_order
+    def __attrs__(self):
+        self.order = None
 #  TBD      self.goto_table = {}
 #  TBD      self.write_metadata = {}
 #  TBD      self.write_actions = {}
@@ -1505,14 +1619,20 @@ class Instruction():
 #  TBD      self.clear_actions = {}
 #  TBD      self.meter = {}
 
+    def __init__(self, instruction_order=None, d=None):
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
+        else:
+            self.order = instruction_order
+
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
             p1 = 'apply_actions'
             p2 = 'action'
             p3 = 'order'
             for k, v in d.items():
-                if (p1 == k):
-                    self.apply_actions = {p2: []}
+                if (k == p1):
                     if p2 in v:
                         if isinstance(v[p2], list):
                             for a in v[p2]:
@@ -1535,11 +1655,15 @@ class Instruction():
     def add_apply_action(self, action):
         self.apply_actions['action'].append(action)
 
+    def _sort_order(self, var):
+        return var.order
+
     def get_apply_actions(self):
         res = None
         p = 'apply_actions'
         if (hasattr(self, p)):
             res = getattr(self, p)['action']
+            res = sorted(res, key=self._sort_order)
         return res
 
     def is_apply_actions_type(self):
@@ -1623,7 +1747,7 @@ class Instruction():
             elif (p19 in d):
                 action = PushMplsHeaderAction(order=action_order, d=d[p19])
             elif (p20 in d):
-                action = PopMplsHeaderAction(order=action_order)
+                action = PopMplsHeaderAction(order=action_order, d=d[p20])
             elif (p21 in d):
                 action = SetQueueAction(order=action_order, d=d[p21])
             elif (p22 in d):
@@ -1666,22 +1790,25 @@ class OutputAction(Action):
         (OpenFlow Switch Specification Version 1.0 and 1.3)
     """
 
+    def __attrs__(self):
+        self.output_action = {'output_node_connector': None,
+                              'max_length': None}
+
     def __init__(self, order=None, port=None, max_len=None, d=None):
         super(OutputAction, self).__init__(order)
+        self.__attrs__()
         if(d is not None):
             self.__init_from_dict__(d)
-            return
-        self.output_action = {'output_node_connector': port,
-                              'max_length': max_len}
+        else:
+            self.set_outport(port)
+            self.set_max_len(max_len)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.output_action = {'output_node_connector': None,
-                                  'max_length': None}
             for k, v in d.items():
-                if ('output_node_connector' == k):
+                if (k == 'output_node_connector'):
                     self.set_outport(v)
-                elif ('max_length' == k):
+                elif (k == 'max_length'):
                     self.set_max_len(v)
                 else:
                     print ("[OutputAction] TBD -> k=%s, v=%s" % (k, v))
@@ -1724,9 +1851,12 @@ class DropAction(Action):
         (OpenFlow Switch Specification Version 1.0 and 1.3)
     """
 
+    def __attrs__(self):
+        self.drop_action = {}
+
     def __init__(self, order=None):
         super(DropAction, self).__init__(order)
-        self.drop_action = {}
+        self.__attrs__()
 
     def set_order(self, order):
         self.order = order
@@ -1740,16 +1870,19 @@ class SetVlanIdAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
+    def __attrs__(self):
+        self.set_vlan_id_action = {'vlan_id': None}
+
     def __init__(self, order=None, vid=None, d=None):
         super(SetVlanIdAction, self).__init__(order)
+        self.__attrs__()
         if(d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_vlan_id_action = {'vlan_id': vid}
+        else:
+            self.set_vid(vid)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.set_vlan_id_action = {'vlan_id': None}
             for k, v in d.items():
                 if (k == 'vlan_id'):
                     self.set_vid(v)
@@ -1763,6 +1896,9 @@ class SetVlanIdAction(Action):
     def set_vid(self, vid):
         self.set_vlan_id_action['vlan_id'] = vid
 
+    def get_vid(self):
+        return self.set_vlan_id_action['vlan_id']
+
 
 class SetVlanPCPAction(Action):
     """ Set VLAN priority.
@@ -1772,16 +1908,19 @@ class SetVlanPCPAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
+    def __attrs__(self):
+        self.set_vlan_pcp_action = {'vlan_pcp': None}
+
     def __init__(self, order=None, vlan_pcp=None, d=None):
         super(SetVlanPCPAction, self).__init__(order)
+        self.__attrs__()
         if(d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_vlan_pcp_action = {'vlan_pcp': vlan_pcp}
+        else:
+            self.set_vlan_pcp(vlan_pcp)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.set_vlan_pcp_action = {'vlan_pcp': None}
             for k, v in d.items():
                 if (k == 'vlan_pcp'):
                     self.set_vlan_pcp(v)
@@ -1794,6 +1933,9 @@ class SetVlanPCPAction(Action):
 
     def set_vlan_pcp(self, vlan_pcp):
         self.set_vlan_pcp_action['vlan_pcp'] = vlan_pcp
+
+    def get_vlan_pcp(self):
+        return self.set_vlan_pcp_action['vlan_pcp']
 
 '''
 class SetVlanCfiAction(Action):
@@ -1823,9 +1965,12 @@ class StripVlanAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
+    def __attrs__(self):
+        self.strip_vlan_action = {}
+
     def __init__(self, order=None):
         super(StripVlanAction, self).__init__(order)
-        self.strip_vlan_action = {}
+        self.__attrs__()
 
 
 class SetDlSrcAction(Action):
@@ -1835,16 +1980,19 @@ class SetDlSrcAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
+    def __attrs__(self):
+        self.set_dl_src_action = {'address': None}
+
     def __init__(self, order=None, mac_addr=None, d=None):
         super(SetDlSrcAction, self).__init__(order)
+        self.__attrs__()
         if(d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_dl_src_action = {'address': mac_addr}
+        else:
+            self.set_dl_src(mac_addr)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.set_dl_src_action = {'address': None}
             for k, v in d.items():
                 if (k == 'address'):
                     self.set_dl_src(v)
@@ -1858,6 +2006,9 @@ class SetDlSrcAction(Action):
     def set_dl_src(self, mac_addr):
         self.set_dl_src_action['address'] = mac_addr
 
+    def get_dl_src(self):
+        return self.set_dl_src_action['address']
+
 
 class SetDlDstAction(Action):
     """ Modify Ethernet destination MAC address.
@@ -1866,16 +2017,19 @@ class SetDlDstAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
+    def __attrs__(self):
+        self.set_dl_dst_action = {'address': None}
+
     def __init__(self, order=None, mac_addr=None, d=None):
         super(SetDlDstAction, self).__init__(order)
+        self.__attrs__()
         if(d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_dl_dst_action = {'address': mac_addr}
+        else:
+            self.set_dl_dst(mac_addr)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.set_dl_dst_action = {'address': None}
             for k, v in d.items():
                 if (k == 'address'):
                     self.set_dl_dst(v)
@@ -1889,6 +2043,9 @@ class SetDlDstAction(Action):
     def set_dl_dst(self, mac_addr):
         self.set_dl_dst_action['address'] = mac_addr
 
+    def get_dl_dst(self):
+        return self.set_dl_dst_action['address']
+
 
 class SetNwSrcAction(Action):
     """ Modify IPv4 source address.
@@ -1898,16 +2055,19 @@ class SetNwSrcAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
+    def __attrs__(self):
+        self.set_nw_src_action = {'ipv4_address': None}
+
     def __init__(self, order=None, ip_addr=None, d=None):
         super(SetNwSrcAction, self).__init__(order)
+        self.__attrs__()
         if(d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_nw_src_action = {'ipv4_address': ip_addr}
+        else:
+            self.set_nw_src(ip_addr)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.set_nw_src_action = {'ipv4_address': None}
             for k, v in d.items():
                 if (k == 'ipv4_address'):
                     self.set_nw_src(v)
@@ -1921,6 +2081,9 @@ class SetNwSrcAction(Action):
     def set_nw_src(self, ip_addr):
         self.set_nw_src_action['ipv4_address'] = ip_addr
 
+    def get_nw_src(self):
+        return self.set_nw_src_action['ipv4_address']
+
 
 class SetNwDstAction(Action):
     """ Modify IPv4 destination address.
@@ -1930,16 +2093,19 @@ class SetNwDstAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
+    def __attrs__(self):
+        self.set_nw_dst_action = {'ipv4_address': None}
+
     def __init__(self, order=None, ip_addr=None, d=None):
         super(SetNwDstAction, self).__init__(order)
+        self.__attrs__()
         if(d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_nw_dst_action = {'ipv4_address': ip_addr}
+        else:
+            self.set_nw_dst(ip_addr)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.set_nw_dst_action = {'ipv4_address': None}
             for k, v in d.items():
                 if (k == 'ipv4_address'):
                     self.set_nw_dst(v)
@@ -1953,6 +2119,9 @@ class SetNwDstAction(Action):
     def set_nw_dst(self, ip_addr):
         self.set_nw_dst_action['ipv4_address'] = ip_addr
 
+    def get_nw_dst(self):
+        return self.set_nw_dst_action['ipv4_address']
+
 
 class SetNwTosAction(Action):
     """ Modify IPv4 ToS bits.
@@ -1961,22 +2130,25 @@ class SetNwTosAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
-    def __init__(self, order=None, tos=None, d=None):
-        super(SetNwTosAction, self).__init__(order)
-        if(d is not None):
-            self.__init_from_dict__(d)
-            return
-        """ Value with which to replace existing IPv4 ToS field
+    def __attrs__(self):
+        ''' Value with which to replace existing IPv4 ToS field
             NOTE: The modern redefinition of the ToS field is a 6 bit
                   Differentiated Services Code Point (DSCP) field (the
                   6 upper bits of the original TOS field) and a 2 bit
                   Explicit Congestion Notification (ECN) field.
-        """
-        self.set_nw_tos_action = {'tos': tos}
+        '''
+        self.set_nw_tos_action = {'tos': None}
+
+    def __init__(self, order=None, tos=None, d=None):
+        super(SetNwTosAction, self).__init__(order)
+        self.__attrs__()
+        if(d is not None):
+            self.__init_from_dict__(d)
+        else:
+            self.set_tos(tos)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.set_nw_tos_action = {'tos': None}
             for k, v in d.items():
                 if (k == 'tos'):
                     self.set_tos(v)
@@ -1991,11 +2163,7 @@ class SetNwTosAction(Action):
         self.set_nw_tos_action['tos'] = tos
 
     def get_tos(self):
-        res = None
-        p = 'set_nw_tos_action'
-        if (hasattr(self, p)):
-            res = getattr(self, p)['tos']
-        return res
+        return self.set_nw_tos_action['tos']
 
 
 class SetTpSrcAction(Action):
@@ -2006,19 +2174,22 @@ class SetTpSrcAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
+    def __attrs__(self):
+        self.set_tp_src_action = {'port': None}
+
     def __init__(self, order=None, port=None, d=None):
         super(SetTpSrcAction, self).__init__(order)
+        self.__attrs__()
         if(d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_tp_src_action = {'port': port}
+        else:
+            self.set_tp_src(port)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.set_tp_src_action = {'port': None}
             for k, v in d.items():
                 if (k == 'port'):
-                    self.set_tp_src_port(v)
+                    self.set_tp_src(v)
                 else:
                     msg = ("[SetTpSrcAction] TBD -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
@@ -2026,8 +2197,11 @@ class SetTpSrcAction(Action):
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
 
-    def set_tp_src_port(self, port):
+    def set_tp_src(self, port):
         self.set_tp_src_action['port'] = port
+
+    def get_tp_src(self):
+        return self.set_tp_src_action['port']
 
 
 class SetTpDstAction(Action):
@@ -2038,19 +2212,22 @@ class SetTpDstAction(Action):
         (OpenFlow Switch Specification Version 1.0)
     """
 
+    def __attrs__(self):
+        self.set_tp_dst_action = {'port': None}
+
     def __init__(self, order=None, port=None, d=None):
         super(SetTpDstAction, self).__init__(order)
+        self.__attrs__()
         if(d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_tp_dst_action = {'port': port}
+        else:
+            self.set_tp_dst(port)
 
     def __init_from_dict__(self, d):
         if(d is not None and isinstance(d, dict)):
-            self.set_tp_dst_action = {'port': None}
             for k, v in d.items():
                 if (k == 'port'):
-                    self.set_tp_dst_port(v)
+                    self.set_tp_dst(v)
                 else:
                     msg = ("[SetTpDstAction] TBD -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
@@ -2058,8 +2235,11 @@ class SetTpDstAction(Action):
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
 
-    def set_tp_dst_port(self, port):
+    def set_tp_dst(self, port):
         self.set_tp_dst_action['port'] = port
+
+    def get_tp_dst(self):
+        return self.set_tp_dst_action['port']
 
 
 class PushVlanHeaderAction(Action):
@@ -2069,21 +2249,27 @@ class PushVlanHeaderAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
+    def __attrs__(self):
+        self.push_vlan_action = {'ethernet_type': None, 'tag': None,
+                                 'pcp': None, 'cfi': None, 'vlan_id': None}
+
     def __init__(self, order=None, eth_type=None, tag=None, pcp=None,
                  cfi=None, vid=None, d=None):
         super(PushVlanHeaderAction, self).__init__(order)
+        self.__attrs__()
         if (d is not None):
             self.__init_from_dict__(d)
-            return
-        self.push_vlan_action = {'ethernet_type': eth_type, 'tag': tag,
-                                 'pcp': pcp, 'cfi': cfi, 'vlan_id': vid}
+        else:
+            self.set_eth_type(eth_type)
+            self.set_tag(tag)
+            self.set_pcp(pcp)
+            self.set_cfi(cfi)
+            self.set_vid(vid)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            self.push_vlan_action = {'ethernet_type': None, 'tag': None,
-                                     'pcp': None, 'cfi': None, 'vlan_id': None}
             for k, v in d.items():
-                if ('ethernet_type' == k):
+                if (k == 'ethernet_type'):
                     self.set_eth_type(v)
                 else:
                     print ("[PushVlanHeaderAction] TBD -> k=%s, v=%s" % (k, v))
@@ -2102,16 +2288,16 @@ class PushVlanHeaderAction(Action):
         return res
 
     def set_tag(self, tag):
-        self.output_action['tag'] = tag
+        self.push_vlan_action['tag'] = tag
 
     def set_pcp(self, pcp):
-        self.output_action['pcp'] = pcp
+        self.push_vlan_action['pcp'] = pcp
 
     def set_cfi(self, cfi):
-        self.output_action['cfi'] = cfi
+        self.push_vlan_action['cfi'] = cfi
 
     def set_vid(self, vid):
-        self.output_action['vlan_id'] = vid
+        self.push_vlan_action['vlan_id'] = vid
 
     def set_order(self, order):
         self.order = order
@@ -2122,9 +2308,12 @@ class PopVlanHeaderAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
+    def __attrs__(self):
+        self.pop_vlan_action = {}
+
     def __init__(self, order=None):
         super(PopVlanHeaderAction, self).__init__(order)
-        self.pop_vlan_action = {}
+        self.__attrs__()
 
 
 class PushMplsHeaderAction(Action):
@@ -2134,16 +2323,19 @@ class PushMplsHeaderAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
+    def __attrs__(self):
+        self.push_mpls_action = {'ethernet_type': None}
+
     def __init__(self, order=None, ethernet_type=None, d=None):
         super(PushMplsHeaderAction, self).__init__(order)
+        self.__attrs__()
         if (d is not None):
             self.__init_from_dict__(d)
-            return
-        self.push_mpls_action = {'ethernet_type': ethernet_type}
+        else:
+            self.set_eth_type(ethernet_type)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            self.push_mpls_action = {'ethernet_type': None}
             for k, v in d.items():
                 if (k == 'ethernet_type'):
                     self.set_eth_type(v)
@@ -2171,61 +2363,33 @@ class PopMplsHeaderAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
-    def __init__(self, order=0, ethernet_type=None):
-        super(PopMplsHeaderAction, self).__init__(order)
-        self.pop_mpls_action = {'ethernet_type': ethernet_type}
-
-    def set_eth_type(self, eth_type):
-        self.pop_mpls_action['ethernet_type'] = eth_type
-
-
-class PushPBBHeaderAction(Action):
-    """ Push a new PBB service instance header (I-TAG TCI) onto the packet.
-        The 'ethernet_type' is used as the Ethernet Type for the tag. Only
-        Ethernet Type  0x88E7 should be used
-        PBB - Provider Backbone Bridges is an Ethernet data-plane technology
-        .     (also known as MAC-in-MAC) that involves encapsulating an
-        .     Ethernet datagram inside another one with new source and
-        .     destination addresses.
-        (OpenFlow Switch Specification Version 1.3)
-    """
+    def __attrs__(self):
+        self.pop_mpls_action = {'ethernet_type': None}
 
     def __init__(self, order=0, ethernet_type=None, d=None):
-        super(PushPBBHeaderAction, self).__init__(order)
+        super(PopMplsHeaderAction, self).__init__(order)
+        self.__attrs__()
         if (d is not None):
             self.__init_from_dict__(d)
-            return
-        self.push_pbb_action = {'ethernet_type': ethernet_type}
+        else:
+            self.set_eth_type(ethernet_type)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            self.push_pbb_action = {'ethernet_type': None}
             for k, v in d.items():
                 if (k == 'ethernet_type'):
                     self.set_eth_type(v)
                 else:
-                    print "[PushPBBHeaderAction] TBD -> k=%s, v=%s" % (k, v)
+                    print "[nPopMplsHeaderAction] TBD -> k=%s, v=%s" % (k, v)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
 
-    def set_eth_type(self, ethernet_type):
-        self.push_pbb_action['ethernet_type'] = ethernet_type
+    def set_eth_type(self, eth_type):
+        self.pop_mpls_action['ethernet_type'] = eth_type
 
-
-class PopPBBHeaderAction(Action):
-    """ Pop the outer-most PBB service instance header (I-TAG TCI)
-        from the packet
-        PBB - Provider Backbone Bridges is an Ethernet data-plane technology
-        .     (also known as MAC-in-MAC) that involves encapsulating an
-        .     Ethernet datagram inside another one with new source and
-        .     destination addresses.
-        (OpenFlow Switch Specification Version 1.3)
-    """
-
-    def __init__(self, order=0):
-        super(PopPBBHeaderAction, self).__init__(order)
-        self.pop_pbb_action = {}
+    def get_eth_type(self):
+        return self.pop_mpls_action['ethernet_type']
 
 
 class SetMplsTTLAction(Action):
@@ -2234,19 +2398,22 @@ class SetMplsTTLAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
-    def __init__(self, order=0, mpls_ttl=None, d=None):
+    def __attrs__(self):
+        self.set_mpls_ttl_action = {'mpls_ttl': None}
+
+    def __init__(self, order=0, ttl=None, d=None):
         super(SetMplsTTLAction, self).__init__(order)
+        self.__attrs__()
         if (d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_mpls_ttl_action = {'mpls_ttl': mpls_ttl}
+        else:
+            self.set_ttl(ttl)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            self.set_mpls_ttl_action = {'mpls_ttl': None}
             for k, v in d.items():
                 if (k == 'mpls_ttl'):
-                    self.set_mpls_ttl(v)
+                    self.set_ttl(v)
                 else:
                     print ("[PushMplsHeaderAction] TBD -> k=%s, v=%s" % (k, v))
         else:
@@ -2256,6 +2423,9 @@ class SetMplsTTLAction(Action):
     def set_ttl(self, ttl):
         self.set_mpls_ttl_action['mpls_ttl'] = ttl
 
+    def get_ttl(self):
+        return self.set_mpls_ttl_action['mpls_ttl']
+
 
 class DecMplsTTLAction(Action):
     """ Decrement the MPLS TTL. Only applies to packets with
@@ -2263,9 +2433,12 @@ class DecMplsTTLAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
+    def __attrs__(self):
+        self.dec_mpls_ttl = {}
+
     def __init__(self, order=0):
         super(DecMplsTTLAction, self).__init__(order)
-        self.dec_mpls_ttl = {}
+        self.__attrs__()
 
 
 class SetNwTTLAction(Action):
@@ -2275,19 +2448,22 @@ class SetNwTTLAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
-    def __init__(self, order=0, ip_ttl=None, d=None):
+    def __attrs__(self):
+        self.set_nw_ttl_action = {'nw_ttl': None}
+
+    def __init__(self, order=0, ttl=None, d=None):
         super(SetNwTTLAction, self).__init__(order)
+        self.__attrs__()
         if (d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_nw_ttl_action = {'nw_ttl': ip_ttl}
+        else:
+            self.set_ttl(ttl)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            self.set_nw_ttl_action = {'nw_ttl': None}
             for k, v in d.items():
                 if (k == 'nw_ttl'):
-                    self.set_ip_ttl(v)
+                    self.set_ttl(v)
                 else:
                     print ("[SetNwTTLAction] TBD -> k=%s, v=%s" % (k, v))
         else:
@@ -2297,6 +2473,9 @@ class SetNwTTLAction(Action):
     def set_ttl(self, ttl):
         self.set_nw_ttl_action['nw_ttl'] = ttl
 
+    def get_ttl(self):
+        return self.set_nw_ttl_action['nw_ttl']
+
 
 class DecNwTTLAction(Action):
     """ Decrement the IPv4 TTL or IPv6 Hop Limit field and
@@ -2305,9 +2484,12 @@ class DecNwTTLAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
+    def __attrs__(self):
+        self.dec_nw_ttl = {}
+
     def __init__(self, order=0):
         super(DecNwTTLAction, self).__init__(order)
-        self.dec_nw_ttl = {}
+        self.__attrs__()
 
 
 class CopyTTLOutwardsAction(Action):
@@ -2316,9 +2498,12 @@ class CopyTTLOutwardsAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
+    def __attrs__(self):
+        self.copy_ttl_out = {}
+
     def __init__(self, order=0):
         super(CopyTTLOutwardsAction, self).__init__(order)
-        self.copy_ttl_out = {}
+        self.__attrs__()
 
 
 class CopyTTLInwardsAction(Action):
@@ -2327,9 +2512,98 @@ class CopyTTLInwardsAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
+    def __attrs__(self):
+        self.copy_ttl_in = {}
+
     def __init__(self, order=0):
         super(CopyTTLInwardsAction, self).__init__(order)
-        self.copy_ttl_in = {}
+        self.__attrs__()
+
+
+class SetQueueAction(Action):
+    """ The set-queue action sets the queue id for a packet. When the
+        packet is forwarded to a port using the output action, the queue
+        id determines which queue attached to this port is used for
+        scheduling and forwarding the packet. Forwarding behavior is
+        dictated by the configuration of the queue and is used to provide
+        basic Quality-of-Service (QoS) support.
+        (OpenFlow Switch Specification Version 1.3)
+    """
+
+    def __attrs__(self):
+        self.set_queue_action = {'queue': None, 'queue_id': None}
+
+    def __init__(self, order=None, queue=None, queue_id=None, d=None):
+        super(SetQueueAction, self).__init__(order)
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
+        else:
+            self.set_queue(queue)
+            self.set_gueue_id(queue_id)
+
+    def __init_from_dict__(self, d):
+        if (d is not None and isinstance(d, dict)):
+            for k, v in d.items():
+                if (k == 'queue'):
+                    self.set_gueue(v)
+                elif (k == 'queue_id'):
+                    self.set_gueue_id(v)
+                else:
+                    print ("[SetQueueAction] TBD -> k=%s, v=%s" % (k, v))
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
+
+    def set_queue(self, queue):
+        self.set_queue_action['queue'] = queue
+
+    def set_gueue_id(self, queue_id):
+        self.set_queue_action['queue_id'] = queue_id
+
+    def get_queue_id(self):
+        return self.set_queue_action['queue_id']
+
+
+class GroupAction(Action):
+    """ Process the packet through the specified group.
+        The exact interpretation depends on group type.
+        (OpenFlow Switch Specification Version 1.3)
+    """
+
+    def __attrs__(self):
+        self.group_action = {'group': None, 'group_id': None}
+
+    def __init__(self, order=None, group=None, group_id=None, d=None):
+        super(GroupAction, self).__init__(order)
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
+        else:
+            self.set_group(group)
+            self.set_group_id(group_id)
+
+    def __init_from_dict__(self, d):
+        if (d is not None and isinstance(d, dict)):
+            for k, v in d.items():
+                if (k == 'group'):
+                    self.set_group(v)
+                elif (k == 'group_id'):
+                    self.set_group_id(v)
+                else:
+                    print ("[GroupAction] TBD -> k=%s, v=%s" % (k, v))
+        else:
+            raise TypeError("!!!Error, argument '%s' is of a wrong type "
+                            "('dict' is expected)" % d)
+
+    def set_group(self, group):
+        self.group_action['group'] = group
+
+    def set_group_id(self, group_id):
+        self.group_action['group_id'] = group_id
+
+    def get_group_id(self):
+        return self.group_action['group_id']
 
 
 class SetFieldAction(Action):
@@ -2350,11 +2624,7 @@ class SetFieldAction(Action):
         (OpenFlow Switch Specification Version 1.3)
     """
 
-    def __init__(self, order=None, d=None):
-        super(SetFieldAction, self).__init__(order)
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
+    def __attrs__(self):
         self.set_field = {'vlan_match': None,
                           'protocol_match_fields': None,
                           'ip_match': None,
@@ -2366,18 +2636,14 @@ class SetFieldAction(Action):
                           'udp_source_port': None,
                           'udp_destination_port': None}
 
+    def __init__(self, order=None, d=None):
+        super(SetFieldAction, self).__init__(order)
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
+
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            self.set_field = {'vlan_match': None,
-                              'protocol_match_fields': None,
-                              'ip_match': None,
-                              'ethernet_match': None,
-                              'ipv4_source': None,
-                              'ipv4_destination': None,
-                              'tcp_source_port': None,
-                              'tcp_destination_port': None,
-                              'udp_source_port': None,
-                              'udp_destination_port': None}
             for k, v in d.items():
                 if (k == 'vlan_match'):
                     self.set_field[k] = VlanMatch(v)
@@ -2385,6 +2651,8 @@ class SetFieldAction(Action):
                     self.set_field[k] = ProtocolMatchFields(v)
                 elif (k == 'ethernet_match'):
                     self.set_field[k] = EthernetMatch(v)
+                elif (k == 'ip_match'):
+                    self.set_field[k] = IpMatch(v)
                 elif (k == 'ipv4_source'):
                     self.set_field[k] = v
                 elif (k == 'ipv4_destination'):
@@ -2412,9 +2680,9 @@ class SetFieldAction(Action):
         res = None
         p = 'set_field'
         if (hasattr(self, p)):
-            vm = getattr(self, p)['vlan_match']
-            if (vm is not None):
-                res = vm.get_vid()
+            m = getattr(self, p)['vlan_match']
+            if (m is not None):
+                res = m.get_vid()
         return res
 
     def set_vlan_pcp(self, vlan_pcp):
@@ -2422,10 +2690,37 @@ class SetFieldAction(Action):
             self.set_field['vlan_match'] = VlanMatch()
         self.set_field['vlan_match'].set_pcp(vlan_pcp)
 
+    def get_vlan_pcp(self):
+        res = None
+        p = 'set_field'
+        if (hasattr(self, p)):
+            m = getattr(self, p)['vlan_match']
+            if (m is not None):
+                res = m.get_pcp()
+        return res
+
     def set_eth_src(self, mac_addr):
         if(self.set_field['ethernet_match'] is None):
             self.set_field['ethernet_match'] = EthernetMatch()
         self.set_field['ethernet_match'].set_src(mac_addr)
+
+    def get_eth_src(self):
+        res = None
+        p = 'set_field'
+        if (hasattr(self, p)):
+            m = getattr(self, p)['ethernet_match']
+            if (m is not None):
+                res = m.get_src()
+        return res
+
+    def get_eth_dst(self):
+        res = None
+        p = 'set_field'
+        if (hasattr(self, p)):
+            m = getattr(self, p)['ethernet_match']
+            if (m is not None):
+                res = m.get_dst()
+        return res
 
     def set_eth_dst(self, mac_addr):
         if(self.set_field['ethernet_match'] is None):
@@ -2435,8 +2730,14 @@ class SetFieldAction(Action):
     def set_ipv4_src(self, ipv4_addr):
         self.set_field['ipv4_source'] = ipv4_addr
 
+    def get_ipv4_src(self):
+        return self.set_field['ipv4_source']
+
     def set_ipv4_dst(self, ipv4_addr):
         self.set_field['ipv4_destination'] = ipv4_addr
+
+    def get_ipv4_dst(self):
+        return self.set_field['ipv4_destination']
 
     def set_tcp_src_port(self, tcp_port):
         self.set_field['tcp_source_port'] = tcp_port
@@ -2447,8 +2748,14 @@ class SetFieldAction(Action):
     def set_udp_src_port(self, udp_port):
         self.set_field['udp_source_port'] = udp_port
 
+    def get_udp_src_port(self):
+        return self.set_field['udp_source_port']
+
     def set_udp_dst_port(self, udp_port):
         self.set_field['udp_destination_port'] = udp_port
+
+    def get_udp_dst_port(self):
+        return self.set_field['udp_destination_port']
 
     def set_mpls_label(self, mpls_label):
         if(self.set_field['protocol_match_fields'] is None):
@@ -2460,9 +2767,9 @@ class SetFieldAction(Action):
         p1 = 'set_field'
         p2 = 'protocol_match_fields'
         if (hasattr(self, p1)):
-            pm = getattr(self, p1)[p2]
-            if (pm is not None):
-                res = pm.get_mpls_label()
+            m = getattr(self, p1)[p2]
+            if (m is not None):
+                res = m.get_mpls_label()
         return res
 
     def set_ip_dscp(self, dscp):
@@ -2476,9 +2783,9 @@ class SetFieldAction(Action):
         p1 = 'set_field'
         p2 = 'ip_match'
         if (hasattr(self, p1)):
-            vm = getattr(self, p1)[p2]
-            if (vm is not None):
-                res = vm.get_ip_dscp()
+            m = getattr(self, p1)[p2]
+            if (m is not None):
+                res = m.get_ip_dscp()
         return res
 
     def set_ip_ecn(self, ecn):
@@ -2492,85 +2799,65 @@ class SetFieldAction(Action):
         p1 = 'set_field'
         p2 = 'ip_match'
         if (hasattr(self, p1)):
-            vm = getattr(self, p1)[p2]
-            if (vm is not None):
-                res = vm.get_ip_ecn()
+            m = getattr(self, p1)[p2]
+            if (m is not None):
+                res = m.get_ip_ecn()
         return res
 
 
-class SetQueueAction(Action):
-    """ The set-queue action sets the queue id for a packet. When the
-        packet is forwarded to a port using the output action, the queue
-        id determines which queue attached to this port is used for
-        scheduling and forwarding the packet. Forwarding behavior is
-        dictated by the configuration of the queue and is used to provide
-        basic Quality-of-Service (QoS) support.
+class PushPBBHeaderAction(Action):
+    """ Push a new PBB service instance header (I-TAG TCI) onto the packet.
+        The 'ethernet_type' is used as the Ethernet Type for the tag. Only
+        Ethernet Type  0x88E7 should be used
+        PBB - Provider Backbone Bridges is an Ethernet data-plane technology
+        .     (also known as MAC-in-MAC) that involves encapsulating an
+        .     Ethernet datagram inside another one with new source and
+        .     destination addresses.
         (OpenFlow Switch Specification Version 1.3)
     """
 
-    def __init__(self, order=None, queue=None, queue_id=None, d=None):
-        super(SetQueueAction, self).__init__(order)
+    def __attrs__(self):
+        self.push_pbb_action = {'ethernet_type': None}
+
+    def __init__(self, order=0, ethernet_type=None, d=None):
+        super(PushPBBHeaderAction, self).__init__(order)
+        self.__attrs__()
         if (d is not None):
             self.__init_from_dict__(d)
-            return
-        self.set_queue_action = {'queue': queue, 'queue_id': queue_id}
+        else:
+            self.set_eth_type(ethernet_type)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
-            self.set_queue_action = {'queue': None, 'queue_id': None}
             for k, v in d.items():
-                if (k == 'queue'):
-                    self.set_gueue(v)
-                elif (k == 'queue_id'):
-                    self.set_gueue_id(v)
+                if (k == 'ethernet_type'):
+                    self.set_eth_type(v)
                 else:
-                    print ("[SetQueueAction] TBD -> k=%s, v=%s" % (k, v))
+                    print "[PushPBBHeaderAction] TBD -> k=%s, v=%s" % (k, v)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
 
-    def set_queue(self, queue):
-        self.set_queue_action['queue'] = queue
-
-    def set_gueue_id(self, queue_id):
-        self.set_queue_action['queue_id'] = queue_id
-
-    def set_order(self, order):
-        self.order = order
+    def set_eth_type(self, ethernet_type):
+        self.push_pbb_action['ethernet_type'] = ethernet_type
 
 
-class GroupAction(Action):
-    """ Process the packet through the specified group.
-        The exact interpretation depends on group type.
+class PopPBBHeaderAction(Action):
+    """ Pop the outer-most PBB service instance header (I-TAG TCI)
+        from the packet
+        PBB - Provider Backbone Bridges is an Ethernet data-plane technology
+        .     (also known as MAC-in-MAC) that involves encapsulating an
+        .     Ethernet datagram inside another one with new source and
+        .     destination addresses.
         (OpenFlow Switch Specification Version 1.3)
     """
 
-    def __init__(self, order=None, group=None, group_id=None, d=None):
-        super(GroupAction, self).__init__(order)
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
-        self.group_action = {'group': group, 'group_id': group_id}
+    def __attrs__(self):
+        self.pop_pbb_action = {}
 
-    def __init_from_dict__(self, d):
-        if (d is not None and isinstance(d, dict)):
-            self.group_action = {'group': None, 'group_id': None}
-            for k, v in d.items():
-                if (k == 'group'):
-                    self.set_group(v)
-                elif (k == 'group_id'):
-                    self.set_group_id(v)
-                else:
-                    print ("[GroupAction] TBD -> k=%s, v=%s" % (k, v))
-        else:
-            raise TypeError("!!!Error, argument '%s' is of a wrong type "
-                            "('dict' is expected)" % d)
-
-    def set_group(self, group):
-        self.group_action['group'] = group
-
-    def set_group_id(self, group_id):
-        self.group_action['group_id'] = group_id
+    def __init__(self, order=0):
+        super(PopPBBHeaderAction, self).__init__(order)
+        self.__attrs__()
 
 '''
 class FloodAction(Action):
@@ -2626,10 +2913,7 @@ class LoopbackAction(Action):
 class Match(object):
     """ Class that represents OpenFlow flow matching attributes """
 
-    def __init__(self, d=None):
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
+    def __attrs__(self):
         ''' Ingress port. Numerical representation of in-coming port,
             starting at 1 (may be a physical or switch-defined logical port)
         '''
@@ -2642,7 +2926,8 @@ class Match(object):
             - ethernet destination MAC address
             - ethernet source MAC address
             - ethernet type of the OpenFlow packet payload (after
-            .    VLAN tags) '''
+            .    VLAN tags)
+        '''
         self.ethernet_match = None
         ''' IPv4 source address (can use subnet mask) '''
         self.ipv4_source = None
@@ -2653,7 +2938,8 @@ class Match(object):
             . ToS field or the IPv6 Traffic Class field.
             - ECN bits of the IP header. Part of the IPv4 ToS field or
             . the IPv6 Traffic Class field
-            - IPv4 or IPv6 protocol number '''
+            - IPv4 or IPv6 protocol number
+        '''
         self.ip_match = None
         ''' IPv6 source address (can use subnet mask) '''
         self.ipv6_source = None
@@ -2661,11 +2947,13 @@ class Match(object):
         self.ipv6_destination = None
         ''' The target address in an IPv6 Neighbor Discovery message '''
         self.ipv6_nd_target = None
-        ''' The source link-layer address option in an IPv6 Neighbor Discovery
-            message '''
+        ''' The source link-layer address option in an
+            IPv6 Neighbor Discovery message
+        '''
         self.ipv6_nd_sll = None
-        ''' The target link-layer address option in an IPv6 Neighbor Discovery
-            message '''
+        ''' The target link-layer address option in an
+            IPv6 Neighbor Discovery message
+        '''
         self.ipv6_nd_tll = None
         ''' IPv6 flow label '''
         self.ipv6_label = None
@@ -2675,7 +2963,8 @@ class Match(object):
            - The LABEL in the first MPLS shim header
            - The TC in the first MPLS shim header
            - The BoS bit (Bottom of Stack bit) in the first MPLS shim header
-           - The I-SID in the first PBB service instance tag '''
+           - The I-SID in the first PBB service instance tag
+        '''
         self.protocol_match_fields = None
         ''' UDP source port '''
         self.udp_source_port = None
@@ -2691,16 +2980,19 @@ class Match(object):
         self.sctp_destination_port = None
         ''' ICMPv4 match fields:
             - ICMP type
-            - ICMP code '''
+            - ICMP code
+        '''
         self.icmpv4_match = None
         ''' ICMPv6 match fields
             - ICMPv6 type
-            - ICMPv6 code '''
+            - ICMPv6 code
+        '''
         self.icmpv6_match = None
         ''' VLAN match fields:
-            - VLAN-ID from 802.1Q header (the CFI bit indicate the presence of
-            .  a valid VLAN-ID)
-            - VLAN-PCP from 802.1Q header '''
+            - VLAN-ID from 802.1Q header (the CFI bit indicate
+            .  the presence of a valid VLAN-ID)
+            - VLAN-PCP from 802.1Q header
+        '''
         self.vlan_match = None
         ''' ARP opcode '''
         self.arp_op = None
@@ -2717,20 +3009,25 @@ class Match(object):
         ''' Table metadata (used to pass information between tables) '''
         self.metadata = None
 
+    def __init__(self, d=None):
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
+
     def __init_from_dict__(self, d):
         if d is not None and isinstance(d, dict):
             for k, v in d.items():
-                if 'ethernet_match' == k:
+                if (k == 'ethernet_match'):
                     self.ethernet_match = EthernetMatch(d[k])
-                elif 'ip_match' == k:
+                elif (k == 'ip_match'):
                     self.ip_match = IpMatch(d[k])
-                elif 'protocol_match_fields' == k:
+                elif (k == 'protocol_match_fields'):
                     self.protocol_match_fields = ProtocolMatchFields(d[k])
-                elif 'icmpv4_match' == k:
+                elif (k == 'icmpv4_match'):
                     self.icmpv4_match = IcmpMatch(d[k])
-                elif 'icmpv6_match' == k:
+                elif (k == 'icmpv6_match'):
                     self.icmpv6_match = IcmpV6Match(d[k])
-                elif 'vlan_match' == k:
+                elif (k == 'vlan_match'):
                     self.vlan_match = VlanMatch(d[k])
                 else:
                     setattr(self, k, v)
@@ -3192,15 +3489,17 @@ class Match(object):
 
 
 class EthernetMatch(Match):
-    ''' Ethernet specific match fields '''
+    """ Ethernet specific match fields """
 
-    def __init__(self, d=None):
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
+    def __attrs__(self):
         self.ethernet_type = None
         self.ethernet_source = None
         self.ethernet_destination = None
+
+    def __init__(self, d=None):
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
@@ -3257,21 +3556,23 @@ class EthernetMatch(Match):
 
 
 class VlanMatch(Match):
-    ''' VLAN specific match fields '''
+    """ VLAN specific match fields """
 
-    def __init__(self, d=None):
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
+    def __attrs__(self):
         ''' VLAN-ID from 802.1Q header '''
         self.vlan_id = None
         ''' VLAN-PCP from 802.1Q header '''
         self.vlan_pcp = None
 
+    def __init__(self, d=None):
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
+
     def __init_from_dict__(self, d):
         if d is not None and isinstance(d, dict):
             for k, v in d.items():
-                if ('vlan_id' == k):
+                if (k == 'vlan_id'):
                     self.vlan_id = VlanId(v)
                 else:
                     setattr(self, k, v)
@@ -3304,19 +3605,22 @@ class VlanMatch(Match):
 
 
 class VlanId(VlanMatch):
-    ''' Helper subclass of VlanMatch class to help in serialization
-        of VLAN ID information encoded in match rules of a flow entry '''
+    """ Helper subclass of VlanMatch class to help in serialization
+        of VLAN ID information encoded in match rules of a flow entry
+    """
 
-    def __init__(self, d=None):
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
-
+    def __attrs__(self):
         ''' VLAN-ID from 802.1Q header '''
         self.vlan_id = None
-        ''' Flag that indicates that 'vlan_id' value is set and matching is
-            only for packets with VID equal to 'vlan_id' value '''
+        ''' Flag that indicates that 'vlan_id' value is set and matching
+            is only for packets with VID equal to 'vlan_id' value
+        '''
         self.vlan_id_present = False
+
+    def __init__(self, d=None):
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
 
     def __init_from_dict__(self, d):
         if d is not None and isinstance(d, dict):
@@ -3339,16 +3643,18 @@ class VlanId(VlanMatch):
 
 
 class IcmpMatch(Match):
-    ''' ICMPv4 specific match fields '''
+    """ ICMPv4 specific match fields """
 
-    def __init__(self, d=None):
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
+    def __attrs__(self):
         ''' ICMP type '''
         self.icmpv4_type = None
         ''' ICMP code '''
         self.icmpv4_code = None
+
+    def __init__(self, d=None):
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
 
     def __init_from_dict__(self, d):
         if d is not None and isinstance(d, dict):
@@ -3380,16 +3686,18 @@ class IcmpMatch(Match):
 
 
 class IcmpV6Match(Match):
-    ''' ICMPv6 specific match fields '''
+    """ ICMPv6 specific match fields """
 
-    def __init__(self, d=None):
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
+    def __attrs__(self):
         ''' ICMPv6 type '''
         self.icmpv6_type = None
         ''' ICMPv6 code '''
         self.icmpv6_code = None
+
+    def __init__(self, d=None):
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
@@ -3421,18 +3729,20 @@ class IcmpV6Match(Match):
 
 
 class IpMatch(Match):
-    ''' IPv4 protocol specific match fields '''
+    """ IPv4 protocol specific match fields """
 
-    def __init__(self, d=None):
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
+    def __attrs__(self):
         ''' "IP DSCP (6 bits in ToS field) '''
         self.ip_dscp = None
         ''' IP ECN (2 bits in ToS field) '''
         self.ip_ecn = None
         ''' IPv4 or IPv6 Protocol Number '''
         self.ip_protocol = None
+
+    def __init__(self, d=None):
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
@@ -3474,11 +3784,16 @@ class IpMatch(Match):
 
 
 class Ipv6Label(Match):
-    ''' IPv6 Flow Label '''
+    """ IPv6 Flow Label """
+
+    def __attrs__(self):
+        self.ipv6_flabel = None
+        self.flabel_mask = None
 
     def __init__(self, flabel=None, flabel_mask=None):
-        self.ipv6_flabel = flabel
-        self.flabel_mask = flabel_mask
+        self.__attrs__()
+        self.set_flabel(flabel)
+        self.set_flabel_mask(flabel_mask)
 
     def set_flabel(self, flabel, flabel_mask=None):
         self.ipv6_flabel = flabel
@@ -3503,11 +3818,16 @@ class Ipv6Label(Match):
 
 
 class Ipv6ExtHdr(Match):
-    ''' IPv6 Extension Header pseudo-field '''
+    """ IPv6 Extension Header pseudo-field """
+
+    def __attrs__(self):
+        self.ipv6_exthdr = None
+        self.ipv6_exthdr_mask = None
 
     def __init__(self, exthdr=None, exthdr_mask=None):
-        self.ipv6_exthdr = exthdr
-        self.ipv6_exthdr_mask = exthdr_mask
+        self.__attrs__()
+        self.set_exthdr(exthdr)
+        self.set_exthdr_mask(exthdr_mask)
 
     def set_exthdr(self, exthdr, exthdr_mask=None):
         self.ipv6_exthdr = exthdr
@@ -3532,12 +3852,9 @@ class Ipv6ExtHdr(Match):
 
 
 class ProtocolMatchFields(Match):
-    ''' Protocol match fields '''
+    """ Protocol match fields """
 
-    def __init__(self, d=None):
-        if (d is not None):
-            self.__init_from_dict__(d)
-            return
+    def __attrs__(self):
         ''' The LABEL in the first MPLS shim header '''
         self.mpls_label = None
         ''' The TC in the first MPLS shim header '''
@@ -3546,6 +3863,11 @@ class ProtocolMatchFields(Match):
         self.mpls_bos = None
         ''' The I-SID in the first PBB service instance tag '''
         self.pbb = None
+
+    def __init__(self, d=None):
+        self.__attrs__()
+        if (d is not None):
+            self.__init_from_dict__(d)
 
     def __init_from_dict__(self, d):
         if (d is not None and isinstance(d, dict)):
@@ -3587,11 +3909,14 @@ class ProtocolMatchFields(Match):
 
 
 class Pbb(ProtocolMatchFields):
-    ''' The I-SID in the first PBB service instance tag '''
+    """ The I-SID in the first PBB service instance tag """
 
-    def __init__(self):
+    def __attrs__(self):
         self.pbb_isid = None
         self.pbb_mask = None
+
+    def __init__(self):
+        self.__attrs__()
 
     def set_pbb_isid(self, pbb_isid):
         self.pbb_isid = pbb_isid
@@ -3601,25 +3926,33 @@ class Pbb(ProtocolMatchFields):
 
 
 class ArpSrcHwAddrMatch(Match):
-    ''' ARP source hardware address '''
+    """ ARP source hardware address """
+
+    def __attrs__(self):
+        self.address = None
 
     def __init__(self):
-        self.address = None
+        self.__attrs__()
 
 
 class ArpTgtHwAddrMatch(Match):
     ''' ARP target hardware address '''
 
-    def __init__(self):
+    def __attrs__(self):
         self.address = None
+
+    def __init__(self):
+        self.__attrs__()
 
 
 class Tunnel(Match):
-    ''' Metadata associated with a logical port'''
+    """ Metadata associated with a logical port """
+
+    def __attrs__(self):
+        self.tunnel_id = None
 
     def __init__(self):
-        ''' Metadata associated with a logical port'''
-        self.tunnel_id = None
+        self.__attrs__()
 
     def set_id(self, tunnel_id):
         self.tunnel_id = tunnel_id
@@ -3633,11 +3966,14 @@ class Tunnel(Match):
 
 
 class Metadata(Match):
-    ''' Table metadata. Used to pass information between tables '''
+    """ Table metadata. Used to pass information between tables """
 
-    def __init__(self):
+    def __attrs__(self):
         self.metadata = None
         self.metadata_mask = None
+
+    def __init__(self):
+        self.__attrs__()
 
     def set_metadata(self, metadata):
         self.metadata = metadata
@@ -3662,6 +3998,7 @@ class Metadata(Match):
 
 class GroupEntry():
     """ Class that represents a group entry in the OpenFlow Group Table """
+
     ''' Reference name in the YANG data tree on the Controller '''
     _mn = "flow-node-inventory:group"
 

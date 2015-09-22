@@ -176,12 +176,12 @@ def of_demo_40():
 
     action_order += 1
     action = SetTpSrcAction(action_order)
-    action.set_tp_src_port(act_mod_tcp_src_port)
+    action.set_tp_src(act_mod_tcp_src_port)
     instruction.add_apply_action(action)
 
     action_order += 1
     action = SetTpDstAction(action_order)
-    action.set_tp_dst_port(act_mod_tcp_dst_port)
+    action.set_tp_dst(act_mod_tcp_dst_port)
     instruction.add_apply_action(action)
 
     action_order += 1
