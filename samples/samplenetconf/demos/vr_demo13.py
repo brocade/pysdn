@@ -49,6 +49,7 @@ from pybvc.netconfdev.vrouter.protocols import StaticRoute
 from pybvc.common.status import STATUS
 from pybvc.common.utils import load_dict_from_file
 
+
 def vr_demo_13():
 
     f = "cfg4.yml"
