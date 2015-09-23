@@ -169,8 +169,8 @@ def of_demo_21():
     match.set_ipv6_flabel(ipv6_flabel)
     match.set_ipv6_exh_hdr(ipv6_exthdr)
     match.set_ip_proto(ip_proto)
-    match.set_tcp_src_port(tcp_src_port)
-    match.set_tcp_dst_port(tcp_dst_port)
+    match.set_tcp_src(tcp_src_port)
+    match.set_tcp_dst(tcp_dst_port)
     match.set_metadata(metadata)
     flow_entry.add_match(match)
 

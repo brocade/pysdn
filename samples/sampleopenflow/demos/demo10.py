@@ -165,9 +165,9 @@ def of_demo_10():
     match.set_ip_proto(ip_proto)
     match.set_ip_dscp(ip_dscp)
     match.set_ip_ecn(ip_ecn)
-    match.set_udp_src_port(udp_src_port)
-    match.set_udp_dst_port(udp_dst_port)
-    match.set_in_port(in_port=input_port)
+    match.set_udp_src(udp_src_port)
+    match.set_udp_dst(udp_dst_port)
+    match.set_in_port(input_port)
     flow_entry.add_match(match)
 
     print ("\n")

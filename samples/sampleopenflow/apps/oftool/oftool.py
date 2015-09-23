@@ -679,7 +679,7 @@ class GroupInfo():
         self.ctrl = ctrl
         self.switchid = switch_id
 
-    def show_table(self, config, description, stats, ofp):
+    def show_groups(self, config, description, stats, ofp):
         groups = []
         ofswitch = OFSwitch(self.ctrl, self.switchid)
         s = ""
@@ -732,7 +732,7 @@ class GroupInfo():
 
     def show_group(self, group_id, config, description, stats, ofp):
         ofswitch = OFSwitch(self.ctrl, self.switchid)
-        group_entry = None
+        group = None
         s = ""
         if description:
             s = 'Description'
@@ -751,10 +751,10 @@ class GroupInfo():
 
         status = result.get_status()
         if(status.eq(STATUS.OK)):
-            group_entry = result.get_data()
-            assert(isinstance(group_entry, GroupEntry) or
-                   isinstance(group_entry, GroupDescription) or
-                   isinstance(group_entry, GroupStatistics))
+            group = result.get_data()
+            assert(isinstance(group, GroupEntry) or
+                   isinstance(group, GroupDescription) or
+                   isinstance(group, GroupStatistics))
         elif(status.eq(STATUS.DATA_NOT_FOUND)):
             print "\n".strip()
             print " Requested data not found"
@@ -769,13 +769,12 @@ class GroupInfo():
         print " Group %s - Switch '%s'" % (s, self.switchid)
         print "\n".strip()
 
-        if(group_entry is not None):
+        if(group is not None):
             if(ofp):
-                print "[GroupInfo] show_group - TBD"
-#                print " -- Flow id '%s'" % flow_entry.get_flow_id()
-#                print " %s" % flow_entry.to_ofp_oxm_syntax()
+                print (" -- Group id '%s'" % group.get_group_id())
+                print (" %s" % group.to_ofp_oxm_syntax())
             else:
-                lines = group_entry.to_yang_json(strip=True).split('\n')
+                lines = group.to_yang_json(strip=True).split('\n')
                 for line in lines:
                     print " %s" % line
         else:
@@ -1231,8 +1230,8 @@ class OFToolParser(object):
                              args.config, args.description,
                              args.statistics, args.ofp)
         else:
-            group.show_table(args.config, args.description,
-                             args.statistics, args.ofp)
+            group.show_groups(args.config, args.description,
+                              args.statistics, args.ofp)
 
     def clear_group(self, options):
         parser = argparse.ArgumentParser(

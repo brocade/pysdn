@@ -145,8 +145,8 @@ def of_demo_17():
     match.set_ipv6_dst(ipv6_dst)
     match.set_ip_proto(ip_proto)
     match.set_ip_dscp(ip_dscp)
-    match.set_udp_src_port(udp_src_port)
-    match.set_udp_dst_port(udp_dst_port)
+    match.set_udp_src(udp_src_port)
+    match.set_udp_dst(udp_dst_port)
     flow_entry.add_match(match)
 
     print ("\n")

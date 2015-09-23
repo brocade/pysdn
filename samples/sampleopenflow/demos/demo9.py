@@ -160,8 +160,8 @@ def of_demo_9():
     match.set_ipv4_dst(ipv4_dst)
     match.set_ip_proto(ip_proto)
     match.set_ip_dscp(ip_dscp)
-    match.set_tcp_src_port(tcp_src_port)
-    match.set_tcp_dst_port(tcp_dst_port)
+    match.set_tcp_src(tcp_src_port)
+    match.set_tcp_dst(tcp_dst_port)
     match.set_in_port(input_port)
     flow_entry.add_match(match)
 

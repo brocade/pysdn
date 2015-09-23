@@ -144,8 +144,8 @@ def of_demo_18():
     match.set_ipv6_dst(ipv6_dst)
     match.set_ip_proto(ip_proto)
     match.set_ip_dscp(ip_dscp)
-    match.set_tcp_src_port(tcp_src_port)
-    match.set_tcp_dst_port(tcp_dst_port)
+    match.set_tcp_src(tcp_src_port)
+    match.set_tcp_dst(tcp_dst_port)
     flow_entry.add_match(match)
 
     print ("\n")
