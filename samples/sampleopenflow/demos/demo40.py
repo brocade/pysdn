@@ -199,7 +199,7 @@ def of_demo_40():
     match.set_ip_proto(match_ip_proto)
     match.set_ipv4_src(match_ipv4_src_addr)
     match.set_ipv4_dst(match_ipv4_dst_addr)
-    match.set_tcp_dst_port(match_tcp_dst_port)
+    match.set_tcp_dst(match_tcp_dst_port)
 
     flow_entry1.add_match(match)
 
@@ -293,12 +293,12 @@ def of_demo_40():
 
     action_order += 1
     action = SetFieldAction(action_order)
-    action.set_udp_src_port(act_mod_udp_src_port)
+    action.set_udp_src(act_mod_udp_src_port)
     instruction.add_apply_action(action)
 
     action_order += 1
     action = SetFieldAction(action_order)
-    action.set_udp_dst_port(act_mod_udp_dst_port)
+    action.set_udp_dst(act_mod_udp_dst_port)
     instruction.add_apply_action(action)
 
     action_order += 1
@@ -316,7 +316,7 @@ def of_demo_40():
     match.set_ip_proto(match_ip_proto)
     match.set_ipv4_src(match_ipv4_src_addr)
     match.set_ipv4_dst(match_ipv4_dst_addr)
-    match.set_udp_dst_port(match_udp_dst_port)
+    match.set_udp_dst(match_udp_dst_port)
 
     flow_entry2.add_match(match)
 

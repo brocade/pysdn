@@ -1177,22 +1177,22 @@ class FlowEntry(object):
             v = m.get_ipv6_exh_hdr()
             if (v is not None):
                 odm['ipv6_exthdr'] = v
-            v = m.get_udp_src_port()
+            v = m.get_udp_src()
             if (v is not None):
                 odm['udp_src'] = v
-            v = m.get_udp_dst_port()
+            v = m.get_udp_dst()
             if (v is not None):
                 odm['udp_dst'] = v
-            v = m.get_tcp_src_port()
+            v = m.get_tcp_src()
             if (v is not None):
                 odm['tcp_src'] = v
-            v = m.get_tcp_dst_port()
+            v = m.get_tcp_dst()
             if (v is not None):
                 odm['tcp_dst'] = v
-            v = m.get_sctp_src_port()
+            v = m.get_sctp_src()
             if (v is not None):
                 odm['sctp_src'] = v
-            v = m.get_sctp_dst_port()
+            v = m.get_sctp_dst()
             if (v is not None):
                 odm['sctp_dst'] = v
             v = m.get_arp_opcode()
@@ -1237,160 +1237,12 @@ class FlowEntry(object):
             if instruction.is_apply_actions_type():
                 actions = instruction.get_apply_actions()
                 for action in actions:
-                    if (isinstance(action, OutputAction)):
-                        s = "output="
-                        port = action.get_outport()
-                        s += str(port)
-                        ml = action.get_max_len()
-                        if (ml is not None):
-                            s += ":" + str(ml)
-                        apply_actions.append(s)
-                    elif (isinstance(action, SetVlanIdAction)):
-                        vid = action.get_vid()
-                        if (vid):
-                            s = "set_vlan_vid=%s" % vid
-                            apply_actions.append(s)
-                    elif (isinstance(action, SetVlanPCPAction)):
-                        pcp = action.get_vlan_pcp()
-                        if (pcp):
-                            s = "set_vlan_pcp=%s" % pcp
-                            apply_actions.append(s)
-                    elif (isinstance(action, StripVlanAction)):
-                        s = "strip_vlan"
-                        apply_actions.append(s)
-                    elif (isinstance(action, SetDlSrcAction)):
-                        mac = action.get_dl_src()
-                        if (mac):
-                            s = "set_dl_src=%s" % mac
-                            apply_actions.append(s)
-                    elif (isinstance(action, SetDlDstAction)):
-                        mac = action.get_dl_dst()
-                        if (mac):
-                            s = "set_dl_dst=%s" % mac
-                            apply_actions.append(s)
-                    elif (isinstance(action, SetNwSrcAction)):
-                        nw_src = action.get_nw_src()
-                        if (nw_src):
-                            s = "set_nw_src=%s" % nw_src
-                            apply_actions.append(s)
-                    elif (isinstance(action, SetNwDstAction)):
-                        nw_dst = action.get_nw_dst()
-                        if (nw_dst):
-                            s = "set_nw_dst=%s" % nw_dst
-                            apply_actions.append(s)
-                    elif (isinstance(action, SetNwTosAction)):
-                        nw_tos = action.get_tos()
-                        if (nw_tos):
-                            s = "set_nw_tos=%s" % nw_tos
-                            apply_actions.append(s)
-                    elif (isinstance(action, SetTpSrcAction)):
-                        tp_src = action.get_tp_src()
-                        if (tp_src):
-                            s = "set_tp_src=%s" % tp_src
-                            apply_actions.append(s)
-                    elif (isinstance(action, SetTpDstAction)):
-                        tp_dst = action.get_tp_dst()
-                        if (tp_dst):
-                            s = "set_tp_dst=%s" % tp_dst
-                            apply_actions.append(s)
-                    elif (isinstance(action, PushVlanHeaderAction)):
-                        s = "push_vlan="
-                        eth_type = action.get_eth_type()
-                        s += str(hex(int(eth_type)))
-                        apply_actions.append(s)
-                    elif (isinstance(action, PopVlanHeaderAction)):
-                        s = "pop_vlan"
-                        apply_actions.append(s)
-                    elif (isinstance(action, PushMplsHeaderAction)):
-                        eth_type = action.get_eth_type()
-                        if (eth_type):
-                            s = "push_mpls=%s" % str(hex(int(eth_type)))
-                            apply_actions.append(s)
-                    elif (isinstance(action, PopMplsHeaderAction)):
-                        eth_type = action.get_eth_type()
-                        if (eth_type):
-                            s = "pop_mpls=%s" % str(hex(int(eth_type)))
-                            apply_actions.append(s)
-                    elif (isinstance(action, SetMplsTTLAction)):
-                        ttl = action.get_ttl()
-                        if (ttl):
-                            s = "set_mpls_ttl=%s" % ttl
-                            apply_actions.append(s)
-                    elif (isinstance(action, DecMplsTTLAction)):
-                        s = "dec_mpls_ttl"
-                        apply_actions.append(s)
-                    elif (isinstance(action, SetNwTTLAction)):
-                        ttl = action.get_ttl()
-                        if(ttl):
-                            s = "set_nw_ttl=%s" % ttl
-                            apply_actions.append(s)
-                    elif (isinstance(action, DecNwTTLAction)):
-                        s = "dec_nw_ttl"
-                        apply_actions.append(s)
-#                    elif (isinstance(action, CopyTTLOutwardsAction)):
-#                        "TBD"
-#                    elif (isinstance(action, CopyTTLInwardsAction)):
-#                        TBD
-                    elif (isinstance(action, SetQueueAction)):
-                        qid = action.get_queue_id()
-                        if (qid):
-                            s = "set_queue=%s" % qid
-                            apply_actions.append(s)
-                    elif (isinstance(action, GroupAction)):
-                        grp_id = action.get_group_id()
-                        if (grp_id):
-                            s = "group=%s" % grp_id
-                            apply_actions.append(s)
-                    elif (isinstance(action, SetFieldAction)):
-                        mpls_label = action.get_mpls_label()
-                        if (mpls_label is not None):
-                            s = "set_field->mpls_label=%s" % mpls_label
-                            apply_actions.append(s)
-                        vlan_id = action.get_vlan_id()
-                        if (vlan_id is not None):
-                            s = "set_field->vlan_vid=%s" % vlan_id
-                            apply_actions.append(s)
-                        vlan_pcp = action.get_vlan_pcp()
-                        if (vlan_pcp is not None):
-                            s = "set_field->vlan_pcp=%s" % vlan_pcp
-                            apply_actions.append(s)
-                        eth_src = action.get_eth_src()
-                        if (eth_src):
-                            s = "set_field->eth_src=%s" % eth_src
-                            apply_actions.append(s)
-                        eth_dst = action.get_eth_dst()
-                        if (eth_dst):
-                            s = "set_field->eth_dst=%s" % eth_dst
-                            apply_actions.append(s)
-                        ipv4_src = action.get_ipv4_src()
-                        if (ipv4_src):
-                            s = "set_field->ipv4_src=%s" % ipv4_src
-                            apply_actions.append(s)
-                        ipv4_dst = action.get_ipv4_dst()
-                        if (ipv4_dst):
-                            s = "set_field->ipv4_dst=%s" % ipv4_dst
-                            apply_actions.append(s)
-                        ip_dscp = action.get_ip_dscp()
-                        if (ip_dscp):
-                            s = "set_field->ip_dscp=%s" % ip_dscp
-                            apply_actions.append(s)
-                        udp_src = action.get_udp_src_port()
-                        if (udp_src):
-                            s = "set_field->udp_src=%s" % udp_src
-                            apply_actions.append(s)
-                        udp_dst = action.get_udp_dst_port()
-                        if (udp_dst):
-                            s = "set_field->udp_dst=%s" % udp_dst
-                            apply_actions.append(s)
-#                    elif (isinstance(action, PushPBBHeaderAction)):
-#                        "TBD"
-#                    elif (isinstance(action, PopPBBHeaderAction)):
-#                        "TBD"
-                    elif (isinstance(action, DropAction)):
-                        s = "drop"
+                    s = action.to_ofp_oxm_syntax()
+                    if (s):
                         apply_actions.append(s)
                     else:
-                        msg = "TBD -> yet unimplemented action %s" % action
+                        msg = ("[FlowEntry->to_ofp_oxm_syntax]"
+                               " no value for action %s" % action)
                         dbg_print(msg)
 
         sa = "actions={"
@@ -1638,12 +1490,21 @@ class Instruction():
                             for a in v[p2]:
                                 if isinstance(a, dict):
                                     action = self.create_action_from_dict(a)
-                                    if (action):
-                                        self.add_apply_action(action)
+                                    assert(action)
+                                    self.add_apply_action(action)
+                                else:
+                                    msg = ("TBD -> unsupported "
+                                           "data type '%s'" %
+                                           type(a))
+                                    dbg_print(msg)
                         elif isinstance(v[p2], dict):
                             action = self.create_action_from_dict(v[p2])
-                            if (action):
-                                self.add_apply_action(action)
+                            assert(action)
+                            self.add_apply_action(action)
+                        else:
+                            msg = ("TBD -> unsupported data type '%s'" %
+                                   type(v[p2]))
+                            dbg_print(msg)
                 elif p3:
                     self.order = v
                 else:
@@ -1841,6 +1702,16 @@ class OutputAction(Action):
     def set_order(self, order):
         self.order = order
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        p = self.get_outport()
+        if (p):
+            s = "output=%s" % p
+            l = self.get_max_len()
+            if (l):
+                s += ":" + str(l)
+        return s
+
 
 class DropAction(Action):
     """ There is no explicit action to represent drops. Instead,
@@ -1860,6 +1731,10 @@ class DropAction(Action):
 
     def set_order(self, order):
         self.order = order
+
+    def to_ofp_oxm_syntax(self):
+        s = "drop"
+        return s
 
 
 class SetVlanIdAction(Action):
@@ -1899,6 +1774,13 @@ class SetVlanIdAction(Action):
     def get_vid(self):
         return self.set_vlan_id_action['vlan_id']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        vid = self.get_vid()
+        if (vid):
+            s = "set_vlan_vid=%s" % vid
+        return s
+
 
 class SetVlanPCPAction(Action):
     """ Set VLAN priority.
@@ -1937,6 +1819,13 @@ class SetVlanPCPAction(Action):
     def get_vlan_pcp(self):
         return self.set_vlan_pcp_action['vlan_pcp']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        pcp = self.get_vlan_pcp()
+        if (pcp):
+            s = "set_vlan_pcp=%s" % pcp
+        return s
+
 '''
 class SetVlanCfiAction(Action):
     """ Seems to be ODL proprietary action type ???
@@ -1971,6 +1860,10 @@ class StripVlanAction(Action):
     def __init__(self, order=None):
         super(StripVlanAction, self).__init__(order)
         self.__attrs__()
+
+    def to_ofp_oxm_syntax(self):
+        s = "strip_vlan"
+        return s
 
 
 class SetDlSrcAction(Action):
@@ -2009,6 +1902,13 @@ class SetDlSrcAction(Action):
     def get_dl_src(self):
         return self.set_dl_src_action['address']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        mac = self.get_dl_src()
+        if (mac):
+            s = "set_dl_src=%s" % mac
+        return s
+
 
 class SetDlDstAction(Action):
     """ Modify Ethernet destination MAC address.
@@ -2045,6 +1945,13 @@ class SetDlDstAction(Action):
 
     def get_dl_dst(self):
         return self.set_dl_dst_action['address']
+
+    def to_ofp_oxm_syntax(self):
+        s = None
+        mac = self.get_dl_dst()
+        if (mac):
+            s = "set_dl_dst=%s" % mac
+        return s
 
 
 class SetNwSrcAction(Action):
@@ -2084,6 +1991,13 @@ class SetNwSrcAction(Action):
     def get_nw_src(self):
         return self.set_nw_src_action['ipv4_address']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        src = self.get_nw_src()
+        if (src):
+            s = "set_nw_src=%s" % src
+        return s
+
 
 class SetNwDstAction(Action):
     """ Modify IPv4 destination address.
@@ -2121,6 +2035,13 @@ class SetNwDstAction(Action):
 
     def get_nw_dst(self):
         return self.set_nw_dst_action['ipv4_address']
+
+    def to_ofp_oxm_syntax(self):
+        s = None
+        dst = self.get_nw_dst()
+        if (dst):
+            s = "set_nw_dst=%s" % dst
+        return s
 
 
 class SetNwTosAction(Action):
@@ -2165,6 +2086,13 @@ class SetNwTosAction(Action):
     def get_tos(self):
         return self.set_nw_tos_action['tos']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        tos = self.get_tos()
+        if (tos):
+            s = "set_nw_tos=%s" % tos
+        return s
+
 
 class SetTpSrcAction(Action):
     """ Modify transport source port.
@@ -2203,6 +2131,13 @@ class SetTpSrcAction(Action):
     def get_tp_src(self):
         return self.set_tp_src_action['port']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        src = self.get_tp_src()
+        if (src):
+            s = "set_tp_src=%s" % src
+        return s
+
 
 class SetTpDstAction(Action):
     """ Modify transport destination port.
@@ -2240,6 +2175,13 @@ class SetTpDstAction(Action):
 
     def get_tp_dst(self):
         return self.set_tp_dst_action['port']
+
+    def to_ofp_oxm_syntax(self):
+        s = None
+        dst = self.get_tp_dst()
+        if (dst):
+            s = "set_tp_dst=%s" % dst
+        return s
 
 
 class PushVlanHeaderAction(Action):
@@ -2302,6 +2244,13 @@ class PushVlanHeaderAction(Action):
     def set_order(self, order):
         self.order = order
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        eth_type = self.get_eth_type()
+        if (eth_type):
+            s = "push_vlan=%s" % str(hex(int(eth_type)))
+        return s
+
 
 class PopVlanHeaderAction(Action):
     """ Pop the outer-most VLAN header from the packet.
@@ -2314,6 +2263,10 @@ class PopVlanHeaderAction(Action):
     def __init__(self, order=None):
         super(PopVlanHeaderAction, self).__init__(order)
         self.__attrs__()
+
+    def to_ofp_oxm_syntax(self):
+        s = "pop_vlan"
+        return s
 
 
 class PushMplsHeaderAction(Action):
@@ -2355,6 +2308,13 @@ class PushMplsHeaderAction(Action):
             res = getattr(self, p)['ethernet_type']
         return res
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        eth_type = self.get_eth_type()
+        if (eth_type):
+            s = "push_mpls=%s" % str(hex(int(eth_type)))
+        return s
+
 
 class PopMplsHeaderAction(Action):
     """ Pop the outer-most MPLS tag or shim header from the packet.
@@ -2391,6 +2351,13 @@ class PopMplsHeaderAction(Action):
     def get_eth_type(self):
         return self.pop_mpls_action['ethernet_type']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        eth_type = self.get_eth_type()
+        if (eth_type):
+            s = "pop_mpls=%s" % str(hex(int(eth_type)))
+        return s
+
 
 class SetMplsTTLAction(Action):
     """ Replace the existing MPLS TTL. Only applies to packets with
@@ -2426,6 +2393,13 @@ class SetMplsTTLAction(Action):
     def get_ttl(self):
         return self.set_mpls_ttl_action['mpls_ttl']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        ttl = self.get_ttl()
+        if (ttl):
+            s = "set_mpls_ttl=%s" % ttl
+        return s
+
 
 class DecMplsTTLAction(Action):
     """ Decrement the MPLS TTL. Only applies to packets with
@@ -2439,6 +2413,10 @@ class DecMplsTTLAction(Action):
     def __init__(self, order=0):
         super(DecMplsTTLAction, self).__init__(order)
         self.__attrs__()
+
+    def to_ofp_oxm_syntax(self):
+        s = "dec_mpls_ttl"
+        return s
 
 
 class SetNwTTLAction(Action):
@@ -2476,6 +2454,13 @@ class SetNwTTLAction(Action):
     def get_ttl(self):
         return self.set_nw_ttl_action['nw_ttl']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        ttl = self.get_ttl()
+        if (ttl):
+            s = "set_nw_ttl=%s" % ttl
+        return s
+
 
 class DecNwTTLAction(Action):
     """ Decrement the IPv4 TTL or IPv6 Hop Limit field and
@@ -2491,6 +2476,10 @@ class DecNwTTLAction(Action):
         super(DecNwTTLAction, self).__init__(order)
         self.__attrs__()
 
+    def to_ofp_oxm_syntax(self):
+        s = "dec_nw_ttl"
+        return s
+
 
 class CopyTTLOutwardsAction(Action):
     """ Copy the TTL from next-to-outermost to outermost header with TTL.
@@ -2505,6 +2494,10 @@ class CopyTTLOutwardsAction(Action):
         super(CopyTTLOutwardsAction, self).__init__(order)
         self.__attrs__()
 
+    def to_ofp_oxm_syntax(self):
+        s = "copy_ttl_out"
+        return s
+
 
 class CopyTTLInwardsAction(Action):
     """ Copy the TTL from outermost to next-to-outermost header with TTL.
@@ -2518,6 +2511,10 @@ class CopyTTLInwardsAction(Action):
     def __init__(self, order=0):
         super(CopyTTLInwardsAction, self).__init__(order)
         self.__attrs__()
+
+    def to_ofp_oxm_syntax(self):
+        s = "copy_ttl_in"
+        return s
 
 
 class SetQueueAction(Action):
@@ -2564,6 +2561,13 @@ class SetQueueAction(Action):
     def get_queue_id(self):
         return self.set_queue_action['queue_id']
 
+    def to_ofp_oxm_syntax(self):
+        s = None
+        qid = self.get_queue_id()
+        if (qid):
+            s = "set_queue=%s" % qid
+        return s
+
 
 class GroupAction(Action):
     """ Process the packet through the specified group.
@@ -2604,6 +2608,13 @@ class GroupAction(Action):
 
     def get_group_id(self):
         return self.group_action['group_id']
+
+    def to_ofp_oxm_syntax(self):
+        s = None
+        grp_id = self.get_group_id()
+        if (grp_id):
+            s = "group=%s" % grp_id
+        return s
 
 
 class SetFieldAction(Action):
@@ -2713,6 +2724,11 @@ class SetFieldAction(Action):
                 res = m.get_src()
         return res
 
+    def set_eth_dst(self, mac_addr):
+        if(self.set_field['ethernet_match'] is None):
+            self.set_field['ethernet_match'] = EthernetMatch()
+        self.set_field['ethernet_match'].set_dst(mac_addr)
+
     def get_eth_dst(self):
         res = None
         p = 'set_field'
@@ -2721,11 +2737,6 @@ class SetFieldAction(Action):
             if (m is not None):
                 res = m.get_dst()
         return res
-
-    def set_eth_dst(self, mac_addr):
-        if(self.set_field['ethernet_match'] is None):
-            self.set_field['ethernet_match'] = EthernetMatch()
-        self.set_field['ethernet_match'].set_dst(mac_addr)
 
     def set_ipv4_src(self, ipv4_addr):
         self.set_field['ipv4_source'] = ipv4_addr
@@ -2739,22 +2750,28 @@ class SetFieldAction(Action):
     def get_ipv4_dst(self):
         return self.set_field['ipv4_destination']
 
-    def set_tcp_src_port(self, tcp_port):
+    def set_tcp_src(self, tcp_port):
         self.set_field['tcp_source_port'] = tcp_port
 
-    def set_tcp_dst_port(self, tcp_port):
+    def get_tcp_src(self):
+        return self.set_field['tcp_source_port']
+
+    def set_tcp_dst(self, tcp_port):
         self.set_field['tcp_destination_port'] = tcp_port
 
-    def set_udp_src_port(self, udp_port):
+    def get_tcp_dst(self):
+        return self.set_field['tcp_destination_port']
+
+    def set_udp_src(self, udp_port):
         self.set_field['udp_source_port'] = udp_port
 
-    def get_udp_src_port(self):
+    def get_udp_src(self):
         return self.set_field['udp_source_port']
 
-    def set_udp_dst_port(self, udp_port):
+    def set_udp_dst(self, udp_port):
         self.set_field['udp_destination_port'] = udp_port
 
-    def get_udp_dst_port(self):
+    def get_udp_dst(self):
         return self.set_field['udp_destination_port']
 
     def set_mpls_label(self, mpls_label):
@@ -2803,6 +2820,66 @@ class SetFieldAction(Action):
             if (m is not None):
                 res = m.get_ip_ecn()
         return res
+
+    def to_ofp_oxm_syntax(self):
+        s = "set_field->%s=%s"
+
+        v = self.get_vlan_id()
+        if (v is not None):
+            return (s % ("vlan_vid", v))
+
+        v = self.get_vlan_pcp()
+        if (v is not None):
+            return (s % ("vlan_pcp", v))
+
+        v = self.get_eth_src()
+        if (v is not None):
+            return (s % ("eth_src", v))
+
+        v = self.get_eth_dst()
+        if(v is not None):
+            return (s % ("eth_dst", v))
+
+        v = self.get_ipv4_src()
+        if (v is not None):
+            return (s % ("ipv4_src", v))
+
+        v = self.get_ipv4_dst()
+        if (v is not None):
+            return (s % ("ipv4_dst", v))
+
+        v = self.get_tcp_src()
+        if (v is not None):
+            return (s % ("tcp_src", v))
+
+        v = self.get_tcp_dst()
+        if (v is not None):
+            return (s % ("tcp_dst", v))
+
+        v = self.get_udp_src()
+        if (v is not None):
+            return (s % ("udp_src", v))
+
+        v = self.get_udp_dst()
+        if(v is not None):
+            return (s % ("udp_dst", v))
+
+        v = self.get_mpls_label()
+        if (v is not None):
+            return (s % ("mpls_label", v))
+
+        v = self.get_ip_dscp()
+        if (v is not None):
+            return (s % ("ip_dscp", v))
+
+        v = self.get_ip_ecn()
+        if (v is not None):
+            return (s % ("ip_ecn", v))
+
+        msg = "[SetFieldAction->to_ofp_oxm_syntax] no value found"
+        dbg_print(msg)
+
+        return None
 
 
 class PushPBBHeaderAction(Action):
@@ -3211,60 +3288,60 @@ class Match(object):
             res = ipm.get_ip_proto()
         return res
 
-    def set_udp_src_port(self, udp_port):
+    def set_udp_src(self, udp_port):
         self.udp_source_port = udp_port
 
-    def get_udp_src_port(self):
+    def get_udp_src(self):
         res = None
         p = 'udp_source_port'
         if hasattr(self, p):
             res = getattr(self, p)
         return res
 
-    def set_udp_dst_port(self, udp_port):
+    def set_udp_dst(self, udp_port):
         self.udp_destination_port = udp_port
 
-    def get_udp_dst_port(self):
+    def get_udp_dst(self):
         res = None
         p = 'udp_destination_port'
         if hasattr(self, p):
             res = getattr(self, p)
         return res
 
-    def set_tcp_src_port(self, tcp_port):
+    def set_tcp_src(self, tcp_port):
         self.tcp_source_port = tcp_port
 
-    def get_tcp_src_port(self):
+    def get_tcp_src(self):
         res = None
         p = 'tcp_source_port'
         if hasattr(self, p):
             res = getattr(self, p)
         return res
 
-    def set_tcp_dst_port(self, tcp_port):
+    def set_tcp_dst(self, tcp_port):
         self.tcp_destination_port = tcp_port
 
-    def get_tcp_dst_port(self):
+    def get_tcp_dst(self):
         res = None
         p = 'tcp_destination_port'
         if hasattr(self, p):
             res = getattr(self, p)
         return res
 
-    def set_sctp_src_port(self, sctp_port):
+    def set_sctp_src(self, sctp_port):
         self.sctp_source_port = sctp_port
 
-    def get_sctp_src_port(self):
+    def get_sctp_src(self):
         res = None
         p = 'sctp_source_port'
         if hasattr(self, p):
             res = getattr(self, p)
         return res
 
-    def set_sctp_dst_port(self, sctp_port):
+    def set_sctp_dst(self, sctp_port):
         self.sctp_destination_port = sctp_port
 
-    def get_sctp_dst_port(self):
+    def get_sctp_dst(self):
         res = None
         p = 'sctp_destination_port'
         if hasattr(self, p):
@@ -4018,10 +4095,10 @@ class GroupEntry():
         ''' Unclear what is it for ???
             Controller's specific attribute (optional) '''
         self.container_name = None
-
         ''' Unclear, what is it for ???
             Would assume it serves for the same purpose as in FlowEntry.
-            Controller's specific attribute (optional) '''
+            Controller's specific attribute (optional)
+        '''
         self.barrier = None
         ''' An ordered list of action buckets in this group.
             Each action bucket contains a set of actions to execute
@@ -4108,25 +4185,20 @@ class GroupEntry():
                           sort_keys=True, indent=4)
 
     def to_ofp_oxm_syntax(self):
-        odc = OrderedDict()
-        print vars(self)
+        gl = []
         if (self.group_id):
-            odc['group_id'] = self.group_id
+            gl.append('group_id=' + str(self.group_id))
         if (self.group_type):
-            odc['type'] = self.group_type.replace('group-', '')
-        gc = json.dumps(odc, separators=(',', '='))
-        gc = gc.translate(None, '"{} ').replace(':', '=')
+            gl.append('type=' + self.group_type.replace('group-', ''))
 
-        gb = "buckets=["
-        buckets = self.buckets['bucket']
         bl = []
+        buckets = self.buckets['bucket']
         for b in buckets:
             s = b.to_ofp_oxm_syntax()
             bl.append(s)
-        if(bl):
-            gb += ",".join(bl)
-        gb += "]"
-        return gc + " " + gb
+
+        s = ",".join(gl + bl)
+        return s
 
     def set_group_id(self, group_id):
         self.group_id = group_id
@@ -4213,8 +4285,28 @@ class GroupBucket():
         if (js is not None and isinstance(js, basestring)):
             obj = json.loads(js)
             d = dict_keys_dashed_to_underscored(obj)
+            p1 = 'action'
             for k, v in d.items():
-                setattr(self, k, v)
+                if (k == p1):
+                    if isinstance(v, list):
+                        for a in v:
+                            if isinstance(a, dict):
+                                action = self.create_action_from_dict(a)
+                                assert(action)
+                                self.add_action(action)
+                            else:
+                                msg = ("TBD -> unsupported data type '%s'" %
+                                       type(a))
+                                dbg_print(msg)
+                    elif isinstance(v, dict):
+                        action = self.create_action_from_dict(a)
+                        assert(action)
+                        self.add_action(action)
+                    else:
+                        msg = ("TBD -> unsupported data type '%s'" % type(v))
+                        dbg_print(msg)
+                else:
+                    setattr(self, k, v)
         else:
             raise TypeError("[GroupBucket] wrong argument type '%s'"
                             " (JSON 'string' is expected)" % type(js))
@@ -4236,17 +4328,36 @@ class GroupBucket():
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
-    def to_ofp_oxm_syntax(self):
-        print self.to_string()
-        od = OrderedDict()
-        if(self.weight):
-            od['weight'] = self.weight
-        if(self.watch_port):
-            od['watch_port'] = self.watch_port
-        if(self.watch_group):
-            od['watch_group'] = self.watch_group
+    def create_action_from_dict(self, d):
+        action = Instruction().create_action_from_dict(d)
+        return action
 
-        s = json.dumps(od, separators=(',', '='))
+    def to_ofp_oxm_syntax(self):
+        bl = []
+        if(self.weight):
+            bl.append('weight=' + str(self.weight))
+        if(self.watch_port):
+            bl.append('watch_port=' + str(self.watch_port))
+        if(self.watch_group):
+            bl.append('watch_group=' + str(self.watch_group))
+
+        al = []
+        actions = self.get_actions()
+        for action in actions:
+            s = action.to_ofp_oxm_syntax()
+            if (s):
+                al.append(s)
+            else:
+                msg = ("[GroupBucket->to_ofp_oxm_syntax]"
+                       " no value for action %s" % action)
+                dbg_print(msg)
+        sa = "actions={"
+        if (al):
+            sa += ",".join(al)
+        sa += "}"
+
+        bl.append(sa)
+        s = "bucket={" + ",".join(bl) + "}"
         return s
 
     def set_weight(self, weight):
@@ -4269,3 +4380,6 @@ class GroupBucket():
 
     def add_action(self, action):
         self.action.append(action)
+
+    def get_actions(self):
+        return self.action
