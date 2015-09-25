@@ -699,10 +699,12 @@ class Controller():
                     else:
                         raise ValueError()
                 except(Exception):
-                    dbg_print("DEBUG: data not found in the received reply")
+                    msg = "TODO (unexpected data format in response)"
+                    dbg_print(msg)
                     status.set_status(STATUS.DATA_NOT_FOUND)
             else:
-                print "DEBUG: TBD (not implemented content type parser)"
+                msg = "TODO (not implemented content type parser)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1157,7 +1159,7 @@ class Controller():
         return Result(status, None)
 
     # -------------------------------------------------------------------------
-    # TBD:
+    # TODO:
     # NOTE: It is unclear which NETCONF node attributes are allowed for dynamic
     #       configuration changes. For now just follow an example that is
     #       published on ODL wiki.

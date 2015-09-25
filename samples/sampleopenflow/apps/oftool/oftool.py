@@ -51,14 +51,14 @@ from pybvc.common.status import STATUS
 from pybvc.common.utils import dbg_print
 from pybvc.openflowdev.ofswitch import (OFSwitch,
                                         FlowEntry,
-                                        GroupEntry)
-from pybvc.controller.topology import Topology, Node
-from pybvc.controller.inventory import (Inventory,
-                                        OpenFlowCapableNode,
-                                        OpenFlowPort,
+                                        GroupEntry,
                                         GroupFeatures,
                                         GroupDescription,
                                         GroupStatistics)
+from pybvc.controller.topology import Topology, Node
+from pybvc.controller.inventory import (Inventory,
+                                        OpenFlowCapableNode,
+                                        OpenFlowPort)
 
 
 class CtrlCfg():
