@@ -55,10 +55,6 @@ from pybvc.common.utils import (find_key_values_in_dict,
                                 strip_none,
                                 dict_keys_dashed_to_underscored,
                                 dbg_print)
-from pybvc.controller.inventory import (GroupFeatures,
-                                        GroupDescription,
-                                        GroupStatistics,
-                                        QueueStats)
 
 
 class OFSwitch(OpenflowNode):
@@ -179,11 +175,70 @@ class OFSwitch(OpenflowNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, sorted(plist))
 
-    # -------------------------------------------------------------------------
-    #  TBD
-    # -------------------------------------------------------------------------
+    def get_port_detail_info(self, portnum):
+        status = OperStatus()
+        info = None
+        templateUrlExt = "/node-connector/{}:{}"
+        urlext = templateUrlExt.format(self.name, portnum)
+        ctrl = self.ctrl
+        url = ctrl.get_node_operational_url(self.name)
+        url += urlext
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p = 'node-connector'
+            d = json.loads(resp.content)
+            v = d.get(p, None)
+            if (isinstance(v, list) and len(v) != 0):
+                info = v[0]
+            status.set_status(STATUS.OK
+                              if info is not None
+                              else STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        return Result(status, info)
+
     def get_port_brief_info(self, portnum):
-        pass
+        status = OperStatus()
+        info = {}
+        templateUrlExt = "/node-connector/{}:{}"
+        urlext = templateUrlExt.format(self.name, portnum)
+        ctrl = self.ctrl
+        url = ctrl.get_node_operational_url(self.name)
+        url += urlext
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            d = json.loads(resp.content)
+            p = 'node-connector'
+            v = find_key_value_in_dict(d, p)
+            if (isinstance(v, list) and len(v) == 1):
+                try:
+                    d = v[0]
+                    info['id'] = d['id']
+                    info['number'] = d['flow-node-inventory:port-number']
+                    info['name'] = d['flow-node-inventory:name']
+                    info['MAC address'] = \
+                        d['flow-node-inventory:hardware-address']
+                    s = d['flow-node-inventory:current-feature']
+                    info['current feature'] = s.upper()
+                    status.set_status(STATUS.OK)
+                except () as e:
+                    print "Error: " + repr(e)
+                    status.set_status(STATUS.DATA_NOT_FOUND)
+            else:
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
+                status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        return Result(status, info)
 
     def get_ports_brief_info(self):
         status = OperStatus()
@@ -245,7 +300,8 @@ class OFSwitch(OpenflowNode):
             else:
                 status.set_status(STATUS.HTTP_ERROR, resp)
         else:
-            dbg_print("DEBUG: unsupported data format ")
+            msg = "TODO (unexpected data format in response)"
+            dbg_print(msg)
             status.set_status(STATUS.MALFORM_DATA)
         return Result(status, resp)
 
@@ -312,32 +368,6 @@ class OFSwitch(OpenflowNode):
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, None)
-
-    def get_port_detail_info(self, portnum):
-        status = OperStatus()
-        info = None
-        templateUrlExt = "/node-connector/{}:{}"
-        urlext = templateUrlExt.format(self.name, portnum)
-        ctrl = self.ctrl
-        url = ctrl.get_node_operational_url(self.name)
-        url += urlext
-        resp = ctrl.http_get_request(url, data=None, headers=None)
-        if(resp is None):
-            status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content is None):
-            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif (resp.status_code == 200):
-            p = 'node-connector'
-            d = json.loads(resp.content)
-            v = d.get(p, None)
-            if (isinstance(v, list) and len(v) != 0):
-                info = v[0]
-            status.set_status(STATUS.OK
-                              if info is not None
-                              else STATUS.DATA_NOT_FOUND)
-        else:
-            status.set_status(STATUS.HTTP_ERROR, resp)
-        return Result(status, info)
 
     def get_flow(self, tableid, flowid, operational=True):
         status = OperStatus()
@@ -1115,6 +1145,7 @@ class FlowEntry(object):
             odc['priority'] = v
         sc = json.dumps(odc, separators=(',', '='))
         sc = sc.translate(None, '"{} ').replace(':', '=')
+
         # Flow Match
         sm = ""
         m = self.get_match_fields()
@@ -1460,16 +1491,16 @@ class Instructions():
 
 
 class Instruction():
-    ''' Class representing an OpenFlow flow instruction '''
+    """ Class representing an OpenFlow flow instruction """
 
     def __attrs__(self):
         self.order = None
-#  TBD      self.goto_table = {}
-#  TBD      self.write_metadata = {}
-#  TBD      self.write_actions = {}
         self.apply_actions = {'action': []}
-#  TBD      self.clear_actions = {}
-#  TBD      self.meter = {}
+#  TODO      self.goto_table = {}
+#  TODO      self.write_metadata = {}
+#  TODO      self.write_actions = {}
+#  TODO      self.clear_actions = {}
+#  TODO      self.meter = {}
 
     def __init__(self, instruction_order=None, d=None):
         self.__attrs__()
@@ -1493,7 +1524,7 @@ class Instruction():
                                     assert(action)
                                     self.add_apply_action(action)
                                 else:
-                                    msg = ("TBD -> unsupported "
+                                    msg = ("TODO -> unsupported "
                                            "data type '%s'" %
                                            type(a))
                                     dbg_print(msg)
@@ -1502,7 +1533,7 @@ class Instruction():
                             assert(action)
                             self.add_apply_action(action)
                         else:
-                            msg = ("TBD -> unsupported data type '%s'" %
+                            msg = ("TODO -> unsupported data type '%s'" %
                                    type(v[p2]))
                             dbg_print(msg)
                 elif p3:
@@ -1554,8 +1585,8 @@ class Instruction():
             p10 = 'set_tp_dst_action'   # OFPAT_SET_TP_DST (10)
 
             # OpenFlow 1.3 actions
-# TBD       p11 = 'copy_ttl_out'         # OFPAT_COPY_TTL_OUT (11)
-# TBD       p12 = 'copy_ttl_in'          # OFPAT_COPY_TTL_IN (12)
+# TODO       p11 = 'copy_ttl_out'         # OFPAT_COPY_TTL_OUT (11)
+# TODO       p12 = 'copy_ttl_in'          # OFPAT_COPY_TTL_IN (12)
             p15 = 'set_mpls_ttl_action'  # OFPAT_SET_MPLS_TTL (15)
             p16 = 'dec_mpls_ttl'         # OFPAT_DEC_MPLS_TTL (16)
             p17 = 'push_vlan_action'     # OFPAT_PUSH_VLAN (17)
@@ -1593,9 +1624,9 @@ class Instruction():
                 action = SetTpSrcAction(order=action_order, d=d[p9])
             elif (p10 in d):
                 action = SetTpDstAction(order=action_order, d=d[p10])
-#  TBD      elif (p11 in d):
+#  TODO      elif (p11 in d):
 #                action = CopyTtlOutAction(order=action_order, d=d[p11])
-#  TBD      elif (p12 in d):
+#  TODO      elif (p12 in d):
 #                action = CopyTtlInAction(order=action_order, d=d[p12])
             elif (p15 in d):
                 action = SetMplsTTLAction(order=action_order, d=d[p15])
@@ -1672,7 +1703,8 @@ class OutputAction(Action):
                 elif (k == 'max_length'):
                     self.set_max_len(v)
                 else:
-                    print ("[OutputAction] TBD -> k=%s, v=%s" % (k, v))
+                    msg = ("[OutputAction] TODO -> k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -1762,7 +1794,7 @@ class SetVlanIdAction(Action):
                 if (k == 'vlan_id'):
                     self.set_vid(v)
                 else:
-                    msg = ("[SetVlanIdAction] TBD -> k='%s', v='%s'" % (k, v))
+                    msg = ("[SetVlanIdAction] TODO -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -1807,7 +1839,8 @@ class SetVlanPCPAction(Action):
                 if (k == 'vlan_pcp'):
                     self.set_vlan_pcp(v)
                 else:
-                    msg = ("[SetVlanPCPAction] TBD -> k='%s', v='%s'" % (k, v))
+                    msg = ("[SetVlanPCPAction] TODO -> "
+                           "k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -1890,7 +1923,7 @@ class SetDlSrcAction(Action):
                 if (k == 'address'):
                     self.set_dl_src(v)
                 else:
-                    msg = ("[SetDlSrcAction] TBD -> k='%s', v='%s'" % (k, v))
+                    msg = ("[SetDlSrcAction] TODO -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -1934,7 +1967,7 @@ class SetDlDstAction(Action):
                 if (k == 'address'):
                     self.set_dl_dst(v)
                 else:
-                    msg = ("[SetDlDstAction] TBD -> k='%s', v='%s'" % (k, v))
+                    msg = ("[SetDlDstAction] TODO -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -1979,7 +2012,7 @@ class SetNwSrcAction(Action):
                 if (k == 'ipv4_address'):
                     self.set_nw_src(v)
                 else:
-                    msg = ("[SetNwSrcAction] TBD -> k='%s', v='%s'" % (k, v))
+                    msg = ("[SetNwSrcAction] TODO -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -2024,7 +2057,7 @@ class SetNwDstAction(Action):
                 if (k == 'ipv4_address'):
                     self.set_nw_dst(v)
                 else:
-                    msg = ("[SetNwDstAction] TBD -> k='%s', v='%s'" % (k, v))
+                    msg = ("[SetNwDstAction] TODO -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -2074,7 +2107,7 @@ class SetNwTosAction(Action):
                 if (k == 'tos'):
                     self.set_tos(v)
                 else:
-                    msg = ("[SetNwTosAction] TBD -> k='%s', v='%s'" % (k, v))
+                    msg = ("[SetNwTosAction] TODO -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -2119,7 +2152,7 @@ class SetTpSrcAction(Action):
                 if (k == 'port'):
                     self.set_tp_src(v)
                 else:
-                    msg = ("[SetTpSrcAction] TBD -> k='%s', v='%s'" % (k, v))
+                    msg = ("[SetTpSrcAction] TODO -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -2164,7 +2197,7 @@ class SetTpDstAction(Action):
                 if (k == 'port'):
                     self.set_tp_dst(v)
                 else:
-                    msg = ("[SetTpDstAction] TBD -> k='%s', v='%s'" % (k, v))
+                    msg = ("[SetTpDstAction] TODO -> k='%s', v='%s'" % (k, v))
                     dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
@@ -2214,7 +2247,9 @@ class PushVlanHeaderAction(Action):
                 if (k == 'ethernet_type'):
                     self.set_eth_type(v)
                 else:
-                    print ("[PushVlanHeaderAction] TBD -> k=%s, v=%s" % (k, v))
+                    msg = ("[PushVlanHeaderAction] TODO -> "
+                           "k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -2293,7 +2328,9 @@ class PushMplsHeaderAction(Action):
                 if (k == 'ethernet_type'):
                     self.set_eth_type(v)
                 else:
-                    print "[PushMplsHeaderAction] TBD -> k=%s, v=%s" % (k, v)
+                    msg = ("[PushMplsHeaderAction] TODO -> "
+                           "k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -2340,7 +2377,9 @@ class PopMplsHeaderAction(Action):
                 if (k == 'ethernet_type'):
                     self.set_eth_type(v)
                 else:
-                    print "[nPopMplsHeaderAction] TBD -> k=%s, v=%s" % (k, v)
+                    msg = ("[PopMplsHeaderAction] TODO -> "
+                           "k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -2382,7 +2421,9 @@ class SetMplsTTLAction(Action):
                 if (k == 'mpls_ttl'):
                     self.set_ttl(v)
                 else:
-                    print ("[PushMplsHeaderAction] TBD -> k=%s, v=%s" % (k, v))
+                    msg = ("[PushMplsHeaderAction] TODO -> "
+                           "k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -2443,7 +2484,8 @@ class SetNwTTLAction(Action):
                 if (k == 'nw_ttl'):
                     self.set_ttl(v)
                 else:
-                    print ("[SetNwTTLAction] TBD -> k=%s, v=%s" % (k, v))
+                    msg = ("[SetNwTTLAction] TODO -> k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -2547,7 +2589,8 @@ class SetQueueAction(Action):
                 elif (k == 'queue_id'):
                     self.set_gueue_id(v)
                 else:
-                    print ("[SetQueueAction] TBD -> k=%s, v=%s" % (k, v))
+                    msg = ("[SetQueueAction] TODO -> k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -2595,7 +2638,8 @@ class GroupAction(Action):
                 elif (k == 'group_id'):
                     self.set_group_id(v)
                 else:
-                    print ("[GroupAction] TBD -> k=%s, v=%s" % (k, v))
+                    msg = ("[GroupAction] TODO -> k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -2677,7 +2721,8 @@ class SetFieldAction(Action):
                 elif (k == 'udp_destination_port'):
                     self.set_field[k] = v
                 else:
-                    print ("[SetFieldAction] TBD -> k=%s, v=%s" % (k, v))
+                    msg = ("[SetFieldAction] TODO -> k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "(dictionary is expected)" % d)
@@ -2910,7 +2955,8 @@ class PushPBBHeaderAction(Action):
                 if (k == 'ethernet_type'):
                     self.set_eth_type(v)
                 else:
-                    print "[PushPBBHeaderAction] TBD -> k=%s, v=%s" % (k, v)
+                    msg = ("[PushPBBHeaderAction] TODO -> k=%s, v=%s" % (k, v))
+                    dbg_print(msg)
         else:
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('dict' is expected)" % d)
@@ -4186,13 +4232,11 @@ class GroupEntry():
 
     def to_ofp_oxm_syntax(self):
         gl = []
-        if (self.group_id):
-            gl.append('group_id=' + str(self.group_id))
-        if (self.group_type):
-            gl.append('type=' + self.group_type.replace('group-', ''))
+        gl.append('group_id=%s' % self.group_id)
+        gl.append('type=%s' % self.group_type.replace('group-', ''))
 
         bl = []
-        buckets = self.buckets['bucket']
+        buckets = self.get_buckets()
         for b in buckets:
             s = b.to_ofp_oxm_syntax()
             bl.append(s)
@@ -4237,15 +4281,12 @@ class GroupEntry():
             raise TypeError("!!!Error, argument '%s' is of a wrong type "
                             "('GroupBucket' instance is expected)" % bucket)
 
+    def _sort_buckets(self, b):
+        return b.get_id()
+
     def get_buckets(self):
-        res = None
-        p = 'buckets'
-        if (hasattr(self, p)):
-            attr = getattr(self, p)
-            p2 = 'bucket'
-            if (isinstance(attr, dict) and p2 in attr):
-                res = attr[p2]
-        return res
+        bl = self.buckets['bucket']
+        return sorted(bl, key=self._sort_buckets)
 
 
 class GroupBucket():
@@ -4295,7 +4336,7 @@ class GroupBucket():
                                 assert(action)
                                 self.add_action(action)
                             else:
-                                msg = ("TBD -> unsupported data type '%s'" %
+                                msg = ("TODO -> unsupported data type '%s'" %
                                        type(a))
                                 dbg_print(msg)
                     elif isinstance(v, dict):
@@ -4303,7 +4344,7 @@ class GroupBucket():
                         assert(action)
                         self.add_action(action)
                     else:
-                        msg = ("TBD -> unsupported data type '%s'" % type(v))
+                        msg = ("TODO -> unsupported data type '%s'" % type(v))
                         dbg_print(msg)
                 else:
                     setattr(self, k, v)
@@ -4332,14 +4373,27 @@ class GroupBucket():
         action = Instruction().create_action_from_dict(d)
         return action
 
-    def to_ofp_oxm_syntax(self):
+    def to_ofp_oxm_syntax(self, skip_garbage=False):
+        """ Controller returns value of 2**32-1 (4294967295)
+            for unassigned counters, 'skip_garbage' flag
+            set True tells to ignore them
+        """
         bl = []
-        if(self.weight):
-            bl.append('weight=' + str(self.weight))
-        if(self.watch_port):
-            bl.append('watch_port=' + str(self.watch_port))
-        if(self.watch_group):
-            bl.append('watch_group=' + str(self.watch_group))
+        v = self.weight
+        if (v):
+            skip = skip_garbage and (v == ((2 ** 32) - 1))
+            if not skip:
+                bl.append('weight=%s' % v)
+        v = self.watch_port
+        if (v):
+            skip = skip_garbage and (v == ((2 ** 32) - 1))
+            if not skip:
+                bl.append('watch_port=%s' % v)
+        v = self.watch_group
+        if (v):
+            skip = skip_garbage and (v == ((2 ** 32) - 1))
+            if not skip:
+                bl.append('watch_group=%s' % v)
 
         al = []
         actions = self.get_actions()
@@ -4359,6 +4413,9 @@ class GroupBucket():
         bl.append(sa)
         s = "bucket={" + ",".join(bl) + "}"
         return s
+
+    def get_id(self):
+        return self.bucket_id
 
     def set_weight(self, weight):
         self.weight = weight
@@ -4383,3 +4440,463 @@ class GroupBucket():
 
     def get_actions(self):
         return self.action
+
+
+class GroupInfo():
+    """ Represents current state of an OpenFlow group entry
+        in the Controller's operational data store.
+        (OpenFlow switch context specific data)
+    """
+    def __attrs__(self):
+        self.group_id = None
+        self.group_type = None
+        self.buckets = {'bucket': []}
+        self.group_desc = None
+        self.group_statistics = None
+
+    def __init__(self, group_info):
+        self.__attrs__()
+        if (isinstance(group_info, dict)):
+            d = dict_keys_dashed_to_underscored(group_info)
+            p1 = 'buckets'
+            p2 = 'opendaylight_group_statistics:group_desc'
+            p3 = 'opendaylight_group_statistics:group_statistics'
+            for k, v in d.items():
+                if (k == p1):
+                    bl = v.get('bucket', [])
+                    for item in bl:
+                        b = GroupBucket(bucket_dict=item)
+                        self.add_bucket(b)
+                elif (k == p2):
+                    self.group_desc = GroupDescription(v)
+                elif (k == p3):
+                    self.group_statistics = GroupStatistics(v)
+                elif (hasattr(self, k)):
+                    setattr(self, k, v)
+                else:
+                    msg = ("TODO -> unexpected attribute '%s'" % k)
+                    dbg_print(msg)
+        else:
+            raise TypeError("[GroupInfo] wrong argument type '%s'"
+                            " (dictionary is expected)" % type(group_info))
+
+    def get_id(self):
+        return self.group_id
+
+    def add_bucket(self, bucket):
+        assert (isinstance(bucket, GroupBucket))
+        self.buckets['bucket'].append(bucket)
+
+    def _sort_buckets(self, b):
+        return b.get_id()
+
+    def get_buckets(self):
+        bl = self.buckets['bucket']
+        return sorted(bl, key=self._sort_buckets)
+
+    def get_description(self):
+        return self.group_desc
+
+    def get_statistics(self):
+        return self.group_statistics
+
+    def to_ofp_oxm_syntax(self):
+        gl = []
+        gl.append('group_id=%s' % self.group_id)
+        gl.append('type=%s' % self.group_type.replace('group-', ''))
+
+        bl = []
+        buckets = self.get_buckets()
+        for b in buckets:
+            s = b.to_ofp_oxm_syntax(skip_garbage=True)
+            bl.append(s)
+
+        s = ",".join(gl + bl)
+        return s
+
+
+class GroupFeatures():
+    """ Represents Group Features of an OpenFlow device
+        (group types, max number of groups for each type,
+        group capabilities and group supported actions).
+    """
+
+    # mapping of group type names to their numerical values
+    # in the OFPGT_* enum
+    group_types = {'group-all': 0, 'group-select': 1,
+                   'group-indirect': 2, 'group-ff': 3}
+    # mapping of group capability names to their bit positions
+    # in the OFPGFC_* bitmap
+    group_capabilities = {'select-weight': 1, 'select-liveness': 2,
+                          'chaining': 4, 'chaining-checks': 8}
+    # mapping of bit positions for OFPAT_* action types to
+    # the corresponding action names
+    actions_bitmap = {
+        0: 'OUTPUT',         # Output to switch port
+        1: 'SET_VLAN_VID',   # Set the 802.1q VLAN id
+        2: 'SET_VLAN_PCP',   # Set the 802.1q priority
+        3: 'STRIP_VLAN',     # Strip the 802.1q header
+        4: 'SET_DL_SRC',     # Ethernet source address
+        5: 'SET_DL_DST',     # Ethernet destination address
+        6: 'SET_NW_SRC',     # IP source address
+        7: 'SET_NW_DST',     # IP destination address/
+        8: 'SET_NW_TOS',     # IP ToS (DSCP field, 6 bits)
+        9: 'SET_TP_SRC',     # TCP/UDP source port
+        10: 'SET_TP_DST',    # TCP/UDP destination port
+        11: 'COPY-TTL-OUT',  # Copy TTL "outwards"
+        12: 'COPY-TTL-IN',   # Copy TTL "inwards"
+        15: 'SET-MPLS-TTL',  # MPLS TTL
+        16: 'DEC-MPLS-TTL',  # Decrement MPLS TTL
+        17: 'PUSH-VLAN',     # Push a new VLAN tag
+        18: 'POP-VLAN',      # Pop the outer VLA
+        19: 'PUSH-MPLS',     # Push a new MPLS tag
+        20: 'POP-MPLS',      # Pop the outer MPLS tag
+        21: 'SET-QUEUE',     # Set queue id when outputting to a port
+        22: 'GROUP',         # Apply group
+        23: 'SET-NW-TTL',    # IP TTL
+        24: 'DEC-NW-TTL',    # Decrement IP TTL
+        25: 'SET-FIELD',     # Set a header field using OXM TLV format
+        26: 'PUSH-PBB',      # Push a new PBB service tag (I-TAG)
+        27: 'POP-PBB'        # Pop the outer PBB service tag (I-TAG)
+    }
+    actions_bitmap_size = 28
+
+    def __init__(self, features):
+        if (isinstance(features, dict)):
+            d = dict_keys_dashed_to_underscored(features)
+            for k, v in d.items():
+                setattr(self, k, v)
+        else:
+            raise TypeError("[GroupFeatures] wrong argument type '%s'"
+                            " (dictionary is expected)" % type(features))
+
+    def _sort_key_capabilities(self, var):
+        return self.group_capabilities.get(var.lower())
+
+    def _sort_key_types(self, var):
+        return self.group_types.get(var.lower())
+
+    def get_max_groups(self):
+        """ The 'max_groups' field is the maximum number of groups
+            for each type of group.
+        """
+        res = None
+        p = 'max_groups'
+        if hasattr(self, p):
+            res = self.max_groups
+        return res
+
+    def get_capabilities(self):
+        """ The 'capabilities' field uses a combination of the
+            following flags:
+               OFPGFC_SELECT_WEIGHT   - Support weight for select groups
+               OFPGFC_SELECT_LIVENESS - Support liveness for select groups
+               OFPGFC_CHAINING        - Support chaining groups
+               OFPGFC_CHAINING_CHECKS - Check chaining for loops and delete
+        """
+        res = None
+        p1 = 'group_capabilities_supported'
+        if hasattr(self, p1):
+            l = self.group_capabilities_supported
+            p2 = 'opendaylight-group-types:'
+            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper()
+                  for i in l]
+            res = sorted(l1, key=self._sort_key_capabilities)
+        return res
+
+    def get_types(self):
+        """ The 'types' field is a bitmap of group types supported
+            by the switch.
+        """
+        res = None
+        p1 = 'group_types_supported'
+        if hasattr(self, p1):
+            l = self.group_types_supported
+            p2 = 'opendaylight-group-types:'
+            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper()
+                  for i in l]
+            res = sorted(l1, key=self._sort_key_types)
+        return res
+
+    def get_actions(self):
+        """ The 'actions' field is a set of bitmaps of actions supported
+            by each group type. The first bitmap applies to the OFPGT_ALL
+            group type. The bitmask uses the values from ofp_action_type
+            as the number of bits to shift left for an associated action.
+            For example, OFPAT_OUTPUT would use the mask 0x00000001
+        """
+        res = []
+        p = 'actions'
+        if hasattr(self, p):
+            bitmap_list = self.actions
+            for bitmap in bitmap_list:
+                names = self._action_bitmap_to_names(bitmap)
+                res.append(names)
+
+        return res
+
+    def _action_bitmap_to_names(self, bitmap):
+        names = []
+        for i in range(0, self.actions_bitmap_size):
+            if ((1 << i) & bitmap):
+                # print "i=%2d, act=%s" % (i, group_action_types.get(i))
+                name = self.actions_bitmap.get(i)
+                if name:
+                    names.append(name)
+
+        return names
+
+
+class GroupStatistics():
+    """ Statistics data for an OpenFlow Group """
+
+    def __attrs__(self):
+        self.group_id = None
+        self.ref_count = None
+        self.packet_count = None
+        self.byte_count = None
+        self.duration = {'second': None, 'nanosecond': None}
+        self.buckets = {'bucket_counter': []}
+
+    def __init__(self, stats):
+        self.__attrs__()
+        if (isinstance(stats, dict)):
+            d = dict_keys_dashed_to_underscored(stats)
+            for k, v in d.items():
+                if (k == 'buckets'):
+                    bl = v.get('bucket_counter')
+                    for item in bl:
+                        bc = BucketCounter(item)
+                        self.buckets['bucket_counter'].append(bc)
+                elif (hasattr(self, k)):
+                    setattr(self, k, v)
+                else:
+                    msg = ("TODO -> unexpected attribute '%s'" % k)
+                    dbg_print(msg)
+        else:
+            raise TypeError("[GroupStatistics] wrong argument type '%s'"
+                            " (dictionary is expected)" % type(stats))
+
+    def to_json(self):
+        """ Return this object as JSON """
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
+    def to_yang_json(self, strip=False):
+        s = self.to_json()
+        # Convert all 'underscored' keywords to 'dash-separated' form used
+        # by ODL YANG models naming conventions
+        s = s.replace('_', '-')
+        if strip:
+            # ignore unassigned ("empty") attributes
+            d1 = json.loads(s)
+            d2 = strip_none(d1)
+            s = json.dumps(d2, sort_keys=True, indent=4)
+
+        return s
+
+    def get_group_id(self):
+        return self.group_id
+
+    def get_duration(self):
+        s = self.duration['second']
+        ns = self.duration['nanosecond']
+        res = float(s * 1000000000 + ns) / 1000000000
+        return res
+
+    def add_bucket(self, bucket):
+        assert (isinstance(bucket, BucketCounter))
+        self.buckets['bucket_counter'].append(bucket)
+
+    def _sort_buckets(self, b):
+        return b.get_id()
+
+    def get_buckets(self):
+        bl = self.buckets['bucket_counter']
+        return sorted(bl, key=self._sort_buckets)
+
+    def to_ofp_oxm_syntax(self):
+        gl = []
+        gl.append('group_id=%s' % self.group_id)
+        gl.append('ref_count=%s' % self.ref_count)
+        gl.append('packet_count=%s' % self.packet_count)
+        gl.append('byte_count=%s' % self.byte_count)
+        gl.append('duration=%s' % self.get_duration())
+
+        bl = []
+        buckets = self.get_buckets()
+        for b in buckets:
+            s = b.to_ofp_oxm_syntax()
+            bl.append(s)
+
+        s = ",".join(gl + bl)
+        return s
+
+
+class BucketCounter():
+    """ Group Buckets statistics data.
+        Helper class of the GroupStatistics class.
+    """
+
+    def __attrs__(self):
+        self.bucket_id = None
+        self.packet_count = None
+        self.byte_count = None
+
+    def __init__(self, d):
+        self.__attrs__()
+        if (isinstance(d, dict)):
+            d = dict_keys_dashed_to_underscored(d)
+            for k, v in d.items():
+                if (hasattr(self, k)):
+                    setattr(self, k, v)
+                else:
+                    msg = ("TODO -> unexpected attribute '%s'" % k)
+                    dbg_print(msg)
+        else:
+            raise TypeError("[BucketCounter] wrong argument type '%s'"
+                            " (dictionary is expected)" % type(d))
+
+    def get_id(self):
+        return self.bucket_id
+
+    def to_ofp_oxm_syntax(self):
+        bl = []
+        bl.append('packet_count=%s' % self.packet_count)
+        bl.append('byte_count=%s' % self.byte_count)
+        s = "bucket={" + ",".join(bl) + "}"
+        return s
+
+
+class GroupDescription():
+    """ Description of an OpenFlow Group. """
+
+    def __attrs__(self):
+        self.group_id = None
+        self.group_type = None
+        self.buckets = {'bucket': []}
+
+    def __init__(self, stats):
+        self.__attrs__()
+        if (isinstance(stats, dict)):
+            d = dict_keys_dashed_to_underscored(stats)
+            for k, v in d.items():
+                if (k == 'buckets'):
+                    bl = v.get('bucket')
+                    for item in bl:
+                        b = GroupBucket(bucket_dict=item)
+                        self.add_bucket(b)
+                elif (hasattr(self, k)):
+                    setattr(self, k, v)
+                else:
+                    msg = ("TODO -> unexpected attribute '%s'" % k)
+                    dbg_print(msg)
+        else:
+            raise TypeError("[GroupDescription] wrong argument type '%s'"
+                            " (dictionary is expected)" % type(stats))
+
+    def to_json(self):
+        """ Return this object as JSON """
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
+    def to_yang_json(self, strip=False):
+        s = self.to_json()
+        # Convert all 'underscored' keywords to 'dash-separated' form used
+        # by ODL YANG models naming conventions
+        s = s.replace('_', '-')
+        if strip:
+            # ignore unassigned ("empty") attributes
+            d1 = json.loads(s)
+            d2 = strip_none(d1)
+            s = json.dumps(d2, sort_keys=True, indent=4)
+
+        return s
+
+    def get_id(self):
+        return self.group_id
+
+    def add_bucket(self, bucket):
+        assert (isinstance(bucket, GroupBucket))
+        self.buckets['bucket'].append(bucket)
+
+    def _sort_buckets(self, b):
+        return b.get_id()
+
+    def get_buckets(self):
+        bl = self.buckets['bucket']
+        return sorted(bl, key=self._sort_buckets)
+
+    def to_ofp_oxm_syntax(self):
+        gl = []
+        gl.append('group_id=%s' % self.group_id)
+        gl.append('type=%s' % self.group_type.replace('group-', ''))
+
+        bl = []
+        buckets = self.get_buckets()
+        for b in buckets:
+            s = b.to_ofp_oxm_syntax(skip_garbage=True)
+            bl.append(s)
+
+        s = ",".join(gl + bl)
+        return s
+
+
+class QueueStats():
+    """ Queue statistics for a port """
+
+    def __attrs__(self):
+        ''' Queue identifier '''
+        self.qid = None
+        ''' Number of transmitted packets '''
+        self.transmitted_packets = None
+        ''' Number of transmitted bytes '''
+        self.transmitted_bytes = None
+        ''' Number of packets dropped due to overrun '''
+        self.transmission_errors = None
+        ''' Time queue has been alive '''
+        self.duration = {}
+
+    def __init__(self, queue_id, stats):
+        self.__attrs__()
+        if (isinstance(stats, dict)):
+            self.qid = queue_id
+            d = dict_keys_dashed_to_underscored(stats)
+            for k, v in d.items():
+                if (hasattr(self, k)):
+                    setattr(self, k, v)
+                else:
+                    msg = ("TODO -> unexpected attribute '%s'" % k)
+                    dbg_print(msg)
+        else:
+            raise TypeError("[QueueStats] wrong argument type '%s'"
+                            " (dictionary is expected)" % type(stats))
+
+    def to_json(self):
+        """ Return this object as JSON """
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
+    def queue_id(self):
+        return self.qid
+
+    def tx_pkts(self):
+        return self.transmitted_packets
+
+    def tx_bytes(self):
+        return self.transmitted_bytes
+
+    def tx_errs(self):
+        res = self.transmission_errors
+        # Following statement is a temporary hack.
+        #    For unassigned counter Controller returns value that
+        #    is equal to the upper max range for the 'Counter64'
+        #    IETF integer type
+        res = 0 if res == 18446744073709551615 else res
+        return res
+
+    def time_alive(self):
+        s = self.duration.get('second', 0)
+        ns = self.duration.get('nanosecond', 0)
+        res = float(s * 1000000000 + ns) / 1000000000
+        return res
