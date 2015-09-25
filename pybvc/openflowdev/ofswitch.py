@@ -4381,17 +4381,17 @@ class GroupBucket():
         bl = []
         v = self.weight
         if (v):
-            skip = skip_garbage and (v == (2**32-1))
+            skip = skip_garbage and (v == ((2 ** 32) - 1))
             if not skip:
                 bl.append('weight=%s' % v)
         v = self.watch_port
         if (v):
-            skip = skip_garbage and (v == (2**32-1))
+            skip = skip_garbage and (v == ((2 ** 32) - 1))
             if not skip:
                 bl.append('watch_port=%s' % v)
         v = self.watch_group
         if (v):
-            skip = skip_garbage and (v == (2**32-1))
+            skip = skip_garbage and (v == ((2 ** 32) - 1))
             if not skip:
                 bl.append('watch_group=%s' % v)
 
