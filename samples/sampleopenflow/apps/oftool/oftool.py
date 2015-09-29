@@ -54,7 +54,8 @@ from pybvc.openflowdev.ofswitch import (OFSwitch,
                                         GroupEntry,
                                         GroupFeatures,
                                         GroupDescription,
-                                        GroupStatistics)
+                                        GroupStatistics,
+                                        MeterFeatures)
 from pybvc.controller.topology import Topology, Node
 from pybvc.controller.inventory import (Inventory,
                                         OpenFlowCapableNode,
@@ -863,6 +864,70 @@ class GroupInfo():
         print "[GroupInfo] show_description - TBD"
 
 
+class MeterInfo():
+    """ Methods to retrieve and display OpenFlow meters information """
+
+    def __init__(self, ctrl, switch_id):
+        self.ctrl = ctrl
+        self.switchid = switch_id
+
+    def show_features(self):
+        ofswitch = OFSwitch(self.ctrl, self.switchid)
+        result = ofswitch.get_meter_features(decode_object=True)
+        status = result.get_status()
+        if(status.eq(STATUS.OK)):
+            print "\n".strip()
+            print (" Meter Features - Switch '%s'") % self.switchid
+            print "\n".strip()
+            meter_features = result.get_data()
+            assert(isinstance(meter_features, MeterFeatures))
+
+            s = 'Max meters'
+            v = meter_features.get_max_meters()
+            if v is not None:
+                print "  %s    : %s" % (s, v)
+            else:
+                print "  %s    : %s" % (s, "n/a")
+            s = "Max bands"
+            v = meter_features.get_max_bands()
+            if v is not None:
+                print "  %s     : %s" % (s, v)
+            else:
+                print "  %s    : %s" % (s, "n/a")
+            s = "Max colors"
+            v = meter_features.get_max_colors()
+            if v is not None:
+                print "  %s    : %s" % (s, v)
+            else:
+                print "  %s    : %s" % (s, "n/a")
+
+            q = 4  # number of list items to be in a single output string
+
+            s = 'Band types'
+            alist = meter_features.get_band_types()
+            if alist:
+                chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
+                print "  %s    :" % s,
+                for i in range(0, len(chunks)):
+                    n = 0 if i == 0 else len(s) + 18
+                    print "%s%s" % (" " * n, ", ".join(chunks[i]))
+            else:
+                print "  %s    : %s" % (s, "n/a")
+
+            s = 'Capabilities'
+            alist = meter_features.get_capabilities()
+            if alist:
+                chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
+                print "  %s  :" % s,
+                for i in range(0, len(chunks)):
+                    n = 0 if i == 0 else len(s) + 16
+                    print "%s%s" % (" " * n, ", ".join(chunks[i]))
+            else:
+                print "  %s  : %s" % (s, "n/a")
+
+            print "\n".strip()
+
+
 class OFToolParser(object):
     """ CLI parser and commands executer """
 
@@ -883,6 +948,7 @@ class OFToolParser(object):
                    "\n   show-group      Show OpenFlow groups information"
                    "\n   clear-group     Delete OpenFlow groups"
                    "\n   add-group       Add OpenFlow groups"
+                   "\n   show-meter      Show OpenFlow meters information"
                    "\n"
                    "\n  '%(prog)s help <command>' provides details "
                    "for a specific command"))
@@ -1177,7 +1243,7 @@ class OFToolParser(object):
             "\n\n"
             "Options:\n"
             "  -s, --switch    switch identifier\n"
-            "  --features      capabilities of groups on the switch\n"
+            "  --features      group capabilities of the switch\n"
             "  -g, --group     group identifier (integer)\n"
             "  --config        controller cached groups (default)\n"
             # "  --operational   device operational groups\n"
@@ -1371,6 +1437,53 @@ class OFToolParser(object):
         except(Exception) as e:
             msg = "Error: %s" % repr(e)
             dbg_print(msg)
+
+    def show_meter(self, options):
+        usage_txt = (
+            "%(prog)s show-meter -s=SWITCHID|--switch=SWITCHID\n"
+            "                         [--features]\n"
+            "\n\n"
+            "Show OpenFlow meters information\n\n"
+            "\n\n"
+            "Options:\n"
+            "  -s, --switch    switch identifier\n"
+            "  --features      metering capabilities of the switch\n"
+        )
+
+        parser = argparse.ArgumentParser(
+            prog=self.prog,
+            # description='Show OpenFlow groups information',
+            usage=usage_txt)
+        parser.add_argument('-s', '--switch', metavar="SWITCHID")
+        group1 = parser.add_mutually_exclusive_group()
+        group1.add_argument('--features', action='store_true')
+#        group1.add_argument('--config', action='store_true', default=True)
+#        group1.add_argument('--oper', action='store_true', dest="description")
+#        group1.add_argument('--description', action='store_true')
+#        group1.add_argument('--statistics', action='store_true')
+#        group2 = parser.add_mutually_exclusive_group()
+#        group2.add_argument('--json', action='store_true', default=True)
+#        group2.add_argument('--ofp', action='store_true')
+        parser.add_argument('-U', action="store_true", dest="usage",
+                            help=argparse.SUPPRESS)
+        args = parser.parse_args(options)
+        if(args.usage):
+            parser.print_usage()
+            print "\n".strip()
+            return
+
+        if (args.switch is None):
+            msg = "option -s (or --switch) is required"
+            parser.error(msg)
+
+        print "\n".strip()
+        print " [Controller '%s']" % self.ctrl_cfg.to_string()
+        ctrl = Controller(self.ctrl_cfg.ip_addr, self.ctrl_cfg.tcp_port,
+                          self.ctrl_cfg.admin_name, self.ctrl_cfg.admin_pswd)
+
+        meter = MeterInfo(ctrl, args.switch)
+        if(args.features):
+            meter.show_features()
 
     def help(self, options):
         parser = argparse.ArgumentParser(add_help=False,

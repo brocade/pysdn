@@ -45,7 +45,8 @@ import json
 
 from pybvc.common.utils import dict_keys_dashed_to_underscored
 from pybvc.openflowdev.ofswitch import (GroupFeatures,
-                                        GroupInfo)
+                                        GroupInfo,
+                                        MeterFeatures)
 
 
 class Inventory():
@@ -152,10 +153,12 @@ class OpenFlowCapableNode():
 
     def __init__(self, inv_json=None, inv_dict=None):
         self.ports = []
-        # Group support capabilities of the switch
+        # Group features of the switch
         self.group_features = []
         # Current groups on the switch
         self.groups = []
+        # Metering features of the switch
+        self.meter_features = None
 
         if (inv_json):
             self.__init_from_json__(inv_json)
@@ -172,6 +175,7 @@ class OpenFlowCapableNode():
         p1 = 'node_connector'
         p2 = 'opendaylight_group_statistics:group_features'
         p3 = 'flow_node_inventory:group'
+        p4 = 'opendaylight_meter_statistics:meter_features'
         for k, v in d.items():
             if p1 == k and isinstance(v, list):
                 for p in v:
@@ -183,6 +187,8 @@ class OpenFlowCapableNode():
                 for g in v:
                     of_group = GroupInfo(g)
                     self.groups.append(of_group)
+            elif p4 == k and isinstance(v, dict):
+                self.meter_features = MeterFeatures(v)
             else:
                 setattr(self, k, v)
 
@@ -371,8 +377,13 @@ class OpenFlowCapableNode():
             ids.append(item.get_id())
         return sorted(ids)
 
+    '''
     def get_group(self, group_id):
         return None
+    '''
+
+    def get_meter_features(self):
+        return self.meter_features
 
 
 class OpenFlowPort():

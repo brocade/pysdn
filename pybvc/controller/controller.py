@@ -224,7 +224,8 @@ class Controller():
                     nlist.append(str(node_id))
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -250,7 +251,8 @@ class Controller():
                 p1 = 'node'
                 info = json.loads(resp.content)[p1][0]
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
             finally:
                 status.set_status(STATUS.OK if info else STATUS.DATA_NOT_FOUND,
                                   resp)
@@ -358,7 +360,8 @@ class Controller():
                 else:
                     status.set_status(STATUS.NODE_NOT_FOUND)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -405,7 +408,8 @@ class Controller():
                     nlist.append(str(node_id))
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -474,7 +478,8 @@ class Controller():
                     nlist.append(nd)
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -529,7 +534,8 @@ class Controller():
                         nlist.append(str(node_id))
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -596,7 +602,8 @@ class Controller():
                         nlist.append(nd)
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -642,7 +649,8 @@ class Controller():
                 slist = json.loads(resp.content)[p1][p2]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -703,7 +711,7 @@ class Controller():
                     dbg_print(msg)
                     status.set_status(STATUS.DATA_NOT_FOUND)
             else:
-                msg = "TODO (not implemented content type parser)"
+                msg = "TODO (not implemented content-type parser)"
                 dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
@@ -749,7 +757,8 @@ class Controller():
                 olist = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -794,7 +803,8 @@ class Controller():
                 mlist = json.loads(resp.content.replace('\\\n', ''))[p1][p2]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -842,7 +852,8 @@ class Controller():
                 module = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -890,7 +901,8 @@ class Controller():
                 slist = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -933,7 +945,8 @@ class Controller():
                 slist = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -981,7 +994,8 @@ class Controller():
                 slist = json.loads(resp.content)[p1][p2]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1029,7 +1043,8 @@ class Controller():
                 service = json.loads(resp.content)[p1]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1159,7 +1174,6 @@ class Controller():
         return Result(status, None)
 
     # -------------------------------------------------------------------------
-    # TODO:
     # NOTE: It is unclear which NETCONF node attributes are allowed for dynamic
     #       configuration changes. For now just follow an example that is
     #       published on ODL wiki.
@@ -1265,7 +1279,8 @@ class Controller():
                         nlist.append(item[p3])
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1297,7 +1312,8 @@ class Controller():
                         cnt += item[p3]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1328,7 +1344,8 @@ class Controller():
                     tnames.append(item[p3])
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1361,7 +1378,8 @@ class Controller():
                         break
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1391,7 +1409,8 @@ class Controller():
                 inv_obj = Inventory(inv_json=json.dumps(v))
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1422,7 +1441,8 @@ class Controller():
                 inv_obj = OpenFlowCapableNode(inv_json=json.dumps(v))
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         elif(resp.status_code == 404):
             status.set_status(STATUS.DATA_NOT_FOUND)
@@ -1455,7 +1475,8 @@ class Controller():
                 status.set_status(STATUS.OK)
             except(Exception) as e:
                 print "!!! %s" % e
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1489,7 +1510,8 @@ class Controller():
                         objs.append(NetconfConfigModule(item))
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1520,7 +1542,8 @@ class Controller():
                 cfg_obj = NetconfConfigModule(module[0])
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1553,7 +1576,8 @@ class Controller():
                 stream_name = doc[p1][p2]
                 status.set_status(STATUS.OK)
             except(Exception):
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
@@ -1579,7 +1603,8 @@ class Controller():
                 stream_location = resp.headers[p1]
                 status.set_status(STATUS.OK)
             except:
-                dbg_print("DEBUG: data not found in the received reply")
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)

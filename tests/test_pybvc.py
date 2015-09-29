@@ -183,6 +183,10 @@ class TestOpenFlowSamples(unittest.TestCase):
         from demo43 import of_demo_43
         assert of_demo_43() is None
 
+    def test_of44(self):
+        from demo44 import of_demo_44
+        assert of_demo_44() is None
+
     def test_nc1(self):
         from ctrl_demo1 import nc_demo_1
         assert nc_demo_1() is None
@@ -237,5 +241,11 @@ class TestOpenFlowSamples(unittest.TestCase):
 
 if __name__ == '__main__':
     # unittest.main()
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestOpenFlowSamples)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    try:
+        testCaseClass = TestOpenFlowSamples
+        suite = unittest.TestLoader().loadTestsFromTestCase(testCaseClass)
+        unittest.TextTestRunner(verbosity=2).run(suite)
+    except(KeyboardInterrupt):
+        msg = "\nInterrupted from keyboard, exit\n"
+        sys.stderr.write(msg)
+        sys.stderr.flush()

@@ -44,12 +44,12 @@ import time
 from pybvc.controller.controller import Controller
 from pybvc.controller.inventory import (Inventory,
                                         OpenFlowCapableNode,
-                                        GroupFeatures)
+                                        MeterFeatures)
 from pybvc.common.utils import load_dict_from_file
 from pybvc.common.status import STATUS
 
 
-def of_demo_32():
+def of_demo_44():
     f = "cfg.yml"
     d = {}
     if(load_dict_from_file(f, d) is False):
@@ -69,7 +69,7 @@ def of_demo_32():
     openflow_nodes = []
 
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    print ("<<< Demo 32 Start")
+    print ("<<< Demo 44 Start")
     print ("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     print "\n"
@@ -114,7 +114,7 @@ def of_demo_32():
         print "        {0:<15}  {1:<30}".format(addr, node_id)
 
     print "\n".strip()
-    print ("<<< Get Group Features Information")
+    print ("<<< Get Meter Features Information")
     time.sleep(rundelay)
     for node in openflow_nodes:
         assert(isinstance(node, OpenFlowCapableNode))
@@ -122,24 +122,32 @@ def of_demo_32():
         switch_id = node.get_id()
         print ("        Switch '%s'") % switch_id
         print "\n".strip()
-        group_features = node.get_group_features()
-        assert(isinstance(group_features, GroupFeatures))
+        meter_features = node.get_meter_features()
+        assert(isinstance(meter_features, MeterFeatures))
 
-        q = 2  # number of list items to be in a single chunk (output string)
-
-        s = 'Max groups'
-        alist = group_features.get_max_groups()
-        if alist:
-            chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
-            print "            %s     :" % s,
-            for i in range(0, len(chunks)):
-                n = 0 if i == 0 else len(s) + 19
-                print "%s%s" % (" " * n, ", ".join(map(str, chunks[i])))
+        s = 'Max meters'
+        v = meter_features.get_max_meters()
+        if v is not None:
+            print "            %s    : %s" % (s, v)
         else:
-            print "            %s     : %s" % (s, "n/a")
+            print "            %s    : %s" % (s, "n/a")
+        s = "Max bands"
+        v = meter_features.get_max_bands()
+        if v is not None:
+            print "            %s     : %s" % (s, v)
+        else:
+            print "            %s    : %s" % (s, "n/a")
+        s = "Max colors"
+        v = meter_features.get_max_colors()
+        if v is not None:
+            print "            %s    : %s" % (s, v)
+        else:
+            print "            %s    : %s" % (s, "n/a")
 
-        s = 'Group types'
-        alist = group_features.get_types()
+        q = 4  # number of list items to be in a single chunk (output string)
+
+        s = 'Band types'
+        alist = meter_features.get_band_types()
         if alist:
             chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
             print "            %s    :" % s,
@@ -150,45 +158,15 @@ def of_demo_32():
             print "            %s    : %s" % (s, "n/a")
 
         s = 'Capabilities'
-        alist = group_features.get_capabilities()
+        alist = meter_features.get_capabilities()
         if alist:
             chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
-            print "            %s   :" % s,
+            print "            %s  :" % s,
             for i in range(0, len(chunks)):
-                n = 0 if i == 0 else len(s) + 17
+                n = 0 if i == 0 else len(s) + 16
                 print "%s%s" % (" " * n, ", ".join(chunks[i]))
         else:
-            print "            %s   : %s" % (s, "n/a")
-
-        s = 'Actions'
-        actions = group_features.get_actions()
-        if actions:
-            print "            %s        :" % s,
-            for i, alist in enumerate(actions):
-                n = 0 if i == 0 else len(s) + 12
-                chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
-                for j in range(0, len(chunks)):
-                    n = 0 if i == 0 and j == 0 else len(s) + 22
-                    print "%s%s" % (" " * n, ", ".join(chunks[j]))
-                print "\n".strip()
-        else:
-            print "            %s        : %s" % (s, "n/a")
-
-        print "\n".strip()
-        total_num = node.get_groups_total_num()
-        s = 'Num of groups'
-        print "            %s  : %s" % (s, total_num)
-
-        s = 'Group IDs'
-        alist = node.get_group_ids()
-        if alist:
-            chunks = [alist[x:x + q] for x in xrange(0, len(alist), q)]
-            print "            %s      :" % s,
-            for i in range(0, len(chunks)):
-                n = 0 if i == 0 else len(s) + 13
-                print "%s%s" % (" " * n, ", ".join(map(str, chunks[i])))
-        else:
-            print "            %s      : %s" % (s, "")
+            print "            %s  : %s" % (s, "n/a")
 
     print ("\n")
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
@@ -196,4 +174,4 @@ def of_demo_32():
     print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 if __name__ == "__main__":
-    of_demo_32()
+    of_demo_44()
