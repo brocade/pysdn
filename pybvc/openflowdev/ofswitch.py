@@ -787,8 +787,8 @@ class OFSwitch(OpenflowNode):
 
     def get_group_features(self, decode_object=False):
         """ Retrieve from the Controller's operational data store
-            group features information supported by this OpenFlow
-            switch
+            information about group features supported by the
+            OpenFlow switch
         """
         status = OperStatus()
         group_features = None
@@ -961,6 +961,44 @@ class OFSwitch(OpenflowNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
 
         return Result(status, queue_stats)
+
+    def get_meter_features(self, decode_object=False):
+        """ Retrieve from the Controller's operational data store
+            information about metering features supported by the
+            OpenFlow switch
+        """
+
+        status = OperStatus()
+        meter_features = None
+        templateUrlExt = "/opendaylight-meter-statistics:meter-features"
+        urlext = templateUrlExt
+        ctrl = self.ctrl
+        url = ctrl.get_node_operational_url(self.name)
+        url += urlext
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            p = 'opendaylight-meter-statistics:meter-features'
+            d = json.loads(resp.content).get(p, None)
+            if d:
+                if decode_object:
+                    meter_features = MeterFeatures(d)
+                else:
+                    meter_features = d
+            else:
+                msg = "TODO (unexpected data format in response)"
+                dbg_print(msg)
+            status.set_status(STATUS.OK
+                              if meter_features
+                              else STATUS.DATA_NOT_FOUND)
+        elif (resp.status_code == 404):
+            status.set_status(STATUS.DATA_NOT_FOUND)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        return Result(status, meter_features)
 
 
 class FlowEntry(object):
@@ -4523,12 +4561,11 @@ class GroupFeatures():
 
     # mapping of group type names to their numerical values
     # in the OFPGT_* enum
-    group_types = {'group-all': 0, 'group-select': 1,
-                   'group-indirect': 2, 'group-ff': 3}
+    types_map = {'all': 0, 'select': 1, 'indirect': 2, 'ff': 3}
     # mapping of group capability names to their bit positions
     # in the OFPGFC_* bitmap
-    group_capabilities = {'select-weight': 1, 'select-liveness': 2,
-                          'chaining': 4, 'chaining-checks': 8}
+    capabilities_map = {'select-weight': 1, 'select-liveness': 2,
+                        'chaining': 4, 'chaining-checks': 8}
     # mapping of bit positions for OFPAT_* action types to
     # the corresponding action names
     actions_bitmap = {
@@ -4561,77 +4598,74 @@ class GroupFeatures():
     }
     actions_bitmap_size = 28
 
+    def __attrs(self):
+        ''' Maximum number of groups for each type '''
+        self.max_groups = []
+        ''' Group types:
+               ALL      - All (multicast/broadcast) group
+               SELECT   - Select group
+               INDIRECT - Indirect group
+               FF       - Fast failover group
+        '''
+        self.group_types_supported = []
+        ''' Group capabilities:
+               SELECT_WEIGHT   - Support weight for select groups
+               SELECT_LIVENESS - Support liveness for select groups
+               CHAINING        - Support chaining groups
+               CHAINING_CHECKS - Check chaining for loops and delete
+        '''
+        self.group_capabilities_supported = []
+        ''' Set of bitmaps of actions supported by each group type.
+            The first bitmap applies to the OFPGT_AL group type.
+            The bitmask uses the values from ofp_action_type
+            as the number of bits to shift left for an associated action.
+            For example, OFPAT_OUTPUT would use the mask 0x00000001
+        '''
+        self.actions = []
+
     def __init__(self, features):
+        self.__attrs()
         if (isinstance(features, dict)):
             d = dict_keys_dashed_to_underscored(features)
             for k, v in d.items():
-                setattr(self, k, v)
+                if(hasattr(self, k)):
+                    setattr(self, k, v)
+                else:
+                    msg = ("TODO -> unexpected attribute '%s'" % k)
+                    dbg_print(msg)
         else:
             raise TypeError("[GroupFeatures] wrong argument type '%s'"
                             " (dictionary is expected)" % type(features))
 
     def _sort_key_capabilities(self, var):
-        return self.group_capabilities.get(var.lower())
+        return self.capabilities_map.get(var.lower())
 
     def _sort_key_types(self, var):
-        return self.group_types.get(var.lower())
+        return self.types_map.get(var.lower())
 
     def get_max_groups(self):
-        """ The 'max_groups' field is the maximum number of groups
-            for each type of group.
-        """
-        res = None
-        p = 'max_groups'
-        if hasattr(self, p):
-            res = self.max_groups
-        return res
+        return self.max_groups
 
     def get_capabilities(self):
-        """ The 'capabilities' field uses a combination of the
-            following flags:
-               OFPGFC_SELECT_WEIGHT   - Support weight for select groups
-               OFPGFC_SELECT_LIVENESS - Support liveness for select groups
-               OFPGFC_CHAINING        - Support chaining groups
-               OFPGFC_CHAINING_CHECKS - Check chaining for loops and delete
-        """
-        res = None
-        p1 = 'group_capabilities_supported'
-        if hasattr(self, p1):
-            l = self.group_capabilities_supported
-            p2 = 'opendaylight-group-types:'
-            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper()
-                  for i in l]
-            res = sorted(l1, key=self._sort_key_capabilities)
+        l = self.group_capabilities_supported
+        p = 'opendaylight-group-types:'
+        l1 = [i.encode('ascii', 'ignore').replace(p, '').upper() for i in l]
+        res = sorted(l1, key=self._sort_key_capabilities)
         return res
 
     def get_types(self):
-        """ The 'types' field is a bitmap of group types supported
-            by the switch.
-        """
-        res = None
-        p1 = 'group_types_supported'
-        if hasattr(self, p1):
-            l = self.group_types_supported
-            p2 = 'opendaylight-group-types:'
-            l1 = [i.encode('ascii', 'ignore').replace(p2, '').upper()
-                  for i in l]
-            res = sorted(l1, key=self._sort_key_types)
+        l = self.group_types_supported
+        p = 'opendaylight-group-types:' + 'group-'
+        l1 = [i.encode('ascii', 'ignore').replace(p, '').upper() for i in l]
+        res = sorted(l1, key=self._sort_key_types)
         return res
 
     def get_actions(self):
-        """ The 'actions' field is a set of bitmaps of actions supported
-            by each group type. The first bitmap applies to the OFPGT_ALL
-            group type. The bitmask uses the values from ofp_action_type
-            as the number of bits to shift left for an associated action.
-            For example, OFPAT_OUTPUT would use the mask 0x00000001
-        """
         res = []
-        p = 'actions'
-        if hasattr(self, p):
-            bitmap_list = self.actions
-            for bitmap in bitmap_list:
-                names = self._action_bitmap_to_names(bitmap)
-                res.append(names)
+        bitmap_list = self.actions
+        for bitmap in bitmap_list:
+            names = self._action_bitmap_to_names(bitmap)
+            res.append(names)
 
         return res
 
@@ -4899,4 +4933,79 @@ class QueueStats():
         s = self.duration.get('second', 0)
         ns = self.duration.get('nanosecond', 0)
         res = float(s * 1000000000 + ns) / 1000000000
+        return res
+
+
+class MeterFeatures():
+    """ Represents Metering Features of an OpenFlow device. """
+
+    # mapping of meter band type names to their numerical values
+    # in the OFPMT_* enum
+    types_map = {'drop': 1, 'dscp-remark': 2, 'experimenter': 65535}
+    # mapping of meter capability names to their bit positions
+    # in the OFPMF_* bitmap
+    capabilities_map = {'kbps': 1, 'pktps': 2, 'burst': 4, 'stats': 8}
+
+    def __attrs(self):
+        ''' Maximum number of meters. '''
+        self.max_meter = None
+        ''' Maximum bands per meters. '''
+        self.max_bands = None
+        ''' Maximum color value. '''
+        self.max_color = None
+        ''' Metering band types:
+                drop         - Drop packet
+                dscp_remark  - Remark DSCP in the IP header
+                experimenter - Experimenter meter band
+         '''
+        self.meter_band_supported = []
+        ''' Metering capabilities:
+                kbps  - Rate value in kb/s (kilo-bit per second)
+                pktps - Rate value in packet/sec
+                burst - Do burst size
+                stats - Collect statistics
+         '''
+        self.meter_capabilities_supported = []
+
+    def __init__(self, features):
+        self.__attrs()
+        if (isinstance(features, dict)):
+            d = dict_keys_dashed_to_underscored(features)
+            for k, v in d.items():
+                if(hasattr(self, k)):
+                    setattr(self, k, v)
+                else:
+                    msg = ("TODO -> unexpected attribute '%s'" % k)
+                    dbg_print(msg)
+        else:
+            raise TypeError("[MeterFeatures] wrong argument type '%s'"
+                            " (dictionary is expected)" % type(features))
+
+    def _sort_key_capabilities(self, var):
+        return self.capabilities_map.get(var.lower())
+
+    def _sort_key_types(self, var):
+        return self.types_map.get(var.lower())
+
+    def get_max_meters(self):
+        return self.max_meter
+
+    def get_max_bands(self):
+        return self.max_bands
+
+    def get_max_colors(self):
+        return self.max_color
+
+    def get_band_types(self):
+        p = "opendaylight-meter-types:" + "meter-band-"
+        l = self.meter_band_supported
+        l1 = [i.encode('ascii', 'ignore').replace(p, '').upper() for i in l]
+        res = sorted(l1, key=self._sort_key_types)
+        return res
+
+    def get_capabilities(self):
+        p = "opendaylight-meter-types:" + "meter-"
+        l = self.meter_capabilities_supported
+        l1 = [i.encode('ascii', 'ignore').replace(p, '').upper() for i in l]
+        res = sorted(l1, key=self._sort_key_capabilities)
         return res
