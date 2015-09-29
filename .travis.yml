@@ -3,10 +3,11 @@ python:
   - "2.7"
 # command to install dependencies
 install:
+  -  pip install .
   -  pip install -r requirements.txt --use-mirrors
   -  pip install flake8
   -  pip install mock
 # command to run tests
 script:
  - flake8 --ignore=E501,E265,E714 --count --show-source pybvc
- - cd tests; python unit_test_controller.py
+ - cd tests && python unit_test_controller.py
