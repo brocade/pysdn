@@ -54,6 +54,7 @@ ctrlPswd: "password"
 # NETCONF device
 # (It is expected by the scripts that the device is not accessible
 #  on the network when this configuration is used)
+
 nodeName: "fake-device"
 nodeIpAddr: "203.0.113.11"
 nodePortNum: 830
