@@ -4598,7 +4598,7 @@ class GroupFeatures():
     }
     actions_bitmap_size = 28
 
-    def __attrs(self):
+    def __attrs__(self):
         ''' Maximum number of groups for each type '''
         self.max_groups = []
         ''' Group types:
@@ -4624,7 +4624,7 @@ class GroupFeatures():
         self.actions = []
 
     def __init__(self, features):
-        self.__attrs()
+        self.__attrs__()
         if (isinstance(features, dict)):
             d = dict_keys_dashed_to_underscored(features)
             for k, v in d.items():
@@ -4946,7 +4946,7 @@ class MeterFeatures():
     # in the OFPMF_* bitmap
     capabilities_map = {'kbps': 1, 'pktps': 2, 'burst': 4, 'stats': 8}
 
-    def __attrs(self):
+    def __attrs__(self):
         ''' Maximum number of meters. '''
         self.max_meter = None
         ''' Maximum bands per meters. '''
@@ -4968,7 +4968,7 @@ class MeterFeatures():
         self.meter_capabilities_supported = []
 
     def __init__(self, features):
-        self.__attrs()
+        self.__attrs__()
         if (isinstance(features, dict)):
             d = dict_keys_dashed_to_underscored(features)
             for k, v in d.items():
