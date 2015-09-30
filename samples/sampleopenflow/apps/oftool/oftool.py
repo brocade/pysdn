@@ -1456,7 +1456,7 @@ class OFToolParser(object):
             usage=usage_txt)
         parser.add_argument('-s', '--switch', metavar="SWITCHID")
         group1 = parser.add_mutually_exclusive_group()
-        group1.add_argument('--features', action='store_true')
+        group1.add_argument('--features', action='store_true', default=True)
 #        group1.add_argument('--config', action='store_true', default=True)
 #        group1.add_argument('--oper', action='store_true', dest="description")
 #        group1.add_argument('--description', action='store_true')
