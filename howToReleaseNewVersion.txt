@@ -1,24 +1,7 @@
 When you are ready to release a new version of pybvc then follow these steps.
 
-COPY FROM DEVELOPMENT REPOSITORY:
----------------------------------
-1.  Update the development repository (git pull in elbrys/pydevodl)
-2.  Update the release repository (git pull in brcd/pybvc)
-3.5 Copy pybvc/__init__.py to someplace safe
-3.  Remove contents of the pybvc folder in release repository (everything but __init__.py)
-4.  Copy the framework folder contents from development to release:
-        cp -r elbrys/pydevodl/framework/* brcd/pybvc
-              NOTE the paths will need to be changed to match your setup
-4.5 Copy __init__.py from step 3.5 back
-5.  In the brcd/pybvc folder do a global search and replace:  find 'pybvc.' and replace with 'pybvc.'
-6.  Run the copyright check perl script as follows and verify that no source files show error (missing copyright):
-        cd pybvc
-        perl b00-copyright.t
-
-
 UPDATE VERSION:
 ---------------
-In master branch of brcdcom/pybvc
 1.  Update VERSION in the file pybvc/__init__.py
     - X.Y.Z
 	- Increment Z when you fix something
@@ -31,6 +14,7 @@ PUSH TO GITHUB:
 git add .
 git commit -m "Update to version <version>"
 git push
+go to github/<your repository> and do a pull request
 
 UPDATE DOCS:
 ------------
@@ -52,7 +36,6 @@ Describe Release:  bullet list of major changes.  Example markdown:
 
 UPDATE PyPi
 -----------
-In master branch:
 In the file pybvc/__init.py__ make sure it has the contents:
 __title__ = 'pybvc'
 __version__ = '1.2.0'
