@@ -1,5 +1,6 @@
 # pybvc [![Build Status](https://travis-ci.org/BRCDcomm/pybvc.svg?branch=master)](https://travis-ci.org/BRCDcomm/pybvc)
-Python library and samples to program your network via the Brocade SDN Controller (OpenDaylight)
+Python library and samples to program your network via the Brocade SDN Controller (OpenDaylight).  It has been 
+tested with version 2.0.1 of Brocade SDN Controller.
 
 ## Other Brocade SDN Controller Libraries
 * rubybvc - Ruby gem for Brocade SDN Controller (OpenDaylight):  https://github.com/BRCDcomm/rubybvc
@@ -50,12 +51,19 @@ pip show pybvc
 ```
 
 ## Sample Applications:
-There are many sample applications demonstrating the use of the pybvc library with controller and netconf devices.  You do need to install pybvc for the samples to work.
+There are many sample applications demonstrating the use of the pybvc library with controller and netconf devices.  You do need to install pybvc library for the samples to work (see above). 
    - To install samples:
 
      ```bash
-     git clone https://github.com/brcdcomm/pybvcsamples.git
+     git clone https://github.com/BRCDcomm/pybvc.git
      ```
+
+   - To get to samples:
+
+     ```bash
+     cd pybvc/samples
+     ```
+
    - See a list of samples with descriptions:
    	- [Sample Applications](https://github.com/BRCDcomm/pybvc/blob/master/samples/SampleAppDocs.md)
 
@@ -67,9 +75,6 @@ There are many sample applications demonstrating the use of the pybvc library wi
 ## Contribute:
 If you want to contribute to this project, fantastic!  Any contribution is welcome: bug fix, new samples, additions to pybvc library, documentation, etc.  Please check out our CONTRIBUTE.md file for how to do this:
    - [Contribute](https://github.com/BRCDcomm/pybvc/blob/master/CONTRIBUTE.md)
-
-## Twitter:
-If you use twitter, then follow [@jebpublic](http://twitter.com/intent/user?screen_name=jebpublic).  This is where announcements about updates are sent.
 
 ## Example 1:  Add and remove firewall on Vyatta vrouter5600 via Brocade SDN Controller:
 
