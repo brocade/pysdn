@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    pybvc.netconfdev.vdx
     pybvc.netconfdev.vrouter
 
 Module contents
