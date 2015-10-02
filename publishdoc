@@ -1,16 +1,16 @@
 branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
 echo $branch
-if [ "$branch" != "master" ]
+if [ "$branch" != "master-docs" ]
 then
-   echo "You can only run this script from the master branch"
+   echo "You can only run this script from the master-docs branch"
 else
    rm ../pydevDocsForGhPagesBranch.zip
    zip -r ../pydevDocsForGhPagesBranch.zip docs/build/html/*
-   git checkout gh-pages
+   git checkout gh-pages-docs
    branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
-   if [ "$branch" != "gh-pages" ]
+   if [ "$branch" != "gh-pages-docs" ]
    then
-      echo "Unable to checkout the gh-pages branch, perhaps you have uncommitted changes on master?  Aborting..."
+      echo "Unable to checkout the gh-pages-docs branch, perhaps you have uncommitted changes on master?  Aborting..."
    else
       unzip ../pydevDocsForGhPagesBranch.zip
       cp -r docs/build/html/* .
