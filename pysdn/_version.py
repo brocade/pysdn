@@ -36,8 +36,8 @@ def get_config():
     cfg = VersioneerConfig()
     cfg.VCS = "git"
     cfg.style = "pep440"
-    cfg.tag_prefix = "pysdn-"
-    cfg.parentdir_prefix = "pysdn-"
+    cfg.tag_prefix = ""
+    cfg.parentdir_prefix = ""
     cfg.versionfile_source = "pysdn/_version.py"
     cfg.verbose = False
     return cfg
