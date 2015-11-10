@@ -1,4 +1,4 @@
-# pysdn [![Build Status](https://travis-ci.org/BRCDcomm/pysdn.svg?branch=master)](https://travis-ci.org/BRCDcomm/pysdn)
+# pysdn [![Build Status](https://travis-ci.org/brocade/pysdn.svg?branch=master)](https://travis-ci.org/brocade/pysdn)
 Python library and samples to program your network via the Brocade SDN Controller (OpenDaylight).  It has been 
 tested with version 2.0.1 of Brocade SDN Controller.
 
@@ -55,7 +55,7 @@ There are many sample applications demonstrating the use of the pysdn library wi
    - To install samples:
 
      ```bash
-     git clone https://github.com/BRCDcomm/pysdn.git
+     git clone https://github.com/brocade/pysdn.git
      ```
 
    - To get to samples:
@@ -65,16 +65,16 @@ There are many sample applications demonstrating the use of the pysdn library wi
      ```
 
    - See a list of samples with descriptions:
-   	- [Sample Applications](https://github.com/BRCDcomm/pysdn/blob/master/samples/SampleAppDocs.md)
+   	- [Sample Applications](https://github.com/brocade/pysdn/blob/master/samples/SampleAppDocs.md)
 
 ## Documentation:
-   - [Introduction Video](http://brcdcomm.github.io/BVC/jekyll/update/devops/netdev/appdev/2015/03/01/restconf-app-2.html)
-   - [Programmer's Reference](http://brcdcomm.github.io/pysdn/)
-   - [Sample Applications](https://github.com/BRCDcomm/pysdn/blob/master/samples/SampleAppDocs.md)
+   - [Introduction Video](http://brocade.github.io/BVC/jekyll/update/devops/netdev/appdev/2015/03/01/restconf-app-2.html)
+   - [Programmer's Reference](http://brocade.github.io/pysdn/)
+   - [Sample Applications](https://github.com/brocade/pysdn/blob/master/samples/SampleAppDocs.md)
 
 ## Contribute:
 If you want to contribute to this project, fantastic!  Any contribution is welcome: bug fix, new samples, additions to pysdn library, documentation, etc.  Please check out our CONTRIBUTE.md file for how to do this:
-   - [Contribute](https://github.com/BRCDcomm/pysdn/blob/master/CONTRIBUTE.md)
+   - [Contribute](https://github.com/brocade/pysdn/blob/master/CONTRIBUTE.md)
 
 ## Example 1:  Add and remove firewall on Vyatta vrouter5600 via Brocade SDN Controller:
 

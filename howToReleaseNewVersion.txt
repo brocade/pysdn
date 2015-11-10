@@ -18,7 +18,7 @@ See howToUpdateDocs.txt
 
 CREATE VERSION ON GITHUB:
 -------------------------
-Go to:  https://github.com/brcdcomm/pysdn
+Go to:  https://github.com/brocade/pysdn
 Click the ‘Release’ link near top
 Click ‘Draft New Release’
 Tag version:  x.y.z  (e.g. 1.0.4)
@@ -34,7 +34,7 @@ UPDATE PyPi
 In the file pysdn/__init.py__ make sure it has the contents:
 __title__ = 'pysdn'
 __version__ = '1.2.0'
-__author__ = 'Sergei Garbuzov'
+__author__ = 'Tom Nadeau'
 __license__ = 'BSD'
 __copyright__ = 'Brocade Communications'
 

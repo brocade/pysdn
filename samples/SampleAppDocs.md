@@ -2,11 +2,11 @@
 Sample applications demonstrating use of [pysdn](https://github.com/BRCDcomm/pysdn) (a python support library for Brocade Vyatta Controller) to monitor/configure network via Brocade Vyatta Controller (BVC).
 
 ## Pre-requisites:
-* [pysdn](https://github.com/BRCDcomm/pysdn)
+* [pysdn](https://github.com/brocade/pysdn)
 
 ## Installation
 ```bash
-git clone https://github.com/BRCDcomm/pysdn.git
+git clone https://github.com/brocade/pysdn.git
 cd pysdn
 cd samples
 ```
