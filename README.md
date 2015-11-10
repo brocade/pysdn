@@ -1,4 +1,4 @@
-# pybvc [![Build Status](https://travis-ci.org/BRCDcomm/pybvc.svg?branch=master)](https://travis-ci.org/BRCDcomm/pybvc)
+# pysdn [![Build Status](https://travis-ci.org/BRCDcomm/pysdn.svg?branch=master)](https://travis-ci.org/BRCDcomm/pysdn)
 Python library and samples to program your network via the Brocade SDN Controller (OpenDaylight).  It has been 
 tested with version 2.0.1 of Brocade SDN Controller.
 
@@ -37,53 +37,53 @@ tested with version 2.0.1 of Brocade SDN Controller.
 
 ## Installation:
 ```bash
-sudo pip install pybvc
+sudo pip install pysdn
 ```
 
 ## Upgrade:
 ```bash
-sudo pip install pybvc --upgrade
+sudo pip install pysdn --upgrade
 ```
 
 ## Check installed version:
 ```bash
-pip show pybvc
+pip show pysdn
 ```
 
 ## Sample Applications:
-There are many sample applications demonstrating the use of the pybvc library with controller and netconf devices.  You do need to install pybvc library for the samples to work (see above). 
+There are many sample applications demonstrating the use of the pysdn library with controller and netconf devices.  You do need to install pysdn library for the samples to work (see above). 
    - To install samples:
 
      ```bash
-     git clone https://github.com/BRCDcomm/pybvc.git
+     git clone https://github.com/BRCDcomm/pysdn.git
      ```
 
    - To get to samples:
 
      ```bash
-     cd pybvc/samples
+     cd pysdn/samples
      ```
 
    - See a list of samples with descriptions:
-   	- [Sample Applications](https://github.com/BRCDcomm/pybvc/blob/master/samples/SampleAppDocs.md)
+   	- [Sample Applications](https://github.com/BRCDcomm/pysdn/blob/master/samples/SampleAppDocs.md)
 
 ## Documentation:
    - [Introduction Video](http://brcdcomm.github.io/BVC/jekyll/update/devops/netdev/appdev/2015/03/01/restconf-app-2.html)
-   - [Programmer's Reference](http://brcdcomm.github.io/pybvc/)
-   - [Sample Applications](https://github.com/BRCDcomm/pybvc/blob/master/samples/SampleAppDocs.md)
+   - [Programmer's Reference](http://brcdcomm.github.io/pysdn/)
+   - [Sample Applications](https://github.com/BRCDcomm/pysdn/blob/master/samples/SampleAppDocs.md)
 
 ## Contribute:
-If you want to contribute to this project, fantastic!  Any contribution is welcome: bug fix, new samples, additions to pybvc library, documentation, etc.  Please check out our CONTRIBUTE.md file for how to do this:
-   - [Contribute](https://github.com/BRCDcomm/pybvc/blob/master/CONTRIBUTE.md)
+If you want to contribute to this project, fantastic!  Any contribution is welcome: bug fix, new samples, additions to pysdn library, documentation, etc.  Please check out our CONTRIBUTE.md file for how to do this:
+   - [Contribute](https://github.com/BRCDcomm/pysdn/blob/master/CONTRIBUTE.md)
 
 ## Example 1:  Add and remove firewall on Vyatta vrouter5600 via Brocade SDN Controller:
 
 ```python
-import pybvc
+import pysdn
 
-from pybvc.netconfdev.vrouter.vrouter5600 import VRouter5600, Firewall, Rules, Rule
-from pybvc.common.status import STATUS
-from pybvc.controller.controller import Controller
+from pysdn.netconfdev.vrouter.vrouter5600 import VRouter5600, Firewall, Rules, Rule
+from pysdn.common.status import STATUS
+from pysdn.controller.controller import Controller
 
 print (">>> Create Brocade SDN  controller instance")
 ctrl = Controller("172.22.18.186", "8181" , "admin" , "admin") 
@@ -139,18 +139,18 @@ result = vrouter.delete_firewall_instance(firewall2)
 ```python
 import time
 import json
-import pybvc
+import pysdn
 
 
-from pybvc.controller.controller import Controller
-from pybvc.openflowdev.ofswitch import OFSwitch
-from pybvc.openflowdev.ofswitch import FlowEntry
-from pybvc.openflowdev.ofswitch import Instruction
-from pybvc.openflowdev.ofswitch import DropAction
-from pybvc.openflowdev.ofswitch import Match
+from pysdn.controller.controller import Controller
+from pysdn.openflowdev.ofswitch import OFSwitch
+from pysdn.openflowdev.ofswitch import FlowEntry
+from pysdn.openflowdev.ofswitch import Instruction
+from pysdn.openflowdev.ofswitch import DropAction
+from pysdn.openflowdev.ofswitch import Match
 
-from pybvc.common.status import STATUS
-from pybvc.common.utils import load_dict_from_file
+from pysdn.common.status import STATUS
+from pysdn.common.utils import load_dict_from_file
 
 ctrl = Controller("192.168.56.101", "8181", "admin", "admin")
 node = "openflow:1" # (name:DPID)

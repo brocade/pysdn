@@ -43,8 +43,8 @@ inventory.py: Controller's inventory parser
 import re
 import json
 
-from pybvc.common.utils import dict_keys_dashed_to_underscored
-from pybvc.openflowdev.ofswitch import (GroupFeatures,
+from pysdn.common.utils import dict_keys_dashed_to_underscored
+from pysdn.openflowdev.ofswitch import (GroupFeatures,
                                         GroupInfo,
                                         MeterFeatures)
 

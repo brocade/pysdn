@@ -1,53 +1,53 @@
-pybvc.controller package
+pysdn.controller package
 ========================
 
 Submodules
 ----------
 
-pybvc.controller.controller module
+pysdn.controller.controller module
 ----------------------------------
 
-.. automodule:: pybvc.controller.controller
+.. automodule:: pysdn.controller.controller
     :members:
     :undoc-members:
     :show-inheritance:
 
-pybvc.controller.inventory module
+pysdn.controller.inventory module
 ---------------------------------
 
-.. automodule:: pybvc.controller.inventory
+.. automodule:: pysdn.controller.inventory
     :members:
     :undoc-members:
     :show-inheritance:
 
-pybvc.controller.netconfnode module
+pysdn.controller.netconfnode module
 -----------------------------------
 
-.. automodule:: pybvc.controller.netconfnode
+.. automodule:: pysdn.controller.netconfnode
     :members:
     :undoc-members:
     :show-inheritance:
 
-pybvc.controller.notification module
+pysdn.controller.notification module
 ------------------------------------
 
-.. automodule:: pybvc.controller.notification
+.. automodule:: pysdn.controller.notification
     :members:
     :undoc-members:
     :show-inheritance:
 
-pybvc.controller.openflownode module
+pysdn.controller.openflownode module
 ------------------------------------
 
-.. automodule:: pybvc.controller.openflownode
+.. automodule:: pysdn.controller.openflownode
     :members:
     :undoc-members:
     :show-inheritance:
 
-pybvc.controller.topology module
+pysdn.controller.topology module
 --------------------------------
 
-.. automodule:: pybvc.controller.topology
+.. automodule:: pysdn.controller.topology
     :members:
     :undoc-members:
     :show-inheritance:
@@ -56,7 +56,7 @@ pybvc.controller.topology module
 Module contents
 ---------------
 
-.. automodule:: pybvc.controller
+.. automodule:: pysdn.controller
     :members:
     :undoc-members:
     :show-inheritance:

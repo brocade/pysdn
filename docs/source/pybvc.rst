@@ -1,4 +1,4 @@
-pybvc package
+pysdn package
 =============
 
 Subpackages
@@ -6,15 +6,15 @@ Subpackages
 
 .. toctree::
 
-    pybvc.common
-    pybvc.controller
-    pybvc.netconfdev
-    pybvc.openflowdev
+    pysdn.common
+    pysdn.controller
+    pysdn.netconfdev
+    pysdn.openflowdev
 
 Module contents
 ---------------
 
-.. automodule:: pybvc
+.. automodule:: pysdn
     :members:
     :undoc-members:
     :show-inheritance:

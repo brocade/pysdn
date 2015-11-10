@@ -1,21 +1,23 @@
+import versioneer
 from setuptools import setup
-import pybvc
+import pysdn
 
 setup(
-    name='pybvc',
-    version=pybvc.__version__,
+    name='pysdn',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='A python library for programming your network via the Brocade Vyatta Controller (BVC)',
     long_description=open('README.rst').read(),
     author='Elbrys Networks',
     author_email='jeb@elbrys.com',
-    url='https://github.com/brcdcomm/pybvc',
-    packages=['pybvc',
-              'pybvc.common',
-              'pybvc.controller',
-              'pybvc.netconfdev',
-              'pybvc.netconfdev.vrouter',
-              'pybvc.netconfdev.vdx',
-              'pybvc.openflowdev'
+    url='https://github.com/brcdcomm/pysdn',
+    packages=['pysdn',
+              'pysdn.common',
+              'pysdn.controller',
+              'pysdn.netconfdev',
+              'pysdn.netconfdev.vrouter',
+              'pysdn.netconfdev.vdx',
+              'pysdn.openflowdev'
               ],
     install_requires=['requests>=1.0.0',
                       'PyYAML',

@@ -1,37 +1,37 @@
-pybvc.common package
+pysdn.common package
 ====================
 
 Submodules
 ----------
 
-pybvc.common.constants module
+pysdn.common.constants module
 -----------------------------
 
-.. automodule:: pybvc.common.constants
+.. automodule:: pysdn.common.constants
     :members:
     :undoc-members:
     :show-inheritance:
 
-pybvc.common.result module
+pysdn.common.result module
 --------------------------
 
-.. automodule:: pybvc.common.result
+.. automodule:: pysdn.common.result
     :members:
     :undoc-members:
     :show-inheritance:
 
-pybvc.common.status module
+pysdn.common.status module
 --------------------------
 
-.. automodule:: pybvc.common.status
+.. automodule:: pysdn.common.status
     :members:
     :undoc-members:
     :show-inheritance:
 
-pybvc.common.utils module
+pysdn.common.utils module
 -------------------------
 
-.. automodule:: pybvc.common.utils
+.. automodule:: pysdn.common.utils
     :members:
     :undoc-members:
     :show-inheritance:
@@ -40,7 +40,7 @@ pybvc.common.utils module
 Module contents
 ---------------
 
-.. automodule:: pybvc.common
+.. automodule:: pysdn.common
     :members:
     :undoc-members:
     :show-inheritance:

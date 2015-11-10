@@ -1,13 +1,8 @@
-When you are ready to release a new version of pybvc then follow these steps.
+When you are ready to release a new version of pysdn then follow these steps.
 
 UPDATE VERSION:
 ---------------
-1.  Update VERSION in the file pybvc/__init__.py
-    - X.Y.Z
-	- Increment Z when you fix something
-	- Increment Y when you add a new feature
-	- Increment X when you break backwards-compatibility or add major features
-2.  Update 'version' and 'release' in file docs/source/conf.py
+Handled by versioneer
 
 PUSH TO GITHUB:
 ---------------
@@ -23,7 +18,7 @@ See howToUpdateDocs.txt
 
 CREATE VERSION ON GITHUB:
 -------------------------
-Go to:  https://github.com/brcdcomm/pybvc
+Go to:  https://github.com/brcdcomm/pysdn
 Click the ‘Release’ link near top
 Click ‘Draft New Release’
 Tag version:  x.y.z  (e.g. 1.0.4)
@@ -36,8 +31,8 @@ Describe Release:  bullet list of major changes.  Example markdown:
 
 UPDATE PyPi
 -----------
-In the file pybvc/__init.py__ make sure it has the contents:
-__title__ = 'pybvc'
+In the file pysdn/__init.py__ make sure it has the contents:
+__title__ = 'pysdn'
 __version__ = '1.2.0'
 __author__ = 'Sergei Garbuzov'
 __license__ = 'BSD'

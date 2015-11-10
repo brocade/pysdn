@@ -46,13 +46,13 @@ import requests
 
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError, Timeout
-from pybvc.common.result import Result
-from pybvc.common.status import OperStatus, STATUS
-from pybvc.common.utils import (find_key_values_in_dict,
+from pysdn.common.result import Result
+from pysdn.common.status import OperStatus, STATUS
+from pysdn.common.utils import (find_key_values_in_dict,
                                 dbg_print,
                                 find_key_value_in_dict)
-from pybvc.controller.topology import Topology
-from pybvc.controller.inventory import (Inventory,
+from pysdn.controller.topology import Topology
+from pysdn.controller.inventory import (Inventory,
                                         OpenFlowCapableNode,
                                         NetconfCapableNode,
                                         NetconfConfigModule)
@@ -267,7 +267,7 @@ class Controller():
         :param string nodeId: Identifier for the node for which to get
                               the config status
         :return: Configuration status of the node.
-        :rtype: None or :class:`pybvc.common.status.OperStatus`
+        :rtype: None or :class:`pysdn.common.status.OperStatus`
 
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded
@@ -300,7 +300,7 @@ class Controller():
         :param string nodeId: Identifier for the node for which to get
                               the config status
         :return: Status of the node's connection to the controller.
-        :rtype: None or :class:`pybvc.common.status.OperStatus`
+        :rtype: None or :class:`pysdn.common.status.OperStatus`
 
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded
@@ -373,7 +373,7 @@ class Controller():
 
         :return: Status, list of nodes in the config data store
                  of the controller
-        :rtype: :class:`pybvc.common.status.OperStatus`, list
+        :rtype: :class:`pysdn.common.status.OperStatus`, list
 
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
@@ -422,7 +422,7 @@ class Controller():
 
         :return: Status, list of nodes the status of their
                  connection to the controller
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                  list of dict [{node:<node id>, connected:<boolean>},...]
 
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
@@ -492,7 +492,7 @@ class Controller():
 
         :return: Status, list of nodes in the config data store
                  of the controller
-        :rtype: :class:`pybvc.common.status.OperStatus`, list
+        :rtype: :class:`pysdn.common.status.OperStatus`, list
 
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
@@ -548,7 +548,7 @@ class Controller():
 
         :return: Status, list of nodes the status of their connection
                  to the controller
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                  list of dict [{node:<node id>, connected:<boolean>},...]
 
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
@@ -615,7 +615,7 @@ class Controller():
 
         :param string nodeName: Name of the node
         :return: Status, list of YANG schemas for the node.
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                 JSON listing information about the YANG schemas for the node
 
         - STATUS.CONN_ERROR: If the controller did not respond. List is empty.
@@ -664,7 +664,7 @@ class Controller():
         :param string schemaId: Id of the schema
         :param string schemaVersion: Version of the schema
         :return: Status, YANG schema.
-        :rtype: :class:`pybvc.common.status.OperStatus`, YANG schema
+        :rtype: :class:`pysdn.common.status.OperStatus`, YANG schema
 
         - STATUS.CONN_ERROR: If the controller did not respond. schema is
           empty.
@@ -724,7 +724,7 @@ class Controller():
 
         :param string nodeName: Name of the node
         :return: A tuple:  Status, operations supported by indicated node.
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                 JSON listing the operations
 
         - STATUS.CONN_ERROR: If the controller did not respond.
@@ -769,7 +769,7 @@ class Controller():
         """Return a list of configuration modules.
 
         :return: Status, configuration modules.
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                 JSON listing modules and their operational state
 
         - STATUS.CONN_ERROR: If the controller did not respond.
@@ -817,7 +817,7 @@ class Controller():
         :param string moduleType: module type
         :param string moduleName: module name
         :return: Status, operational state for specified module.
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                 JSON providing operational state
 
         - STATUS.CONN_ERROR: If the controller did not respond.
@@ -865,7 +865,7 @@ class Controller():
 
         :param string nodeName: Name of the node
         :return: Status, list of sessions for indicated node
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                 JSON providing sessions
 
         - STATUS.CONN_ERROR: If the controller did not respond.
@@ -913,7 +913,7 @@ class Controller():
         """Return streams available for subscription.
 
         :return: Status, list of streams
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                  JSON providing list of streams
 
         - STATUS.CONN_ERROR: If the controller did not respond.
@@ -957,7 +957,7 @@ class Controller():
         """Return a list of service providers available.
 
         :return: Status, list of service providers
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                  JSON providing list of service providers
 
         - STATUS.CONN_ERROR: If the controller did not respond.
@@ -1007,7 +1007,7 @@ class Controller():
 
         :param string name: Name of the provider
         :return: Status, info about the service provider
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                  JSON providing info about the service provider
 
         - STATUS.CONN_ERROR: If the controller did not respond.
@@ -1055,9 +1055,9 @@ class Controller():
         """ Connect a netconf device to the controller
             (for example connect vrouter to controller via NETCONF)
 
-        :param node: :class:`pybvc.controller.netconfnode.NetconfNode`
+        :param node: :class:`pysdn.controller.netconfnode.NetconfNode`
         :return: Status, JSON response from controller.
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                  JSON providing response from adding netconf noed.
 
         - STATUS.CONN_ERROR: If the controller did not respond.
@@ -1140,9 +1140,9 @@ class Controller():
     def delete_netconf_node(self, netconfdev=None, nodename=None):
         """ Disconnect a netconf device from the controller
         :param netconfdev:
-                         :class:`pybvc.controller.netconfnode.NetconfNode`
+                         :class:`pysdn.controller.netconfnode.NetconfNode`
         :return: Status, None.
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                  JSON providing response from adding netconf noed.
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not
@@ -1182,9 +1182,9 @@ class Controller():
         """ Modify connected netconf device's info in the controller
 
         :param netconfdev:
-                         :class:`pybvc.controller.netconfnode.NetconfNode`
+                         :class:`pysdn.controller.netconfnode.NetconfNode`
         :return: Status, None.
-        :rtype: :class:`pybvc.common.status.OperStatus`,
+        :rtype: :class:`pysdn.common.status.OperStatus`,
                  JSON providing response from adding netconf noed.
         - STATUS.CONN_ERROR: If the controller did not respond.
         - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not

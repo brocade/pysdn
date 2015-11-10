@@ -42,11 +42,11 @@
 import time
 import json
 
-from pybvc.controller.controller import Controller
-from pybvc.netconfdev.vrouter.vrouter5600 import VRouter5600
-from pybvc.netconfdev.vrouter.vpn import Vpn
-from pybvc.common.status import STATUS
-from pybvc.common.utils import load_dict_from_file
+from pysdn.controller.controller import Controller
+from pysdn.netconfdev.vrouter.vrouter5600 import VRouter5600
+from pysdn.netconfdev.vrouter.vpn import Vpn
+from pysdn.common.status import STATUS
+from pysdn.common.utils import load_dict_from_file
 
 
 def vr_demo_11():

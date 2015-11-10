@@ -42,9 +42,9 @@ THE POSSIBILITY OF SUCH DAMAGE.
 import sys
 import getopt
 
-from pybvc.controller.controller import Controller
-from pybvc.common.status import STATUS
-from pybvc.common.utils import load_dict_from_file
+from pysdn.controller.controller import Controller
+from pysdn.common.status import STATUS
+from pysdn.common.utils import load_dict_from_file
 
 
 def usage(myname):

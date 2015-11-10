@@ -42,16 +42,16 @@ nos.py: Brocade VDX specific properties and communication methods
 
 import json
 
-from pybvc.controller.netconfnode import NetconfNode
-from pybvc.common.result import Result
-from pybvc.common.status import OperStatus, STATUS
-# from pybvc.netconfdev.vrouter.protocols import StaticRoute
+from pysdn.controller.netconfnode import NetconfNode
+from pysdn.common.result import Result
+from pysdn.common.status import OperStatus, STATUS
+# from pysdn.netconfdev.vrouter.protocols import StaticRoute
 
 
 class NOS(NetconfNode):
     """ Class that represents an instance of NOS
         (NETCONF capable server device).
-        :param ctrl: :class:`pybvc.controller.controller.Controller`
+        :param ctrl: :class:`pysdn.controller.controller.Controller`
         :param string name: The name
         :param string ipAddr: The ip address
         :param int portNum: The port number to communicate NETCONF
@@ -61,7 +61,7 @@ class NOS(NetconfNode):
                                       of the NETCONF communication
         :param boolean tcpOnly:  Use TCP only or not.
         :return: The newly created instance.
-        :rtype: :class:`pybvc.netconfdev.vdx.nos.NOS'
+        :rtype: :class:`pysdn.netconfdev.vdx.nos.NOS'
         """
 
     def __init__(self, ctrl, name, ip_address, port_number, admin_name,

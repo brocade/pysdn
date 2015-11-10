@@ -1,13 +1,13 @@
-pybvc.netconfdev.vdx package
+pysdn.netconfdev.vdx package
 ============================
 
 Submodules
 ----------
 
-pybvc.netconfdev.vdx.nos module
+pysdn.netconfdev.vdx.nos module
 -------------------------------
 
-.. automodule:: pybvc.netconfdev.vdx.nos
+.. automodule:: pysdn.netconfdev.vdx.nos
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ pybvc.netconfdev.vdx.nos module
 Module contents
 ---------------
 
-.. automodule:: pybvc.netconfdev.vdx
+.. automodule:: pysdn.netconfdev.vdx
     :members:
     :undoc-members:
     :show-inheritance:

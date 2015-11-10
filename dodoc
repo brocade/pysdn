@@ -2,8 +2,8 @@ echo ================================
 echo cd docs
 cd docs
 echo ================================
-echo sphinx-apidoc -f -o docs pybvc
-sphinx-apidoc -f -o source/ ../pybvc/
+echo sphinx-apidoc -f -o docs pysdn
+sphinx-apidoc -f -o source/ ../pysdn/
 echo ================================
 echo make html
 make html

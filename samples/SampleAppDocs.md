@@ -1,13 +1,13 @@
-# Sample Applications for PyBVC
-Sample applications demonstrating use of [pybvc](https://github.com/BRCDcomm/pybvc) (a python support library for Brocade Vyatta Controller) to monitor/configure network via Brocade Vyatta Controller (BVC).
+# Sample Applications for pysdn
+Sample applications demonstrating use of [pysdn](https://github.com/BRCDcomm/pysdn) (a python support library for Brocade Vyatta Controller) to monitor/configure network via Brocade Vyatta Controller (BVC).
 
 ## Pre-requisites:
-* [pybvc](https://github.com/BRCDcomm/pybvc)
+* [pysdn](https://github.com/BRCDcomm/pysdn)
 
 ## Installation
 ```bash
-git clone https://github.com/BRCDcomm/pybvc.git
-cd pybvc
+git clone https://github.com/BRCDcomm/pysdn.git
+cd pysdn
 cd samples
 ```
 

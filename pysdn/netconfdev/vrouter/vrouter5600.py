@@ -42,20 +42,20 @@ vrouter5600.py: vRouter-5600 specific properties and communication methods
 
 import json
 
-from pybvc.controller.netconfnode import NetconfNode
-from pybvc.common.result import Result
-from pybvc.common.status import OperStatus, STATUS
-from pybvc.netconfdev.vrouter.vpn import Vpn
-from pybvc.netconfdev.vrouter.interfaces import OpenVpnInterface
-from pybvc.netconfdev.vrouter.protocols import StaticRoute
-from pybvc.netconfdev.vrouter.firewall import (Firewall,
+from pysdn.controller.netconfnode import NetconfNode
+from pysdn.common.result import Result
+from pysdn.common.status import OperStatus, STATUS
+from pysdn.netconfdev.vrouter.vpn import Vpn
+from pysdn.netconfdev.vrouter.interfaces import OpenVpnInterface
+from pysdn.netconfdev.vrouter.protocols import StaticRoute
+from pysdn.netconfdev.vrouter.firewall import (Firewall,
                                                DataplaneInterfaceFirewall)
 
 
 class VRouter5600(NetconfNode):
     """ Class that represents an instance of vRouter5600
         (NETCONF capable server device).
-         :param ctrl: :class:`pybvc.controller.controller.Controller`
+         :param ctrl: :class:`pysdn.controller.controller.Controller`
         :param string name: The name of the vrouter5600
         :param string ipAddr: The ip address for the vrouter5600
         :param int portNum: The port number to communicate NETCONF
@@ -66,7 +66,7 @@ class VRouter5600(NetconfNode):
                                       of the NETCONF communication
         :param boolean tcpOnly:  Use TCP only or not.
         :return: The newly created vrouter5600 instance.
-        :rtype: :class:`pybvc.netconfdev.vrouter.vrouter5600.VRouter5600`
+        :rtype: :class:`pysdn.netconfdev.vrouter.vrouter5600.VRouter5600`
          """
 
     def __init__(self, ctrl, name, ipAddr, portNum, adminName,

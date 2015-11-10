@@ -46,18 +46,18 @@ import yaml
 import argparse
 
 from collections import OrderedDict
-from pybvc.controller.controller import Controller
-from pybvc.common.status import STATUS
-from pybvc.common.utils import dbg_print
-from pybvc.openflowdev.ofswitch import (OFSwitch,
+from pysdn.controller.controller import Controller
+from pysdn.common.status import STATUS
+from pysdn.common.utils import dbg_print
+from pysdn.openflowdev.ofswitch import (OFSwitch,
                                         FlowEntry,
                                         GroupEntry,
                                         GroupFeatures,
                                         GroupDescription,
                                         GroupStatistics,
                                         MeterFeatures)
-from pybvc.controller.topology import Topology, Node
-from pybvc.controller.inventory import (Inventory,
+from pysdn.controller.topology import Topology, Node
+from pysdn.controller.inventory import (Inventory,
                                         OpenFlowCapableNode,
                                         OpenFlowPort)
 

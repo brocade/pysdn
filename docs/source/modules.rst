@@ -1,7 +1,7 @@
-pybvc
+pysdn
 =====
 
 .. toctree::
    :maxdepth: 4
 
-   pybvc
+   pysdn

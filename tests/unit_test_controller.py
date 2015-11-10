@@ -43,9 +43,9 @@ import time
 import json
 import mock
 
-from pybvc.controller.controller import Controller
-from pybvc.common.utils import load_dict_from_file
-from pybvc.common.status import STATUS
+from pysdn.controller.controller import Controller
+from pysdn.common.utils import load_dict_from_file
+from pysdn.common.status import STATUS
 
 
 class ControllerTests(unittest.TestCase):

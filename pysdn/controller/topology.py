@@ -42,7 +42,7 @@ topology.py: Controller's topology parser
 
 import json
 
-from pybvc.common.utils import dict_keys_dashed_to_underscored
+from pysdn.common.utils import dict_keys_dashed_to_underscored
 
 
 class Topology():

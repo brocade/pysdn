@@ -41,8 +41,8 @@
 
 import time
 
-from pybvc.controller.controller import Controller
-from pybvc.openflowdev.ofswitch import (OFSwitch,
+from pysdn.controller.controller import Controller
+from pysdn.openflowdev.ofswitch import (OFSwitch,
                                         FlowEntry,
                                         Match,
                                         Instruction,
@@ -51,9 +51,9 @@ from pybvc.openflowdev.ofswitch import (OFSwitch,
                                         StripVlanAction,
                                         SetFieldAction,
                                         OutputAction)
-from pybvc.common.utils import load_dict_from_file
-from pybvc.common.status import STATUS
-from pybvc.common.constants import ETH_TYPE_IPv4
+from pysdn.common.utils import load_dict_from_file
+from pysdn.common.status import STATUS
+from pysdn.common.constants import ETH_TYPE_IPv4
 
 
 def delete_flows(ofswitch, table_id, flow_ids):

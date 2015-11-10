@@ -1,4 +1,4 @@
-pybvc.netconfdev package
+pysdn.netconfdev package
 ========================
 
 Subpackages
@@ -6,13 +6,13 @@ Subpackages
 
 .. toctree::
 
-    pybvc.netconfdev.vdx
-    pybvc.netconfdev.vrouter
+    pysdn.netconfdev.vdx
+    pysdn.netconfdev.vrouter
 
 Module contents
 ---------------
 
-.. automodule:: pybvc.netconfdev
+.. automodule:: pysdn.netconfdev
     :members:
     :undoc-members:
     :show-inheritance:

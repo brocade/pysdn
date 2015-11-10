@@ -42,10 +42,10 @@
 import time
 
 from websocket import create_connection
-from pybvc.common.status import STATUS
-from pybvc.common.utils import load_dict_from_file
-from pybvc.controller.controller import Controller
-from pybvc.controller.notification import NetworkTopologyChangeNotification
+from pysdn.common.status import STATUS
+from pysdn.common.utils import load_dict_from_file
+from pysdn.controller.controller import Controller
+from pysdn.controller.notification import NetworkTopologyChangeNotification
 
 
 def of_demo_29():

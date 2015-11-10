@@ -1,6 +1,6 @@
 # Contribute
-If you want to contribute source code to pybvc then please read this document, it describes how to
-contribute your code to pybvc.
+If you want to contribute source code to pysdn then please read this document, it describes how to
+contribute your code to pysdn.
 
 ## Why
 Why would you want to contribute source code?
@@ -23,7 +23,7 @@ Typically the answer to this question is, "Hurray!  Yes!  Thank you!  Definitely
 
 ## Legal Stuff:
 When you do your first pull request we will ask you to sign a contributor license agreement (CLA).
-This is to ensure that we can keep pybvc open source for everyone.
+This is to ensure that we can keep pysdn open source for everyone.
 We thought that this StackOverflow answer did a good job describing the reasons for CLA: http://programmers.stackexchange.com/questions/168020/how-signing-out-a-cla-prevents-legal-issues-in-open-source-projects 
 
 ## How do I contribute:

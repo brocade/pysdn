@@ -41,12 +41,12 @@
 
 import time
 
-from pybvc.controller.controller import Controller
-from pybvc.controller.inventory import Inventory
-from pybvc.controller.topology import Topology, Node
+from pysdn.controller.controller import Controller
+from pysdn.controller.inventory import Inventory
+from pysdn.controller.topology import Topology, Node
 
-from pybvc.common.status import STATUS
-from pybvc.common.utils import load_dict_from_file
+from pysdn.common.status import STATUS
+from pysdn.common.utils import load_dict_from_file
 
 
 def of_demo_27():

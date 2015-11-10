@@ -43,7 +43,7 @@ notification.py: Parser for notification events received from Controller
 import os
 import re
 import xmltodict
-from pybvc.common.utils import dbg_print
+from pysdn.common.utils import dbg_print
 
 yang_namespace_to_prefix_map = {
     'urn:opendaylight:inventory': 'inv',

@@ -43,7 +43,7 @@ firewall.py: Firewall specific properties and access methods
 import json
 import urllib2
 
-from pybvc.common.utils import remove_empty_from_dict
+from pysdn.common.utils import remove_empty_from_dict
 
 
 class Firewall():
@@ -85,7 +85,7 @@ class Firewall():
     def add_rule(self, rule):
         """ Add a rule to Firewall.
         :param rule: Rule to be added to Firewall.
-                    :class:`pybvc.netconfdev.vrouter.vrouter5600.Rule`
+                    :class:`pysdn.netconfdev.vrouter.vrouter5600.Rule`
         """
         assert isinstance(rule, Rule)
         self.rule.append(rule)
@@ -93,7 +93,7 @@ class Firewall():
     def get_rules(self):
         """Return the Rules of a Firewall
         :return: Rules of the Firewall
-        :rtype: :class:`pybvc.netconfdev.vrouter.vrouter5600.Rules`
+        :rtype: :class:`pysdn.netconfdev.vrouter.vrouter5600.Rules`
         """
         rules = []
         for item in self.rule:

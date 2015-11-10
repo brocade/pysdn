@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# pybvc documentation build configuration file, created by
+# pysdn documentation build configuration file, created by
 # sphinx-quickstart on Wed Aug  5 08:56:12 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -19,7 +19,7 @@ import shlex
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../../pybvc'))
+sys.path.insert(0, os.path.abspath('../../pysdn'))
 
 # -- General configuration ------------------------------------------------
 
@@ -48,7 +48,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pybvc'
+project = u'pysdn'
 copyright = u'2015, Sergei Garbuzov'
 author = u'Sergei Garbuzov'
 
@@ -202,7 +202,7 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pybvcdoc'
+htmlhelp_basename = 'pysdndoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -224,7 +224,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'pybvc.tex', u'pybvc Documentation',
+  (master_doc, 'pysdn.tex', u'pysdn Documentation',
    u'Sergei Garbuzov', 'manual'),
 ]
 
@@ -254,7 +254,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pybvc', u'pybvc Documentation',
+    (master_doc, 'pysdn', u'pysdn Documentation',
      [author], 1)
 ]
 
@@ -268,8 +268,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'pybvc', u'pybvc Documentation',
-   author, 'pybvc', 'One line description of project.',
+  (master_doc, 'pysdn', u'pysdn Documentation',
+   author, 'pysdn', 'One line description of project.',
    'Miscellaneous'),
 ]
 

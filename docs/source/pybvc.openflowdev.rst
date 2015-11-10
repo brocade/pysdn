@@ -1,13 +1,13 @@
-pybvc.openflowdev package
+pysdn.openflowdev package
 =========================
 
 Submodules
 ----------
 
-pybvc.openflowdev.ofswitch module
+pysdn.openflowdev.ofswitch module
 ---------------------------------
 
-.. automodule:: pybvc.openflowdev.ofswitch
+.. automodule:: pysdn.openflowdev.ofswitch
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ pybvc.openflowdev.ofswitch module
 Module contents
 ---------------
 
-.. automodule:: pybvc.openflowdev
+.. automodule:: pysdn.openflowdev
     :members:
     :undoc-members:
     :show-inheritance:

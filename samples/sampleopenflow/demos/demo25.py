@@ -42,8 +42,8 @@
 import time
 import json
 
-from pybvc.controller.controller import Controller
-from pybvc.openflowdev.ofswitch import (OFSwitch,
+from pysdn.controller.controller import Controller
+from pysdn.openflowdev.ofswitch import (OFSwitch,
                                         FlowEntry,
                                         Instruction,
                                         PushVlanHeaderAction,
@@ -51,9 +51,9 @@ from pybvc.openflowdev.ofswitch import (OFSwitch,
                                         SetFieldAction,
                                         OutputAction,
                                         Match)
-from pybvc.common.status import STATUS
-from pybvc.common.utils import load_dict_from_file
-from pybvc.common.constants import (ETH_TYPE_STAG,
+from pysdn.common.status import STATUS
+from pysdn.common.utils import load_dict_from_file
+from pysdn.common.constants import (ETH_TYPE_STAG,
                                     ETH_TYPE_CTAG,
                                     ETH_TYPE_ARP,
                                     ETH_TYPE_IPv4)

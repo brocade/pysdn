@@ -9,5 +9,5 @@ install:
   -  pip install mock
 # command to run tests
 script:
- - flake8 --ignore=E501,E265,E714 --count --show-source pybvc
+ - flake8 --ignore=E501,E265,E714 --count --show-source pysdn
  - cd tests && python unit_test_controller.py

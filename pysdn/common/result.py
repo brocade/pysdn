@@ -41,7 +41,7 @@ result.py: Result of HTTP communication session (status and data)
 
 """
 
-from pybvc.common.status import OperStatus
+from pysdn.common.status import OperStatus
 
 
 class Result(object):

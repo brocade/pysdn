@@ -45,10 +45,10 @@ import urllib2
 
 from collections import OrderedDict
 
-from pybvc.controller.openflownode import OpenflowNode
-from pybvc.common.result import Result
-from pybvc.common.status import OperStatus, STATUS
-from pybvc.common.utils import (find_key_values_in_dict,
+from pysdn.controller.openflownode import OpenflowNode
+from pysdn.common.result import Result
+from pysdn.common.status import OperStatus, STATUS
+from pysdn.common.utils import (find_key_values_in_dict,
                                 replace_str_value_in_dict,
                                 find_key_value_in_dict,
                                 find_dict_in_list,

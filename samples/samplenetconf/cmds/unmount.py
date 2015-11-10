@@ -39,10 +39,10 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 
-from pybvc.controller.controller import Controller
-from pybvc.controller.netconfnode import NetconfNode
-from pybvc.common.status import STATUS
-from pybvc.common.utils import load_dict_from_file
+from pysdn.controller.controller import Controller
+from pysdn.controller.netconfnode import NetconfNode
+from pysdn.common.status import STATUS
+from pysdn.common.utils import load_dict_from_file
 
 
 if __name__ == "__main__":
