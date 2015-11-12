@@ -16,6 +16,7 @@ setup(
               'pysdn.controller',
               'pysdn.netconfdev',
               'pysdn.netconfdev.vrouter',
+              'pysdn.netconfdev.ovs',
               'pysdn.netconfdev.vdx',
               'pysdn.openflowdev'
               ],

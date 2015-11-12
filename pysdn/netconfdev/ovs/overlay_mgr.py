@@ -1,4 +1,3 @@
-
 # Copyright (c) 2015,  BROCADE COMMUNICATIONS SYSTEMS, INC
 
 # All rights reserved.
@@ -40,18 +39,9 @@ controller.py: BSC Overlay Manager Application's properties and communication me
 
 """
 
-import json
-import xmltodict
-import requests
-
-from requests.auth import HTTPBasicAuth
-from requests.exceptions import ConnectionError, Timeout
-from pybvc.common.result import Result
-from pybvc.common.status import OperStatus, STATUS
-from pybvc.controller.controller import Controller
-from pybvc.common.utils import (find_key_values_in_dict,
-                                dbg_print,
-                                find_key_value_in_dict)
+from pysdn.common.result import Result
+from pysdn.common.status import OperStatus, STATUS
+from pysdn.controller.controller import Controller
 
 
 # Class that represents an Overlay Application running on a Controller instance.
@@ -60,26 +50,27 @@ class Ovrly_mgr(Controller, object):
         super(Ovrly_mgr, self).__init__(ipAddr, portNum, adminName, adminPassword, timeout=5)
 
     def get_ovrl_mgr_hvsr_config_url(self, hvsr_ip, hvr_port):
-        templateUrl = ("http://{}:{}/restconf/config/brocade-app-overlay:devices/device/{}:{}")
+        templateUrl = "http://{}:{}/restconf/config/brocade-app-overlay:devices/device/{}:{}"
         url = templateUrl.format(self.ipAddr, self.portNum, hvsr_ip, hvr_port)
 
         return url
 
     def get_ovrl_mgr_hvsr_oper_url(self, hvsr_ip, hvr_port):
-        templateUrl = ("http://{}:{}/restconf/operational/brocade-app-overlay:devices/device/{}:{}")
+        templateUrl = "http://{}:{}/restconf/operational/brocade-app-overlay:devices/device/{}:{}"
         url = templateUrl.format(self.ipAddr, self.portNum, hvsr_ip, hvr_port)
 
         return url
 
     def get_ovrl_mgr_tunnel_hvsr2hvsr_config_url(self, tunnel_name):
-        templateUrl = ("http://{}:{}/restconf/config/brocade-app-overlay:tunnels/tunnel/{}/")
+        templateUrl = "http://{}:{}/restconf/config/brocade-app-overlay:tunnels/tunnel/{}/"
         url = templateUrl.format(self.ipAddr, self.portNum, tunnel_name)
 
         return url
 
     def get_ovrl_mgr_hvsr_vtep_config_url(self, vtep_hvsr):
-        templateUrl = ("http://{0}:{1}/restconf/config/brocade-app-overlay:devices/device/{2}:{3}/vteps/{4}{5}")
-        url = templateUrl.format(self.ipAddr, self.portNum, vtep_hvsr['hvsrIp'], vtep_hvsr['hvsrPortNum'], vtep_hvsr['vtepName'], vtep_hvsr['hvsrName'])
+        templateUrl = "http://{0}:{1}/restconf/config/brocade-app-overlay:devices/device/{2}:{3}/vteps/{4}{5}"
+        url = templateUrl.format(self.ipAddr, self.portNum, vtep_hvsr['hvsrIp'], vtep_hvsr['hvsrPortNum'],
+                                 vtep_hvsr['vtepName'], vtep_hvsr['hvsrName'])
 
         return url
 
@@ -98,13 +89,15 @@ class Ovrly_mgr(Controller, object):
             - STATUS.CONN_ERROR: If the controller did not respond.
             - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not provide any status.
      """
-    def register_hypervisor(self, hvsr_ip, hvsr_port):
+
+    def register_hypervisor(self, vtep_hvsr):
 
         status = OperStatus()
 
-        url = self.get_ovrl_mgr_hvsr_config_url(hvsr_ip, hvsr_port)
+        url = self.get_ovrl_mgr_hvsr_config_url(vtep_hvsr['hvsrIp'], vtep_hvsr['hvsrPortNum'])
         var = '{{\"device\": [{{\"ip-address\": \"{0}\",\"user-name\": \"\",\"portnumber\": \"{1}\",\"device-type\": \"hypervisor\",\"name\": \"\",\"device-id\": \"{2}:{3}\",\"password\": \"\"}}]}}'
-        payload = var.format(hvsr_ip, hvsr_port, hvsr_ip, hvsr_port)
+        payload = var.format(vtep_hvsr['hvsrIp'], vtep_hvsr['hvsrPortNum'], vtep_hvsr['hvsrIp'],
+                             vtep_hvsr['hvsrPortNum'])
         headers = {"content-type": "application/json", "accept": "application/json"}
 
         print(payload)
@@ -113,17 +106,16 @@ class Ovrly_mgr(Controller, object):
 
         print(resp)
 
-        if(resp is None):
+        if resp is None:
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content is None):
+        elif resp.content is None:
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif(resp.status_code == 200):
+        elif resp.status_code == 200:
             status.set_status(STATUS.NODE_CONFIGURED)
         else:
             status.set_status(STATUS.DATA_NOT_FOUND, resp)
 
         return Result(status, None)
-
 
     """
     ----------------------------
@@ -134,39 +126,37 @@ class Ovrly_mgr(Controller, object):
      :params:
             - hvsr_ip: VTEP hypervisor IP
             - hvsr_port: VTEP hypervisor port
-
      :return: Configuration status of the node.
      :rtype: None or :class:`pybvc.common.status.OperStatus`
             - STATUS.CONN_ERROR: If the controller did not respond.
             - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not provide any status.
      """
-    def get_hypervisor_details(self, hvsr_ip, hvsr_port):
+
+    def get_hypervisor_details(self, vtep_hvsr):
 
         status = OperStatus()
 
-        url = self.get_ovrl_mgr_hvsr_oper_url(hvsr_ip, hvsr_port)
+        url = self.get_ovrl_mgr_hvsr_oper_url(vtep_hvsr['hvsrIp'], vtep_hvsr['hvsrPortNum'])
         payload = None
         headers = {"content-type": "application/json", "accept": "application/json"}
         timeout = None
 
         print(url)
 
-        resp = self.http_get_request(url, payload, headers, timeout )
+        resp = self.http_get_request(url, payload, headers, timeout)
 
         print(resp)
 
-        if(resp is None):
+        if resp is None:
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content is None):
+        elif resp.content is None:
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif(resp.status_code == 200):
+        elif resp.status_code == 200:
             status.set_status(STATUS.NODE_CONFIGURED)
         else:
             status.set_status(STATUS.DATA_NOT_FOUND, resp)
 
         return Result(status, None)
-
-
 
     """
     -------------------
@@ -183,11 +173,12 @@ class Ovrly_mgr(Controller, object):
             - STATUS.CONN_ERROR: If the controller did not respond.
             - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not provide any status.
      """
-    def delete_hypervisor(self, hvsr_ip, hvsr_port):
+
+    def delete_hypervisor(self, vtep_hvsr):
 
         status = OperStatus()
 
-        url = self.get_ovrl_mgr_hvsr_config_url(hvsr_ip, hvsr_port)
+        url = self.get_ovrl_mgr_hvsr_config_url(vtep_hvsr['hvsrIp'], vtep_hvsr['hvsrPortNum'])
         payload = None
         headers = {"content-type": "application/json", "accept": "application/json"}
 
@@ -195,17 +186,16 @@ class Ovrly_mgr(Controller, object):
 
         print(resp)
 
-        if(resp is None):
+        if resp is None:
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content is None):
+        elif resp.content is None:
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif(resp.status_code == 200):
+        elif resp.status_code == 200:
             status.set_status(STATUS.NODE_CONFIGURED)
         else:
             status.set_status(STATUS.DATA_NOT_FOUND, resp)
 
         return Result(status, None)
-
 
     """
     -------------------------------
@@ -235,13 +225,12 @@ class Ovrly_mgr(Controller, object):
             - STATUS.CONN_ERROR: If the controller did not respond.
             - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not provide any status.
      """
+
     def resister_vtep_on_hypervisor(self, vtep_hvsr):
 
         status = OperStatus()
 
         url = self.get_ovrl_mgr_hvsr_vtep_config_url(vtep_hvsr)
-        payload = None
-#        var = '{{\"tunnel\": [{{\"tunnel-name\": \"{0}\",\"vni-id\": \"{1}\",\"tunnel-endpoints\": [{{\"device-id\": \"{2}:{3}\",\"vtep-name\": \"{4}\"}},{{\"device-id/": \"{5}:{6}\",\"vtep-name\": \"{7}\"}}]}}'
         var = '{{\"vteps\": [{{\"name\": \"{0}\",\"ip-address\":\"{1}\",\"configuration\": {{\"brocade-app-overlay-ovs-vtep:switch-name\": \"{2}\"}}}}'
         payload = var.format(vtep_hvsr['vtep_hvsr_name'], vtep_hvsr['hvsrIp'], vtep_hvsr['switchName'])
         headers = {"content-type": "application/json", "accept": "application/json"}
@@ -252,17 +241,16 @@ class Ovrly_mgr(Controller, object):
 
         print(resp)
 
-        if(resp is None):
+        if resp is None:
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content is None):
+        elif resp.content is None:
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif(resp.status_code == 200):
+        elif resp.status_code == 200:
             status.set_status(STATUS.NODE_CONFIGURED)
         else:
             status.set_status(STATUS.DATA_NOT_FOUND, resp)
 
         return Result(status, None)
-
 
     """
     ---------------------------------------
@@ -298,12 +286,12 @@ class Ovrly_mgr(Controller, object):
             - STATUS.CONN_ERROR: If the controller did not respond.
             - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not provide any status.
      """
+
     def create_tunnel_between_two_hypervisors(self, tnl_name, vni_id, vtep_hvsrA, vtep_hvsrB):
 
         status = OperStatus()
 
         url = self.get_ovrl_mgr_tunnel_hvsr2hvsr_config_url(tnl_name)
-        payload = None
 
         var = '{{\"tunnel\": [{{\"tunnel-name\": \"{0}\",\"vni-id\": \"{1}\",\"tunnel-endpoints\": [{{\"device-id\": \"{2}:{3}\",\"vtep-name\": \"{4}\"}},{{\"device-id/": \"{5}:{6}\",\"vtep-name\": \"{7}\"}}]}}'
         payload = var.format(tnl_name, vni_id,
@@ -317,17 +305,16 @@ class Ovrly_mgr(Controller, object):
 
         print(resp)
 
-        if(resp is None):
+        if resp is None:
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content is None):
+        elif resp.content is None:
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif(resp.status_code == 200):
+        elif resp.status_code == 200:
             status.set_status(STATUS.NODE_CONFIGURED)
         else:
             status.set_status(STATUS.DATA_NOT_FOUND, resp)
 
         return Result(status, None)
-
 
     """
     -------------------------------
@@ -347,11 +334,12 @@ class Ovrly_mgr(Controller, object):
             - STATUS.CONN_ERROR: If the controller did not respond.
             - STATUS.CTRL_INTERNAL_ERROR: If the controller responded but did not provide any status.
      """
-    def delete_vtep_from_hypervisor(self, vtep_num, hvsr_num, hvsr_ip, hvsr_port ):
+
+    def delete_vtep_from_hypervisor(self, vtep_hvsr):
 
         status = OperStatus()
 
-        url = self.get_ovrl_mgr_hvsr_vtep_config_url(vtep_num, hvsr_num, hvsr_ip, hvsr_port)
+        url = self.get_ovrl_mgr_hvsr_vtep_config_url(vtep_hvsr)
         payload = None
         headers = {"content-type": "application/json", "accept": "application/json"}
 
@@ -361,14 +349,13 @@ class Ovrly_mgr(Controller, object):
 
         print(resp)
 
-        if(resp is None):
+        if resp is None:
             status.set_status(STATUS.CONN_ERROR)
-        elif(resp.content is None):
+        elif resp.content is None:
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
-        elif(resp.status_code == 200):
+        elif resp.status_code == 200:
             status.set_status(STATUS.NODE_CONFIGURED)
         else:
             status.set_status(STATUS.DATA_NOT_FOUND, resp)
 
         return Result(status, None)
-

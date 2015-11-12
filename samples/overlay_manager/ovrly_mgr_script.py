@@ -1,16 +1,15 @@
+#!/usr/bin/python
 
 
-from pybvc.common.utils import load_dict_from_file
-
-from pybvc.applications.overlay_manager.overlay_mgr import Ovrly_mgr
+from pysdn.common.utils import load_dict_from_file
+from pysdn.netconfdev.ovs.overlay_mgr import Ovrly_mgr
 
 
 
 def read_in_ovrly_cfg():
-
     f = "ovrly_mgr_cfg.yml"
     d = {}
-    if(load_dict_from_file(f, d) is False):
+    if load_dict_from_file(f, d) is False:
         print("Config file '%s' read error: " % f)
         exit()
 
@@ -34,7 +33,7 @@ def read_in_ovrly_cfg():
         vniId_1 = d['vniId_1']
         vniId_2 = d['vniId_2']
     except:
-        print ("Failed to get Controller and Node device attributes from Configuration file %s" %f)
+        print ("Failed to get Controller and Node device attributes from Configuration file %s" % f)
         exit(0)
 
     return d
@@ -73,14 +72,14 @@ if __name__ == "__main__":
     user_input = raw_input("Press any key to register the first Hypervisor: ")
 
     # Register the 1st hypervisor
-    overlay_manager.register_hypervisor(doo['hvsrIp_1'], doo['hvsrPortNum_1'])
+    overlay_manager.register_hypervisor(vtep_hvsrA)
 
     # wait on input
     print "\n"
     user_input = raw_input("Press any key to register the second Hypervisor: ")
 
     # Register the 2nd Hypervisor
-    overlay_manager.register_hypervisor(doo['hvsrIp_2'], doo['hvsrPortNum_2'])
+    overlay_manager.register_hypervisor(vtep_hvsrB)
 
     # wait on input
     print "\n"
@@ -101,32 +100,32 @@ if __name__ == "__main__":
     user_input = raw_input("Press any key to build a tunnel between the VTEP Hypervisors: ")
 
     # Build a tunnel between the VTEP Hypervisors
-    overlay_manager.create_tunnel_between_two_hypervisors( "g2_tunnel", doo['vniId_1'], vtep_hvsrA, vtep_hvsrB)
+    overlay_manager.create_tunnel_between_two_hypervisors("g2_tunnel", doo['vniId_1'], vtep_hvsrA, vtep_hvsrB)
 
     # wait on input
     print "\n"
-    user_input = raw_input("Press any key to build a tunnel between the VTEP Hypervisors: ")
+    user_input = raw_input("Press any key to get first hypervisor details: ")
 
     # View VTEP Hypervisor #1 details
-    overlay_manager.get_hypervisor_details(doo['hvsrIp_1'], doo['hvsrPortNum_1'])
+    overlay_manager.get_hypervisor_details(vtep_hvsrA)
 
     # wait on input
     print "\n"
-    user_input = raw_input("Press any key to build a tunnel between the VTEP Hypervisors: ")
+    user_input = raw_input("Press any key to get second hypervisor details: ")
 
     # View VTEP Hypervisor #2 details
-    overlay_manager.get_hypervisor_details(doo['hvsrIp_2'], doo['hvsrPortNum_2'])
+    overlay_manager.get_hypervisor_details(vtep_hvsrB)
 
     # wait on input
     print "\n"
-    user_input = raw_input("Press any key to build a tunnel between the VTEP Hypervisors: ")
+    user_input = raw_input("Press any key to delete first hypervisor: ")
 
     # Delete VTEP Hypervisor #1
-    overlay_manager.delete_hypervisor(doo['hvsrIp_1'], doo['hvsrPortNum_1'])
+    overlay_manager.delete_hypervisor(vtep_hvsrA)
 
     # wait on input
     print "\n"
-    user_input = raw_input("Press any key to build a tunnel between the VTEP Hypervisors: ")
+    user_input = raw_input("Press any key to delete second hypervisor: ")
 
     # Delete VTEP Hypervisor #2
-    overlay_manager.delete_hypervisor(doo['hvsrIp_2'], doo['hvsrPortNum_2'])
+    overlay_manager.delete_hypervisor(vtep_hvsrB)
