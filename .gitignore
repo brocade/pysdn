@@ -85,4 +85,4 @@ tmp*
 # Logging
 *.log
 
-.idea
+.idea/
