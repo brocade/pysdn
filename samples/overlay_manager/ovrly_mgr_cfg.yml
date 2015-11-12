@@ -1,0 +1,30 @@
+# Set the following parameters according to your local network
+# environment setup (please take a look at NOTE in above)
+
+# Controller
+ctrlIpAddr: 192.168.7.153
+ctrlPortNum: 8181
+ctrlUname: "admin"
+ctrlPswd: "admin"
+ctrlTimeOut: "5"
+
+# Hypervisors
+hvsrIp_1: 192.168.7.151
+hvsrPortNum_1: 16640
+hvsrName_1: "Hypervisor1"
+switchName_1: "Switch1"
+
+hvsrIp_2: 192.168.7.152
+hvsrPortNum_2: 16640
+hvsrName_2: "Hypervisor2"
+switchName_2: "Switch2"
+
+# VTEPs
+vtepName_1: "vtep1"
+vtepName_2: "vtep2"
+
+# VXLAN Identifiers
+vniId_1: 100
+vniId_2: 200
+
+
