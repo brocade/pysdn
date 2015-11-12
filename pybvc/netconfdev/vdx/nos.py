@@ -142,7 +142,7 @@ class NOS(NetconfNode):
         return Result(status, cfg)
 
     def get_interfaces_list(self):
-            """ Get the list of interfaces on the VRouter5600.
+            """ Get the list of interfaces on the VDX.
             :return: A tuple: Status, list of interface names.
             :rtype: instance of the `Result` class
             - STATUS.CONN_ERROR: If the controller did not respond.
