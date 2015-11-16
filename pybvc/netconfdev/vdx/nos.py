@@ -78,6 +78,29 @@ class NOS(NetconfNode):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
                           indent=4)
 
+    def get_portprofile(self):
+        """
+        Return port profiles
+        """
+        status = OperStatus()
+        cfg = None
+        templateModelRef = "brocade-port-profile:port-profile-global"
+        modelref = templateModelRef
+        ctrl = self.ctrl
+        url = ctrl.get_ext_mount_config_url(self.name)
+        url += modelref
+        resp = ctrl.http_get_request(url, data=None, headers=None)
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            cfg = resp.content
+            status.set_status(STATUS.OK)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        return Result(status, cfg)
+
     def get_schemas(self):
         """ Return a list of YANG model schemas implemented
         :return: A tuple: Status, list of YANG model schemas
