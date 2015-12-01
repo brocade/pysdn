@@ -57,6 +57,8 @@ from pysdn.controller.inventory import (Inventory,
                                         NetconfCapableNode,
                                         NetconfConfigModule)
 
+from pybvc.controller.netconfnode import NetconfNode
+
 
 class Controller():
     """ Class that represents a Controller device. """
@@ -365,7 +367,7 @@ class Controller():
                 status.set_status(STATUS.DATA_NOT_FOUND, resp)
         else:
             status.set_status(STATUS.HTTP_ERROR, resp)
-
+        #TODO MAKE THIS BOOLEAN OR CREATE A PREDICATE WRAPPER
         return Result(status, None)
 
     def get_all_nodes_in_config(self):

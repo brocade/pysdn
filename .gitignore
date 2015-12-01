@@ -86,3 +86,4 @@ tmp*
 *.log
 
 .idea/
+*.orig
