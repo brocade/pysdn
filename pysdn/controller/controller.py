@@ -57,7 +57,7 @@ from pysdn.controller.inventory import (Inventory,
                                         NetconfCapableNode,
                                         NetconfConfigModule)
 
-from pybvc.controller.netconfnode import NetconfNode
+from pysdn.controller.netconfnode import NetconfNode
 
 
 class Controller():
