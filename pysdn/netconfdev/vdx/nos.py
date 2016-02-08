@@ -45,7 +45,6 @@ import json
 from pysdn.controller.netconfnode import NetconfNode
 from pysdn.common.result import Result
 from pysdn.common.status import OperStatus, STATUS
-# from pysdn.netconfdev.vrouter.protocols import StaticRoute
 
 
 class NOS(NetconfNode):
@@ -187,7 +186,7 @@ class NOS(NetconfNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, cfg)
 
-    def get_interfaces_list(self):
+    def get_interfaces_list(self,timeout=None):
             """ Get the list of interfaces on the VDX.
             :return: A tuple: Status, list of interface names.
             :rtype: instance of the `Result` class
@@ -199,7 +198,7 @@ class NOS(NetconfNode):
                                  status code.
             """
             ifList = []
-            result = self.get_interfaces_cfg()
+            result = self.get_interfaces_cfg(timeout)
             status = result.get_status()
             if(status.eq(STATUS.OK)):
                 cfg = result.get_data()
@@ -216,8 +215,8 @@ class NOS(NetconfNode):
                                     ifList.append(item[p2])
             return Result(status, ifList)
 
-    def get_interfaces_cfg(self, timeout):
-            """ Return the configuration for the interfaces on the VRouter5600
+    def get_interfaces_cfg(self, timeout=20):
+            """ Return the configuration for the interfaces on VDX
             :return: A tuple: Status, configuration of the interfaces
             :rtype: instance of the `Result` class (containing configuration data)
             - STATUS.CONN_ERROR: If the controller did not respond.
@@ -245,3 +244,56 @@ class NOS(NetconfNode):
             else:
                 status.set_status(STATUS.HTTP_ERROR, resp)
             return Result(status, cfg)
+
+
+    def create_vlan(self, vlanid, timeout=20):
+        """
+        Create VLAN
+        """
+        status = OperStatus()
+        headers = {'content-type': 'application/yang.data+json'}
+        cfg = None
+        templateModelRef = "brocade-interface:interface-vlan/interface"
+        modelref = templateModelRef
+        ctrl = self.ctrl
+        url = ctrl.get_ext_mount_config_url(self.name)
+        url += modelref
+        payload = {"vlan": {"name": vlanid}}
+        resp = ctrl.http_post_request(url, json.dumps(payload), headers=headers, timeout=None)
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            cfg = resp.content
+            status.set_status(STATUS.OK)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        return Result(status, cfg)
+
+    def delete_vlan(self, vlanid):
+        """
+        Create VLAN
+        """
+        status = OperStatus()
+        headers = {'content-type': 'application/yang.data+json'}
+        cfg = None
+        templateModelRef = "brocade-interface:interface-vlan/interface/vlan/{}".format(vlanid)
+        modelref = templateModelRef
+        ctrl = self.ctrl
+        url = ctrl.get_ext_mount_config_url(self.name)
+        url += modelref
+        resp = ctrl.http_delete_request(url, data=None, headers=headers)
+
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            cfg = resp.content
+            status.set_status(STATUS.OK)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        return Result(status, cfg)
+
+

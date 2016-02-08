@@ -57,7 +57,7 @@ from pysdn.controller.inventory import (Inventory,
                                         NetconfCapableNode,
                                         NetconfConfigModule)
 
-from pysdn.controller.netconfnode import NetconfNode
+# from pysdn.netconfnode import NetconfNode
 
 
 class Controller():
@@ -118,7 +118,7 @@ class Controller():
 
         return (resp)
 
-    def http_post_request(self, url, data, headers):
+    def http_post_request(self, url, data, headers,timeout=None):
         """ Sends HTTP POST request to a remote server
             and returns the response.
 
@@ -132,15 +132,16 @@ class Controller():
             <http://docs.python-requests.org/en/latest/api/#requests.Response>
 
         """
-
         resp = None
+        if timeout is None:
+            timeout = self.timeout
 
         try:
             resp = requests.post(url,
                                  auth=HTTPBasicAuth(self.adminName,
                                                     self.adminPassword),
                                  data=data, headers=headers,
-                                 timeout=self.timeout)
+                                 timeout=timeout)
         except (ConnectionError, Timeout) as e:
             print "Error: " + repr(e)
 
@@ -1127,7 +1128,7 @@ class Controller():
         url = templateUrl.format(self.ipAddr, self.portNum)
         headers = {'content-type': 'application/xml',
                    'accept': 'application/xml'}
-        resp = self.http_post_request(url, payload, headers)
+        resp = self.http_post_request(url, payload, headers, timeout=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -1218,7 +1219,7 @@ class Controller():
         headers = {'content-type': 'application/xml',
                    'accept': 'application/xml'}
 
-        resp = self.http_post_request(url, payload, headers)
+        resp = self.http_post_request(url, payload, headers, timeout=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):

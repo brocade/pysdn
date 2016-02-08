@@ -1,0 +1,12 @@
+from pysdn.controller.controller import Controller
+from pysdn.netconfdev.vdx.nos import NOS as nos
+
+c = Controller("localhost", 8181, "admin", "admin")
+n = nos(c, "vdx1", c.ipAddr, c.portNum, c.adminName, c.adminPassword)
+s.get_status().to_string()
+
+n.create_vlan(300).get_status().to_string()
+n.delete_vlan(300).get_status().to_string()
+
+sdncli http -t 100 post config/opendaylight-inventory:nodes/node/vdx1/yang-ext:mount/brocade-interface:interface-vlan/interface  --file test.json
+sdncli http -t 100 get config/opendaylight-inventory:nodes/node/vdx1/yang-ext:mount/brocade-interface:interface-vlan/interface/vlan/300

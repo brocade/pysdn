@@ -1,4 +1,4 @@
 # pydevbvc
-Python framework to work with Brocade Vyatta Controller
+Python framework to work with Brocade SDN Controller
 
 
