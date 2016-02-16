@@ -76,12 +76,9 @@ class Inventory():
             p1 = 'id'
             p2 = 'openflow'
             p3 = 'netconf_node_inventory:initial_capability'
-            filter1 = 'brocade-interface-ext?revision=2014-04-01'
-            filter2 = 'vyatta-interfaces?revision=2014-12-02'
-            filter3 = 'controller:netty:eventexecutor?revision=2013-11-12'
-            devices = [{'clazz': 'NOS', 'filter': filter1},
-                       {'clazz': 'VRouter5600', 'filter': filter2},
-                       {'clazz': 'controller', 'filter': filter3}]
+            devices = [{'clazz': 'NOS', 'filter': 'brocade-interface?revision=2012-04-24'},
+                       {'clazz': 'VRouter5600', 'filter': 'vyatta-interfaces?revision=2014-12-02'},
+                       {'clazz': 'controller', 'filter': 'controller:netty:eventexecutor?revision=2013-11-12'}]
             for item in l:
                 if isinstance(item, dict):
                     d = dict_keys_dashed_to_underscored(item)
@@ -104,6 +101,11 @@ class Inventory():
                                 node = NetconfCapableNode(clazz='unknown',
                                                           inv_dict=d)
                                 self.add_netconf_node(node)
+                    else:
+                        # TODO might be a badly connected node.. Need to compare with config:modules
+                        node = NetconfCapableNode(clazz='unknown', inv_dict=d)
+                        self.add_netconf_node(node)
+
         else:
             raise TypeError("[Inventory] wrong argument type '%s'"
                             " (JSON 'string' is expected)" % type(s))
@@ -614,10 +616,9 @@ class NetconfCapableNode():
         return "%s@%s.yang" % (schema, revision)
 
 
-class NetconfConfigModule():
-    """ Class that represents NETCONF node configuration module
-        on the Controller
-    """
+class NetconfConfigModule(object):
+    ''' Class that represents NETCONF node configuration module
+        on the Controller '''
 
     def __init__(self, d):
         assert(isinstance(d, dict))
