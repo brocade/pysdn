@@ -31,7 +31,6 @@
 
 """
 
-@authors: Sergei Garbuzov, Gary Berger
 @status: Development
 @version: 1.3.1
 
@@ -47,26 +46,11 @@ from pysdn.common.result import Result
 from pysdn.common.status import OperStatus, STATUS
 
 
-class NOS(NetconfNode):
+class NOS(object):
     """ Class that represents an instance of NOS
         (NETCONF capable server device).
-        :param ctrl: :class:`pysdn.controller.controller.Controller`
-        :param string name: The name
-        :param string ipAddr: The ip address
-        :param int portNum: The port number to communicate NETCONF
-        :param string adminName:  The username to authenticate setup
-                                  of the NETCONF communication
-        :param string adminPassword:  The password to authenticate setup
-                                      of the NETCONF communication
-        :param boolean tcpOnly:  Use TCP only or not.
-        :return: The newly created instance.
         :rtype: :class:`pysdn.netconfdev.vdx.nos.NOS'
         """
-
-    def __init__(self, ctrl, name, ip_address, port_number, admin_name,
-                 admin_password, tcp_only=False):
-        NetconfNode.__init__(self, ctrl, name, ip_address, port_number,
-                             admin_name, admin_name, tcp_only)
 
     def to_string(self):
         """ Returns string representation of this object. """
@@ -76,8 +60,8 @@ class NOS(NetconfNode):
         """ Returns JSON representation of this object. """
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
                           indent=4)
-
-    def get_portprofile(self):
+    @staticmethod
+    def get_portprofile(session, name):
         """
         Return port profiles
         """
@@ -85,10 +69,9 @@ class NOS(NetconfNode):
         cfg = None
         templateModelRef = "brocade-port-profile:port-profile-global"
         modelref = templateModelRef
-        ctrl = self.ctrl
-        url = ctrl.get_ext_mount_config_url(self.name)
+        url = session.get_ext_mount_config_url(name)
         url += modelref
-        resp = ctrl.http_get_request(url, data=None, headers=None)
+        resp = session.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -100,7 +83,8 @@ class NOS(NetconfNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, cfg)   
 
-    def get_syslog(self):
+    @staticmethod
+    def get_syslog(session, name):
         """
         Return Syslog Configuration
         """
@@ -108,10 +92,9 @@ class NOS(NetconfNode):
         cfg = None
         templateModelRef = "brocade-ras:logging"
         modelref = templateModelRef
-        ctrl = self.ctrl
-        url = ctrl.get_ext_mount_config_url(self.name)
+        url = session.get_ext_mount_config_url(name)
         url += modelref
-        resp = ctrl.http_get_request(url, data=None, headers=None)
+        resp = session.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -123,7 +106,8 @@ class NOS(NetconfNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, cfg)
 
-    def get_schemas(self):
+    @staticmethod
+    def get_schemas(session, name):
         """ Return a list of YANG model schemas implemented
         :return: A tuple: Status, list of YANG model schemas
         :rtype: instance of the `Result` class (containing JSON listing
@@ -135,11 +119,10 @@ class NOS(NetconfNode):
         - STATUS.HTTP_ERROR: If the controller responded with an error
                             status code.
         """
-        ctrl = self.ctrl
-        myname = self.name
-        return ctrl.get_schemas(myname)
+        return session.get_schemas(name)
 
-    def get_schema(self, schema_id, schema_version):
+    @staticmethod
+    def get_schema(session, name, schema_id, schema_version):
         """Return a YANG model definition for the indicated schema
         :param string schema_id: id of schema
         :param string schema_version: version of the schema
@@ -154,11 +137,10 @@ class NOS(NetconfNode):
         - STATUS.HTTP_ERROR: If the controller responded with an error
                              status code.
         """
-        ctrl = self.ctrl
-        myname = self.name
-        return ctrl.get_schema(myname, schema_id, schema_version)
+        return session.get_schema(name, schema_id, schema_version)
 
-    def get_cfg(self):
+    @staticmethod
+    def get_cfg(session, name):
         """Return configuration
         :return: A tuple: Status, JSON for configuration.
         :rtype: instance of the `Result` class (containing configuration data)
@@ -171,10 +153,8 @@ class NOS(NetconfNode):
         """
         status = OperStatus()
         cfg = None
-        ctrl = self.ctrl
-        myname = self.name
-        url = ctrl.get_ext_mount_config_url(myname)
-        resp = ctrl.http_get_request(url, data=None, headers=None)
+        url = session.get_ext_mount_config_url(name)
+        resp = session.http_get_request(url, data=None, headers=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -186,7 +166,8 @@ class NOS(NetconfNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, cfg)
 
-    def get_interfaces_list(self,timeout=None):
+    @staticmethod
+    def get_interfaces_list(session,timeout=None):
             """ Get the list of interfaces on the VDX.
             :return: A tuple: Status, list of interface names.
             :rtype: instance of the `Result` class
@@ -198,7 +179,7 @@ class NOS(NetconfNode):
                                  status code.
             """
             ifList = []
-            result = self.get_interfaces_cfg(timeout)
+            result = NOS.get_interfaces_cfg(session, timeout)
             status = result.get_status()
             if(status.eq(STATUS.OK)):
                 cfg = result.get_data()
@@ -215,7 +196,8 @@ class NOS(NetconfNode):
                                     ifList.append(item[p2])
             return Result(status, ifList)
 
-    def get_interfaces_cfg(self, timeout=20):
+    @staticmethod
+    def get_interfaces_cfg(session, name, timeout=20):
             """ Return the configuration for the interfaces on VDX
             :return: A tuple: Status, configuration of the interfaces
             :rtype: instance of the `Result` class (containing configuration data)
@@ -230,10 +212,9 @@ class NOS(NetconfNode):
             cfg = None
             templateModelRef = "brocade-interface:interface"
             modelref = templateModelRef
-            ctrl = self.ctrl
-            url = ctrl.get_ext_mount_config_url(self.name)
+            url = session.get_ext_mount_config_url(name)
             url += modelref
-            resp = ctrl.http_get_request(url, data=None, headers=None, timeout=timeout)
+            resp = session.http_get_request(url, data=None, headers=None, timeout=timeout)
             if(resp is None):
                 status.set_status(STATUS.CONN_ERROR)
             elif(resp.content is None):
@@ -245,8 +226,32 @@ class NOS(NetconfNode):
                 status.set_status(STATUS.HTTP_ERROR, resp)
             return Result(status, cfg)
 
+    @staticmethod
+    def get_vlan(session, name, vlanid, timeout=20):
+        """
+        Get VLAN
+        """
+        status = OperStatus()
+        headers = {'content-type': 'application/yang.data+json'}
+        cfg = None
+        templateModelRef = "brocade-interface:interface-vlan/interface/vlan/{}".format(vlanid)
+        modelref = templateModelRef
+        url = session.get_ext_mount_config_url(name)
+        url += modelref
+        resp = session.http_get_request(url, None, headers=headers, timeout=None)
+        if(resp is None):
+            status.set_status(STATUS.CONN_ERROR)
+        elif(resp.content is None):
+            status.set_status(STATUS.CTRL_INTERNAL_ERROR)
+        elif (resp.status_code == 200):
+            cfg = resp.content
+            status.set_status(STATUS.OK)
+        else:
+            status.set_status(STATUS.HTTP_ERROR, resp)
+        return Result(status, cfg)   
 
-    def create_vlan(self, vlanid, timeout=20):
+    @staticmethod
+    def create_vlan(session, name, vlanid, timeout=20):
         """
         Create VLAN
         """
@@ -255,11 +260,10 @@ class NOS(NetconfNode):
         cfg = None
         templateModelRef = "brocade-interface:interface-vlan/interface"
         modelref = templateModelRef
-        ctrl = self.ctrl
-        url = ctrl.get_ext_mount_config_url(self.name)
+        url = session.get_ext_mount_config_url(name)
         url += modelref
         payload = {"vlan": {"name": vlanid}}
-        resp = ctrl.http_post_request(url, json.dumps(payload), headers=headers, timeout=None)
+        resp = session.http_post_request(url, json.dumps(payload), headers=headers, timeout=None)
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)
         elif(resp.content is None):
@@ -271,7 +275,8 @@ class NOS(NetconfNode):
             status.set_status(STATUS.HTTP_ERROR, resp)
         return Result(status, cfg)
 
-    def delete_vlan(self, vlanid):
+    @staticmethod
+    def delete_vlan(session, name, vlanid, timeout=20):
         """
         Create VLAN
         """
@@ -280,10 +285,9 @@ class NOS(NetconfNode):
         cfg = None
         templateModelRef = "brocade-interface:interface-vlan/interface/vlan/{}".format(vlanid)
         modelref = templateModelRef
-        ctrl = self.ctrl
-        url = ctrl.get_ext_mount_config_url(self.name)
+        url = session.get_ext_mount_config_url(name)
         url += modelref
-        resp = ctrl.http_delete_request(url, data=None, headers=headers)
+        resp = session.http_delete_request(url, data=None, headers=headers)
 
         if(resp is None):
             status.set_status(STATUS.CONN_ERROR)

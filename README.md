@@ -200,3 +200,17 @@ flow = result[1]
 print json.dumps(flow, indent=4)
 
  ```
+
+# -- Create/Delete VLAN on NOS
+from pysdn.netconfdev.vdx.nos import NOS as nos
+from pysdn.controller.controller import Controller
+session = Controller("localhost", 8181, "admin", "admin")
+
+nos.get_portprofile(session,"vdx1").get_data()
+
+nos.get_vlan(session, "vdx1", 300).get_data()
+nos.create_vlan(session, "vdx1", 300).get_status().to_string()
+nos.delete_vlan(session, "vdx1", 300).get_status().to_string()
+nos.get_vlan(session, "vdx1", 300).get_data()
+
+
