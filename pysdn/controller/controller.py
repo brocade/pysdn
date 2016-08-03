@@ -629,9 +629,7 @@ class Controller():
 
         status = OperStatus()
         templateUrl = ("http://{}:{}/restconf/operational/"
-                       "opendaylight-inventory:nodes/node/{}/"
-                       "yang-ext:mount/"
-                       "ietf-netconf-monitoring:netconf-state/schemas")
+                       "opendaylight-inventory:nodes/node/{}")
         url = templateUrl.format(self.ipAddr, self.portNum, nodeName)
         slist = None
 
@@ -641,12 +639,8 @@ class Controller():
         elif(resp.content is None):
             status.set_status(STATUS.CTRL_INTERNAL_ERROR)
         elif(resp.status_code == 200):
-            # If format of the response differs from our expectation then
-            # the code in 'except' clause suppose to handle such condition
-            p1 = 'schemas'
-            p2 = 'schema'
             try:
-                slist = json.loads(resp.content)[p1][p2]
+                slist = json.loads(resp.content)['node'][0]['netconf-node-inventory:initial-capability']
                 status.set_status(STATUS.OK)
             except(Exception):
                 msg = "TODO (unexpected data format in response)"
