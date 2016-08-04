@@ -142,7 +142,7 @@ class ControllerTests(unittest.TestCase):
                 self.json_data = json_data
                 self.status_code = status_code
                 self.reason = "_NoRealReason_"
-                self.content = '{"schemas":{"schema":[{"identifier":"threadpool-impl","version":"2013-04-05","format":"ietf-netconf-monitoring:yang","location":["NETCONF"],"namespace\":"urn:opendaylight:params:xml:ns:yang:controller:threadpool:impl"}]}}'
+                self.content = '{"node":[{"id":"controller-config","netconf-node-inventory:connected":true,"netconf-node-inventory:initial-capability":["(urn:ietf:params:xml:ns:yang:ietf-network-topology?revision=2015-06-08)ietf-network-topology","(urn:opendaylight:flow:errors?revision=2013-11-16)flow-errors","(urn:opendaylight:params:xml:ns:yang:topology:pcep?revision=2013-10-24)network-topology-pcep","(urn:opendaylight:params:xml:ns:yang:bgp-message?revision=2013-09-19)bgp-message","(urn:opendaylight:params:xml:ns:yang:netvirt:providers:config?revision=2016-01-09)netvirt-providers-config","(urn:opendaylight:params:xml:ns:yang:controller:netty:timer?revision=2013-11-19)netty-timer"]}]}'
 
         def json(self):
             return self.json_data
@@ -179,7 +179,7 @@ class ControllerTests(unittest.TestCase):
             print ("!!!Demo terminated, reason: %s" % status.brief())
 
         # and verify the results
-        self.assertEquals(str(slist), "[{u'location': [u'NETCONF'], u'identifier': u'threadpool-impl', u'namespace': u'urn:opendaylight:params:xml:ns:yang:controller:threadpool:impl', u'version': u'2013-04-05', u'format': u'ietf-netconf-monitoring:yang'}]")
+        self.assertEquals(str(slist), "[u'(urn:ietf:params:xml:ns:yang:ietf-network-topology?revision=2015-06-08)ietf-network-topology', u'(urn:opendaylight:flow:errors?revision=2013-11-16)flow-errors', u'(urn:opendaylight:params:xml:ns:yang:topology:pcep?revision=2013-10-24)network-topology-pcep', u'(urn:opendaylight:params:xml:ns:yang:bgp-message?revision=2013-09-19)bgp-message', u'(urn:opendaylight:params:xml:ns:yang:netvirt:providers:config?revision=2016-01-09)netvirt-providers-config', u'(urn:opendaylight:params:xml:ns:yang:controller:netty:timer?revision=2013-11-19)netty-timer']")
 
     # This method will be used by the mock to replace requests.get
     def mocked_requests_get_nodes_list(*args, **kwargs):
